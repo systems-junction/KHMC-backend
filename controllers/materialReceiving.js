@@ -1,0 +1,68 @@
+/* eslint-disable prefer-const */
+const ErrorResponse = require('../utils/errorResponse');
+const asyncHandler = require('../middleware/async');
+const Vendor = require('../models/vendor');
+const PurchaseRequest = require('../models/purchaseRequest');
+const PurchaseOrder = require('../models/purchaseOrder');
+const MaterialReceiving = require('../models/materialReceiving');
+
+exports.getMaterialReceivings = asyncHandler(async (req, res) => {
+    const materialReceivings = await MaterialReceiving.find().populate('vendorId').populate('prId').populate('poId');
+    const vendors = await Vendor.find();
+    const purchaseRequests = await PurchaseRequest.find();
+    const purchaseOrders = await PurchaseOrder.find();
+    const statues = [{key:'to_do', value:'To Do'},{key:'in_progress', value:'In Progress'},{key:'approved', value:'Approved'} ]
+    const data = {
+        materialReceivings,
+        vendors,
+        statues,
+        purchaseRequests,
+        purchaseOrders
+    }
+    
+    res.status(200).json({ success: true, data: data });
+});
+
+exports.addMaterialReceiving = asyncHandler(async (req, res) => {
+    const { itemCode, itemName, prId, poId, vendorId, status, poSentDate } = req.body;
+    const materialReceiving = await MaterialReceiving.create({
+        itemCode,
+        itemName,
+        prId,
+        poId,
+        vendorId,
+        status,
+        poSentDate
+    });
+
+    res.status(200).json({ success: true, data: materialReceiving });
+});
+
+exports.deleteMaterialReceiving = asyncHandler(async (req, res, next) => {
+    const { _id } = req.params;
+    const materialReceiving = await MaterialReceiving.findById(_id);
+    if(!materialReceiving) {
+        return next(
+        new ErrorResponse(`Material receiving not found with id of ${_id}`, 404)
+        );
+    }
+
+    await MaterialReceiving.deleteOne({_id: _id});
+
+    res.status(200).json({ success: true, data: {} });
+});
+
+exports.updateMaterialReceiving = asyncHandler(async (req, res, next) => {
+    const { _id } = req.body;
+
+    let materialReceiving = await MaterialReceiving.findById(_id);
+
+    if(!materialReceiving) {
+        return next(
+        new ErrorResponse(`Material receiving not found with id of ${_id}`, 404)
+        );
+    }
+
+    materialReceiving = await MaterialReceiving.updateOne({_id: _id}, req.body);
+    res.status(200).json({ success: true, data: materialReceiving });
+});
