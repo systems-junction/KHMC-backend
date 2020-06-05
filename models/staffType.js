@@ -1,42 +1,33 @@
 const mongoose = require('mongoose');
 
-const staffTypeSchema = new mongoose.Schema({
-    uuid: {
-        type: String
-    },
+const staffTypeSchema = new mongoose.Schema(
+  {
     type: {
-        type: String,
-        required: [true, 'Please add type']
+      type: String,
+      required: [true, 'Please add type'],
     },
     description: {
-        type: String,
-        required: [true, 'Please add description']
+      type: String,
+      required: [true, 'Please add description'],
     },
-    accessLevel: {
-        type: String,
-        required: [true, 'Please add access level']
+    accessLevelId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'accessLevel',
+      required: [true, 'Please select Access Level'],
     },
     status: {
-        type: String,
-        required: [true, 'Please add status']
+      type: String,
+      required: [true, 'Please add status'],
     },
-    createdBySystemAdminStaffId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'systemAdmin',
-        required: [true, 'Please select System admin']
+    systemAdminId: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'systemAdminSJ',
+      required: [true, 'Please select System admin'],
     },
-    timeStamp: {
-        type: Date,
-        default: Date.now
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
 module.exports = mongoose.model('staffType', staffTypeSchema);

@@ -2,8 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const bodyparser = require('body-parser');
 const cors = require('cors');
-const WebSocketServer = require("websocket").server;
-const cron = require("node-cron");
+const WebSocketServer = require('websocket').server;
+const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 
@@ -37,13 +37,11 @@ const purchaseOrder = require('./routes/purchaseOrder');
 const receiveItem = require('./routes/receiveItem');
 const materialReceiving = require('./routes/materialReceiving');
 const shippingTerm = require('./routes/shippingTerm');
-
+const accessLevel = require('./routes/accessLevel');
 const app = express();
-
 
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
-
 
 // Enable CORS
 app.use(cors());
@@ -66,6 +64,7 @@ app.use('/api/bustockinlog', buStockInLog);
 app.use('/api/bustockoutlog', buStockOutLog);
 app.use('/api/bureprequestdetails', buRepRequestDetails);
 app.use('/api/systemadmin', systemAdmin);
+app.use('/api/accessLevel', systemAdmin);
 app.use('/api/stafftype', staffType);
 app.use('/api/staff', staff);
 app.use('/api/warehouseprpo', warehousePRPO);
@@ -77,21 +76,17 @@ app.use('/api/purchaseorder', purchaseOrder);
 app.use('/api/receiveitem', receiveItem);
 app.use('/api/materialreceiving', materialReceiving);
 app.use('/api/shippingterm', shippingTerm);
-
+app.use('/api/accessLevel', accessLevel);
 app.use(errorHandler);
 
 // Set static folder
 // app.use(express.static(path.join(__dirname, 'public')));
 
-
-
 const PORT = process.env.PORT || 8080;
 
 const server = app.listen(
   PORT,
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-  )
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
 
 // Handle unhandled promise rejections
@@ -101,35 +96,32 @@ process.on('unhandledRejection', (err, promise) => {
   // server.close(() => process.exit(1));
 });
 
+// pass the server object to the WebSocketServer library to do all the job, this class will override the req/res
+const websocket = new WebSocketServer({
+  httpServer: server,
+});
 
- // pass the server object to the WebSocketServer library to do all the job, this class will override the req/res 
- const websocket = new WebSocketServer({
-  "httpServer": server
-})
-
-
-// when a legit websocket request comes listen to it and get the connection .. once you get a connection thats it! 
-websocket.on("request", request=> {
-
-  connection = request.accept(null, request.origin)
-  connection.on("open", () => console.log("Opened!!!"))
-  connection.on("close", () => console.log("CLOSED!!!"))
-  connection.on("message", message => {
-    console.log(`Received message ${message.utf8Data}`)
-    if(message.utf8Data === 'add_vendor'){
-      setTimeout(function(){
+// when a legit websocket request comes listen to it and get the connection .. once you get a connection thats it!
+websocket.on('request', (request) => {
+  connection = request.accept(null, request.origin);
+  connection.on('open', () => console.log('Opened!!!'));
+  connection.on('close', () => console.log('CLOSED!!!'));
+  connection.on('message', (message) => {
+    console.log(`Received message ${message.utf8Data}`);
+    if (message.utf8Data === 'add_vendor') {
+      setTimeout(function () {
         connection.send(message.utf8Data);
       }, 500);
-    }else{
+    } else {
       connection.send(`got your message: ${message.utf8Data}`);
     }
-  })
+  });
 
-  // use connection.send to send stuff to the client 
+  // use connection.send to send stuff to the client
   sendevery5seconds();
-})
+});
 
-function sendevery5seconds(){
+function sendevery5seconds() {
   connection.send(`Message ${Math.random()}`);
   setTimeout(sendevery5seconds, 10000);
 }
@@ -143,6 +135,6 @@ function sendevery5seconds(){
 // | | hour
 // | minute
 // second ( optional )
-cron.schedule("10 * * * *", function() {
-  console.log("running a task every 10 minutes");
+cron.schedule('10 * * * *', function () {
+  console.log('running a task every 10 minutes');
 });
