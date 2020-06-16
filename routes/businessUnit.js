@@ -6,12 +6,13 @@ const {
     getBusinessUnitLogs,
     addBusinessUnit,
     deleteBusinessUnit,
-    updateBusinessUnit
+    updateBusinessUnit,
+    getHead
 } = require('../controllers/businessUnit');
 
 const router = express.Router();
 
-
+router.get('/gethead/:_id', getHead);
 router.get('/getbusinessunit', getBusinessUnit);
 router.get('/getbusinessunitlogs/:_id', getBusinessUnitLogs);
 router.post('/addbusinessunit', validateParams([

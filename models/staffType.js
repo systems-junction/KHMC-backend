@@ -21,7 +21,7 @@ const staffTypeSchema = new mongoose.Schema(
     },
     systemAdminId: {
       type: mongoose.Schema.ObjectId,
-      ref: 'systemAdminSJ',
+      ref: 'systemAdmin',
       required: [true, 'Please select System admin'],
     },
   },

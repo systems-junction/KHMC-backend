@@ -49,7 +49,7 @@ app.use(cors());
 // Auth routes
 const { protect } = require('./middleware/auth');
 
-app.use(protect);
+// app.use(protect);
 
 // Mount routers
 app.use('/api/auth', auth);
@@ -70,13 +70,14 @@ app.use('/api/staff', staff);
 app.use('/api/warehouseprpo', warehousePRPO);
 app.use('/api/warehousepodetails', warehousePODetails);
 app.use('/api/warehouseinventory', warehouseInventory);
+
 app.use('/api/warehouseinventorylog', warehouseInventoryLog);
 app.use('/api/purchaserequest', purchaseRequest);
 app.use('/api/purchaseorder', purchaseOrder);
 app.use('/api/receiveitem', receiveItem);
 app.use('/api/materialreceiving', materialReceiving);
 app.use('/api/shippingterm', shippingTerm);
-app.use('/api/accessLevel', accessLevel);
+app.use('/api/accesslevel', accessLevel);
 app.use(errorHandler);
 
 // Set static folder

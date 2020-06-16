@@ -8,7 +8,20 @@ const Staff = require('../models/staff');
 
 exports.getBusinessUnit = asyncHandler(async (req, res) => {
     const businessUnit = await BusinessUnit.find().populate('buLogsId').populate('buHead');
-    const buHeads = await Staff.find();
+    // const buHeads = await Staff.find({"staffTypeId":{$ne:null}}).populate({
+    //   path: 'staffTypeId',
+    //   match: { type: "BU Head" },
+    // })
+  const buHeads = await Staff.aggregate([
+  {
+    $lookup:{from:'stafftypes',localField:'staffTypeId',foreignField:'_id',as:'staffTypeId'}
+
+  },
+  {
+    $unwind:"$staffTypeId"
+  },
+  {$match:{"staffTypeId.type":"BU Head"}}
+  ])
     const divisions = [{key:'medical_ops', value:'Medical Ops'}, {key:'hosp_ops', value:'Hosp Ops'}];
     const statues = [{key:'active', value:'Active'}, {key:'in_active', value:'In Active'}];
 
@@ -25,6 +38,10 @@ exports.getBusinessUnitLogs = asyncHandler(async (req, res) => {
   const buLogs = await BusinessUnitLogs.find({buId: req.params._id});
 
   res.status(200).json({ success: true, data: buLogs });
+});
+exports.getHead = asyncHandler(async (req, res) => {
+  const head = await BusinessUnit.find({buHead: req.params._id});
+  res.status(200).json({ success: true, data: head });
 });
 
 exports.addBusinessUnit = asyncHandler(async (req, res) => {

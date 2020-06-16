@@ -4,7 +4,7 @@ const staffSchema = new mongoose.Schema(
   {
     staffTypeId: {
       type: mongoose.Schema.ObjectId,
-      ref: 'staffTypeSJ',
+      ref: 'staffType',
       required: [true, 'Please select System type'],
     },
     firstName: {

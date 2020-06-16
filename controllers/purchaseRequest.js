@@ -1,75 +1,64 @@
 /* eslint-disable prefer-const */
 const mongoose = require('mongoose');
+var nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const Vendor = require('../models/vendor');
+const WarehouseInventory = require('../models/warehouseInventory');
+const Item = require('../models/item');
 const PurchaseRequest = require('../models/purchaseRequest');
+const PurchaseOrder = require('../models/purchaseOrder')
 const PurchaseRequestItems = require('../models/purchaseRequestItems');
-
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'abdulhannan.itsolution@gmail.com',
+      pass: 'Abc123##'
+    }
+  });
 exports.getPurchaseRequests = asyncHandler(async (req, res) => {
-    const purchaseRequest = await PurchaseRequest.find().populate('vendorId');
-    const vendor = await Vendor.find();
+    const purchaseRequest = await PurchaseRequest.find().populate('itemId').populate('vendorId');
     const status = [{key:'to_do', value:'To do'},{key:'in_progress', value:'In Progress'},
         {key:'on_hold', value:'On hold'},{key:'modified', value:'Modified'},{key:'done', value:'Done'}];
-
     const data = {
         purchaseRequest,
-        vendor,
         status,
-    }
-    
+    }   
     res.status(200).json({ success: true, data: data });
 });
-
-exports.getPurchaseRequestItems = asyncHandler(async (req, res) => {
-    const purchaseRequestItems = await PurchaseRequestItems.find({purchaseRequestId: req.params._id});
-
-    res.status(200).json({ success: true, data: purchaseRequestItems });
-});
-
 exports.addPurchaseRequest = asyncHandler(async (req, res) => {
-    const { _id, generatedBy, date, status, name, description,
-        currentQty, reqQty, comments } = req.body;
+    const { generatedBy, status,item, comments,reason,vendorId,requesterName,department,orderType,generated } = req.body;
     const purchaseRequest = await PurchaseRequest.create({
-        _id,
         requestNo: uuidv4(),
+        generated,
         generatedBy,
-        date,
         status,
-        name,
-        description,
-        currentQty,
-        reqQty,
-        comments
-    });
-
-    res.status(200).json({ success: true, data: purchaseRequest });
-});
-
-exports.addPurchaseRequestItem = asyncHandler(async (req, res) => {
-    let { itemCode, name, vendorId, description,
-    currentQty, reqQty, comments, purchaseRequestId } = req.body;
-    console.log("req body: ", req.body);
-    if(!purchaseRequestId){  // if one item already added against this purchase request
-        purchaseRequestId = new mongoose.mongo.ObjectID();
-    }
-    const purchaseRequestItem = await PurchaseRequestItems.create({
-        itemCode,
-        name,
-        vendorId,
-        description,
-        currentQty,
-        reqQty,
         comments,
-        purchaseRequestId
+        reason,
+        item,
+        vendorId,
+        requesterName,
+        department,
+        orderType
     });
-
-    const data = {
-        purchaseRequestItem,
-        purchaseRequestId
-    }
-    res.status(200).json({ success: true, data: data });
+    // if(req.body.status == "Done")
+    // {
+    //     const itemMail = await Item.findOne({_id:req.body.item.itemId}).populate('vendorId');
+    //     var mailOptions = {
+    //         from: 'abdulhannan.itsolution@gmail.com',
+    //         to: itemMail.vendorId.contactEmail,
+    //         subject: 'Request for item '+itemMail.name+' with code '+itemMail.itemCode,
+    //         text: 'Kindly send us item '+itemMail.name+' with code '+itemMail.itemCode+' in quantity '+req.body.item.reqQty
+    //       };
+    //       transporter.sendMail(mailOptions, function(error, info){
+    //         if (error) {
+    //           console.log(error);
+    //         } else {
+    //           console.log('Email sent: ' + info.response);
+    //         }
+    //       });
+    // }
+    res.status(200).json({ success: true, data: purchaseRequest });
 });
 
 exports.deletePurchaseRequest = asyncHandler(async (req, res, next) => {
@@ -98,21 +87,41 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
         );
     }
 
-    purchaseRequest = await PurchaseRequest.updateOne({_id: _id}, req.body);
+    purchaseRequest = await PurchaseRequest.findOneAndUpdate({_id: _id}, req.body);
+    if(req.body.status == "pending_recieving")
+    {
+        let purchaseOrder = await PurchaseOrder.findOne({status:"pending_recieving",vendorId:req.body.vendorId});
+        if(purchaseOrder){
+                await PurchaseOrder.updateOne({_id: purchaseOrder._id},{ $push: { purchaseRequestId: purchaseRequest._id } });
+        }
+        else{  
+        const { generatedBy, date, vendorId, status } = req.body;
+        await PurchaseOrder.create({
+            purchaseOrderNo: uuidv4(),
+            purchaseRequestId: purchaseRequest._id,
+            date,
+            generatedBy,
+            vendorId,
+            status,       
+        });
+
+}
+    }
     res.status(200).json({ success: true, data: PurchaseRequest });
 });
 
-exports.updatePurchaseRequestItem = asyncHandler(async (req, res, next) => {
-    const { _id } = req.body;
+exports.getPurchaseRequestVendors = asyncHandler(async (req, res) => {
+    const purchaseRequestVendors = await PurchaseRequest.aggregate([
+        {$match:{"status":"Done"}},
+        {$lookup:{from:'items',localField:'item.itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:"$itemId"},
+        {$match:{"itemId.vendorId":new mongoose.Types.ObjectId(req.params._id)}},
+        {$project:{"requestNo":1,"item.reqQty":1,"itemId":1}}
+    ]);
+    res.status(200).json({ success: true, data: purchaseRequestVendors });
+});
 
-    let purchaseRequestItem = await PurchaseRequestItems.findById(_id);
-
-    if(!purchaseRequestItem) {
-        return next(
-            new ErrorResponse(`Purchase Request Item not found with id of ${_id}`, 404)
-        );
-    }
-
-    purchaseRequestItem = await PurchaseRequestItems.updateOne({_id: _id}, req.body);
-    res.status(200).json({ success: true, data: purchaseRequestItem });
+exports.getCurrentItemQuantity = asyncHandler(async (req, res) => {
+    const warehouseInventory = await WarehouseInventory.findOne({itemId:req.params._id},{'qty':1})
+    res.status(200).json({ success: true, data: warehouseInventory });
 });

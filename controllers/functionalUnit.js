@@ -35,7 +35,7 @@ exports.addFunctionalUnit = asyncHandler(async (req, res) => {
   const _id = new mongoose.mongo.ObjectID();
 
   const fuLogs = await FunctionalUnitLog.create({
-    uuid: uuidv4(),
+    uuid: uuidv4(), 
     status,
     reason,
     fuId: _id,

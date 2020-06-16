@@ -14,7 +14,7 @@ exports.getAccessLevel = asyncHandler(async (req, res) => {
 });
 
 exports.addAccessLevel = asyncHandler(async (req, res) => {
-  const { name, read, write, del, update } = req.body;
+  const { name, read, write, del, update, systemAdminId } = req.body;
   const accessLevel = await AccessLevel.create({
     name,
     read,
