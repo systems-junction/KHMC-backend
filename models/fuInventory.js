@@ -1,17 +1,13 @@
 const mongoose = require('mongoose');
 
-const buInventorySchema = new mongoose.Schema({
+const fuInventorySchema = new mongoose.Schema({
     uuid: {
         type: String
     },
-    buId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'businessUnit',
-        required: [true, 'Please select Business Unit']
-    },
-    fuId:{
+    fuId: {
         type: mongoose.Schema.ObjectId,
         ref: 'functionalUnit',
+        required: [true, 'Please select Business Unit']
     },
     itemId: {
         type: mongoose.Schema.ObjectId,
@@ -32,4 +28,4 @@ const buInventorySchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('buInventory', buInventorySchema);
+module.exports = mongoose.model('fuInventory', fuInventorySchema);

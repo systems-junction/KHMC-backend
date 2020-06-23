@@ -35,7 +35,7 @@ exports.addFunctionalUnit = asyncHandler(async (req, res) => {
   const _id = new mongoose.mongo.ObjectID();
 
   const fuLogs = await FunctionalUnitLog.create({
-    uuid: uuidv4(), 
+    uuid: uuidv4(),
     status,
     reason,
     fuId: _id,
@@ -108,4 +108,8 @@ exports.updateFunctionalUnit = asyncHandler(async (req, res, next) => {
 
   functionalUnit = await FunctionalUnit.updateOne({_id: _id}, req.body);
   res.status(200).json({ success: true, data: functionalUnit });
+});
+exports.getHead = asyncHandler(async (req, res) => {
+  const head = await FunctionalUnit.find({fuHead: req.params._id}).populate('buId');
+  res.status(200).json({ success: true, data: head });
 });

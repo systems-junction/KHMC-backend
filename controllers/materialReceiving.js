@@ -7,7 +7,20 @@ const PurchaseOrder = require('../models/purchaseOrder');
 const MaterialReceiving = require('../models/materialReceiving');
 
 exports.getMaterialReceivings = asyncHandler(async (req, res) => {
-    const materialReceivings = await MaterialReceiving.find().populate('vendorId').populate('prId').populate('poId');
+    const materialReceivings = await MaterialReceiving.find()
+    .populate({
+        path : 'poId',
+        populate: [{
+            path : 'purchaseRequestId',
+            populate : {
+                path : 'item.itemId'
+              }},{
+            path:'vendorId'
+        }]
+    }).populate('vendorId').populate({
+        path:'prId.id',
+        populate:{path:'item.itemId'}
+    })
     const vendors = await Vendor.find();
     const purchaseRequests = await PurchaseRequest.find();
     const purchaseOrders = await PurchaseOrder.find();
@@ -22,7 +35,20 @@ exports.getMaterialReceivings = asyncHandler(async (req, res) => {
     
     res.status(200).json({ success: true, data: data });
 });
-
+exports.getMaterialReceivingsById = asyncHandler(async (req, res) => {
+    const materialReceivings = await MaterialReceiving.findOne({_id:req.params._id})
+    .populate({
+        path : 'poId',
+        populate: [{
+            path : 'purchaseRequestId',
+            populate : {
+                path : 'item.itemId'
+              }},{
+            path:'vendorId'
+        }]
+    })
+    res.status(200).json({ success: true, data: materialReceivings });
+});
 exports.addMaterialReceiving = asyncHandler(async (req, res) => {
     const { itemCode, itemName, prId, poId, vendorId, status, poSentDate } = req.body;
     const materialReceiving = await MaterialReceiving.create({

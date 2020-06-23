@@ -36,6 +36,6 @@ router.post('/addpurchaseorder', validateParams([
   ]), addPurchaseOrder);
 
 router.delete('/deletepurchaseorder/:_id', deletePurchaseOrder);
-router.put('/updatepurchaseorder/:_id', updatePurchaseOrder);
+router.put('/updatepurchaseorder', updatePurchaseOrder);
 
 module.exports = router;

@@ -35,9 +35,14 @@ const warehouseInventoryLog = require('./routes/warehouseInventoryLog');
 const purchaseRequest = require('./routes/purchaseRequest');
 const purchaseOrder = require('./routes/purchaseOrder');
 const receiveItem = require('./routes/receiveItem');
+const receiveItemBU = require('./routes/receiveItemBU');
+const receiveItemFU = require('./routes/receiveItemFU');
 const materialReceiving = require('./routes/materialReceiving');
 const shippingTerm = require('./routes/shippingTerm');
 const accessLevel = require('./routes/accessLevel');
+const account = require('./routes/account');
+const replenishmentRequest = require('./routes/replenishmentRequest')
+const replenishmentRequestBU = require('./routes/replenishmentRequestBU')
 const app = express();
 
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -49,7 +54,7 @@ app.use(cors());
 // Auth routes
 const { protect } = require('./middleware/auth');
 
-// app.use(protect);
+app.use(protect);
 
 // Mount routers
 app.use('/api/auth', auth);
@@ -70,14 +75,18 @@ app.use('/api/staff', staff);
 app.use('/api/warehouseprpo', warehousePRPO);
 app.use('/api/warehousepodetails', warehousePODetails);
 app.use('/api/warehouseinventory', warehouseInventory);
-
 app.use('/api/warehouseinventorylog', warehouseInventoryLog);
 app.use('/api/purchaserequest', purchaseRequest);
 app.use('/api/purchaseorder', purchaseOrder);
 app.use('/api/receiveitem', receiveItem);
+app.use('/api/receiveitembu', receiveItemBU);
+app.use('/api/receiveitemfu', receiveItemFU);
 app.use('/api/materialreceiving', materialReceiving);
 app.use('/api/shippingterm', shippingTerm);
 app.use('/api/accesslevel', accessLevel);
+app.use('/api/account', account);
+app.use('/api/replenishmentRequest', replenishmentRequest);
+app.use('/api/replenishmentRequestBU', replenishmentRequestBU);
 app.use(errorHandler);
 
 // Set static folder
@@ -136,6 +145,6 @@ function sendevery5seconds() {
 // | | hour
 // | minute
 // second ( optional )
-cron.schedule('10 * * * *', function () {
-  console.log('running a task every 10 minutes');
-});
+// cron.schedule('10 * * * *', function () {
+//   console.log('running a task every 10 minutes');
+// });

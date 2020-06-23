@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ReceiveItemSchema = new mongoose.Schema({
+const ReceiveItemBUSchema = new mongoose.Schema({
     itemId:{
         type: mongoose.Schema.ObjectId,
         ref: 'Item',
@@ -87,4 +87,4 @@ const ReceiveItemSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('ReceiveItem', ReceiveItemSchema);
+module.exports = mongoose.model('ReceiveItemBU', ReceiveItemBUSchema);

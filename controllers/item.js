@@ -5,6 +5,16 @@ const Item = require('../models/item');
 const Vendor = require('../models/vendor');
 const FunctionalUnit = require('../models/functionalUnit');
 
+exports.getItem = asyncHandler(async (req, res) => {  
+  const _id = req.params._id;
+  const item = Item.findById(_id);
+  if (!item) {
+    return next(new ErrorResponse(`Item not found with id of ${_id}`, 404));
+  }
+
+  res.status(200).json({ success: true, data: item });
+});
+
 exports.getItems = asyncHandler(async (req, res) => {
   const items = await Item.find()
     .populate('vendorId')
@@ -290,4 +300,3 @@ exports.updateItem = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, data: item });
 });
-

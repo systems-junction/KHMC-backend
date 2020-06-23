@@ -6,12 +6,13 @@ const {
     getFunctionalUnitLogs,
     addFunctionalUnit,
     deleteFunctionalUnit,
-    updateFunctionalUnit
+    updateFunctionalUnit,
+    getHead
 } = require('../controllers/functionalUnit');
 
 const router = express.Router();
 
-
+router.get('/gethead/:_id', getHead);
 router.get('/getfunctionalunits', getFunctionalUnits);
 router.get('/getfunctionalunitlogs/:_id', getFunctionalUnitLogs);
 router.post('/addfunctionalunit', validateParams([

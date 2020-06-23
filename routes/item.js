@@ -2,6 +2,7 @@ const express = require('express');
 const { validateParams } = require('../middleware/validator');
 
 const {
+    getItem,
     getItems,
     getSearchedItems,
     addItem,
@@ -11,7 +12,7 @@ const {
 
 const router = express.Router();
 
-
+router.get('/:_id', getItem);
 router.get('/getitems', getItems);
 router.get('/getsearcheditems/:keyword', getSearchedItems);
 router.post('/additem', validateParams([

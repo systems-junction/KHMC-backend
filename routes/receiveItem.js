@@ -12,28 +12,7 @@ const router = express.Router();
 
 
 router.get('/getreceiveitems', getReceiveItems);
-router.post('/addreceiveitem', validateParams([
-    {
-        param_key: 'itemCode',
-        required: true,
-        type: 'string'
-    },
-    {
-        param_key: 'itemName',
-        required: true,
-        type: 'string'
-    },
-    {
-        param_key: 'currentQty',
-        required: true,
-        type: 'string'
-    },
-    {
-        param_key: 'requiredQty',
-        required: true,
-        type: 'string'
-    }
-  ]), addReceiveItem);
+router.post('/addreceiveitem', addReceiveItem);
 
 router.delete('/deletereceiveitem/:_id', deleteReceiveItem);
 router.put('/updatereceiveitem', updateReceiveItem);
