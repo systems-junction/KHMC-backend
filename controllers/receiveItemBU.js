@@ -16,7 +16,7 @@ exports.getReceiveItemsBU = asyncHandler(async (req, res) => {
 exports.addReceiveItemBU = asyncHandler(async (req, res) => {
     const { itemId,currentQty, requestedQty, receivedQty, bonusQty, batchNumber,lotNumber,
         expiryDate,unit, discount, unitDiscount, discountAmount, tax, taxAmount, finalUnitPrice, subTotal, 
-        discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,replensihmentRequestId,replensihmentRequestStatus,fuId } = req.body;
+        discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,replenishmentRequestId,replenishmentRequestStatus,fuId } = req.body;
     await ReceiveItemBU.create({
         itemId,
         currentQty,
@@ -39,11 +39,12 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         invoice,
         dateInvoice,
         dateReceived,
-        notes
+        notes,
+        replenishmentRequestId
     });
-    if((req.body.replensihmentRequestStatus=="Received")||(req.body.replensihmentRequestStatus=="Partially Received"))
-    {
-            await ReplenishmentRequestBU.findOneAndUpdate({_id: replensihmentRequestId},{ $set: { status:req.body.replensihmentRequestStatus,secondStatus:req.body.replensihmentRequestStatus }},{new:true});        
+    await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:req.body.replenishmentRequestStatus,secondStatus:req.body.replenishmentRequestStatus }},{new:true});
+    if((req.body.replenishmentRequestStatus=="ReceivedTest")||(req.body.replenishmentRequestStatus=="Partially ReceivedTest"))
+    {       
             const bu = await BUInventory.findOne({itemId: itemId})
             const fu = await FUInventory.findOne({itemId: itemId})
             await BUInventory.findOneAndUpdate({itemId: itemId}, { $set: { qty: bu.qty+receivedQty }},{new:true})

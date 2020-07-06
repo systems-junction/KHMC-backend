@@ -6,13 +6,10 @@ const WebSocketServer = require('websocket').server;
 const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
-
 let connection = null;
 
 dotenv.config({ path: './config/.env' });
-
 connectDB();
-
 // Route files
 const auth = require('./routes/auth');
 const item = require('./routes/item');
@@ -43,6 +40,10 @@ const accessLevel = require('./routes/accessLevel');
 const account = require('./routes/account');
 const replenishmentRequest = require('./routes/replenishmentRequest')
 const replenishmentRequestBU = require('./routes/replenishmentRequestBU')
+const internalReturnRequest = require('./routes/internalReturnRequest')
+const externalReturnRequest = require('./routes/externalReturnRequest')
+const subscriber = require('./routes/subscriber')
+const patient = require('./routes/patient')
 const app = express();
 
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -87,6 +88,10 @@ app.use('/api/accesslevel', accessLevel);
 app.use('/api/account', account);
 app.use('/api/replenishmentRequest', replenishmentRequest);
 app.use('/api/replenishmentRequestBU', replenishmentRequestBU);
+app.use('/api/internalreturnrequest', internalReturnRequest);
+app.use('/api/externalreturnrequest', externalReturnRequest);
+app.use('/api/subscriber', subscriber);
+app.use('/api/patient', patient);
 app.use(errorHandler);
 
 // Set static folder
@@ -135,7 +140,6 @@ function sendevery5seconds() {
   connection.send(`Message ${Math.random()}`);
   setTimeout(sendevery5seconds, 10000);
 }
-
 // schedule tasks to be run on the server
 // * * * * * *
 // | | | | | |

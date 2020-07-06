@@ -1,5 +1,6 @@
 const WhInventory = require('../models/warehouseInventory');
-
+const moment = require('moment');
+const asyncHandler = require('../middleware/async');
     exports.getWhInventory = (req, res, next) => {
         try {
             WhInventory.find().populate('itemId').then(function(data, err){
@@ -52,3 +53,44 @@ const WhInventory = require('../models/warehouseInventory');
             res.status(400).send({success:false, message: "Error updating warehouse inventory!", error: e.toString()});
         }
     };
+    exports.getExpiredInventory = asyncHandler(async (req, res) => {
+        var todayDate = moment().startOf('day')
+        .utc().toDate();
+        const whinventoryDate = await WhInventory.aggregate([
+            {
+              $lookup: {
+                from: 'items',
+                localField: 'itemId',
+                foreignField: '_id',
+                as: 'itemId',
+              },
+            },
+            { $unwind: '$itemId' },
+            {
+              $match: {
+                'itemId.expiration':{$lte:todayDate},
+              },
+            },
+          ]);
+            res.status(200).json({ success: true, data: whinventoryDate });
+    });
+    exports.getExpiredInventoryByInput = asyncHandler(async (req, res) => {
+        var inputDate = moment(req.body.inputDate).startOf('day').utc().toDate();
+        const whinventoryDate = await WhInventory.aggregate([
+            {
+              $lookup: {
+                from: 'items',
+                localField: 'itemId',
+                foreignField: '_id',
+                as: 'itemId',
+              },
+            },
+            { $unwind: '$itemId' },
+            {
+              $match: {
+                'itemId.expiration':{$lte:inputDate},
+              },
+            },
+          ]);
+            res.status(200).json({ success: true, data: whinventoryDate });
+    });

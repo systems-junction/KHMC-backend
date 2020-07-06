@@ -5,6 +5,13 @@ const ReceiveItemSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Item',
     },
+    prId:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'PurchaseRequest',
+    },
+    status:{
+        type:String
+    },
     currentQty: {
         type: Number,
         required: true

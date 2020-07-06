@@ -1,50 +1,63 @@
 const mongoose = require('mongoose');
 
 const patientSchema = new mongoose.Schema({
-    uuid: {
+    identificationNumber: {
         type: String
     },
-    name: {
-        type: String,
-        required: [true, 'Please add name']
+    title:{
+        type:String
+    },
+    firstName: {
+        type: String
+    },
+    lastName: {
+        type: String
     },
     dob: {
         type: Date,
-        required: [true, 'Please select dob']
     },
     gender: {
         type: String,
-        required: [true, 'Please select gender']
     },
     phoneNumber: {
         type: String,
-        required: [true, 'Please add phone number']
     },
     email: {
         type: String,
-        required: [true, 'Please add an email'],
         unique: true,
         match: [
         /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/,
         'Please add a valid email'
         ]
     },
-    idNumber: {
-        type: String
+    country:{
+        type:String
     },
-    image: {
-        type: String
+    city:{
+        type:String
+    },
+    address:{
+        type:String
     },
     otherDetails: {
         type: String
     },
-    insuranceNumber: {
-        type: String
+    insuranceNumber:{
+        type:String
     },
-    insuranceVendorId: {
-        type: String
+    insuranceVendor:{
+        type:String
     },
-    createdAt: {
+    coverageDetails:{
+        type:String
+    },
+    coverageTerms:{
+        type:String
+    },
+    payment:{
+        type:String
+    },
+     createdAt: {
         type: Date,
         default: Date.now
     },

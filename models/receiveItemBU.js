@@ -84,6 +84,10 @@ const ReceiveItemBUSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    replenishmentRequestId:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'ReplenishmentRequestBU'
     }
 });
 

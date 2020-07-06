@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const ReceiveItemFUSchema = new mongoose.Schema({
     itemId:{
         type: mongoose.Schema.ObjectId,
@@ -84,6 +83,10 @@ const ReceiveItemFUSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    replenishmentRequestId:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'ReplenishmentRequest',
     }
 });
 

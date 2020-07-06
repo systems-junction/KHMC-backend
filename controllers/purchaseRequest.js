@@ -1,21 +1,22 @@
-/* eslint-disable prefer-const */
+const webpush = require("web-push");
 const mongoose = require('mongoose');
-var nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const WarehouseInventory = require('../models/warehouseInventory');
-const Item = require('../models/item');
 const PurchaseRequest = require('../models/purchaseRequest');
-const PurchaseOrder = require('../models/purchaseOrder');
 const PurchaseRequestItems = require('../models/purchaseRequestItems');
-var transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'abdulhannan.itsolution@gmail.com',
-    pass: 'Abc123##',
-  },
-});
+const Subscription = require('../models/subscriber')
+const StaffType = require('../models/staffType')
+const Staff = require('../models/staff')
+const User = require('../models/user')
+const privateVapidKey = "s92YuYXxjJ38VQhRSuayTb9yjN_KnVjgKfbpsHOLpjc";
+const publicVapidKey = "BOHtR0qVVMIA-IJEru-PbIKodcux05OzVVIJoIBKQu3Sp1mjvGkjaT-1PIzkEwAiAk6OuSCZfNGsgYkJJjOyV7k"
+webpush.setVapidDetails(
+  "mailto:hannanbutt1995@gmail.com",
+  publicVapidKey,
+  privateVapidKey
+);
 exports.getPurchaseRequests = asyncHandler(async (req, res) => {
   const purchaseRequest = await PurchaseRequest.find()
     .populate('itemId')
@@ -60,23 +61,49 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     department,
     orderType,
   });
-  // if(req.body.status == "Done")
-  // {
-  //     const itemMail = await Item.findOne({_id:req.body.item.itemId}).populate('vendorId');
-  //     var mailOptions = {
-  //         from: 'abdulhannan.itsolution@gmail.com',
-  //         to: itemMail.vendorId.contactEmail,
-  //         subject: 'Request for item '+itemMail.name+' with code '+itemMail.itemCode,
-  //         text: 'Kindly send us item '+itemMail.name+' with code '+itemMail.itemCode+' in quantity '+req.body.item.reqQty
-  //       };
-  //       transporter.sendMail(mailOptions, function(error, info){
-  //         if (error) {
-  //           console.log(error);
-  //         } else {
-  //           console.log('Email sent: ' + info.response);
-  //         }
-  //       });
-  // }
+  const payload = JSON.stringify({ title: "Purchase Requested Generated",message:"Kindly check the request" });
+  const type = await StaffType.findOne({type:"Committe Member"})
+  const user = await User.find({staffTypeId:type._id})
+  for(var i = 0; i<user.length; i++ )
+  {
+  Subscription.find({user:user[i]._id}, (err, subscriptions) => {
+    if (err) {
+      console.error(`Error occurred while getting subscriptions`);
+      res.status(500).json({
+        error: 'Technical error occurred',
+      });
+    } else {
+      let parallelSubscriptionCalls = subscriptions.map((subscription) => {
+        return new Promise((resolve, reject) => {
+          const pushSubscription = {
+            endpoint: subscription.endpoint,
+            keys: {
+              p256dh: subscription.keys.p256dh,
+              auth: subscription.keys.auth,
+            },
+          };
+          const pushPayload = payload;
+          webpush
+            .sendNotification(pushSubscription, pushPayload)
+            .then((value) => {
+              resolve({
+                status: true,
+                endpoint: subscription.endpoint,
+                data: value,
+              });
+            })
+            .catch((err) => {
+              reject({
+                status: false,
+                endpoint: subscription.endpoint,
+                data: err,
+              });
+            });
+        });
+      });
+    }
+  });
+}
   res.status(200).json({ success: true, data: purchaseRequest });
 });
 
