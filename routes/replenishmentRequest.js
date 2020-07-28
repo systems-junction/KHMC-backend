@@ -2,23 +2,23 @@ const express = require('express');
 const {
     getReplenishmentRequestsFU,
     getReplenishmentRequestsByIdFU,
-    getReplenishmentRequestsBU,
-    getReplenishmentRequestsByIdBU,
+    // getReplenishmentRequestsBU,
+    // getReplenishmentRequestsByIdBU,
     addReplenishmentRequest,
     deleteReplenishmentRequest,
     updateReplenishmentRequest,
     getCurrentItemQuantityFU,
-    getCurrentItemQuantityBU
+    // getCurrentItemQuantityBU
 } = require('../controllers/replenishmentRequest');
 
 const router = express.Router();
 
 router.post('/getcurrentitemquantityfu', getCurrentItemQuantityFU);
-router.post('/getcurrentitemquantitybu', getCurrentItemQuantityBU);
+// router.post('/getcurrentitemquantitybu', getCurrentItemQuantityBU);
 router.get('/getreplenishmentrequestsFU', getReplenishmentRequestsFU);
 router.get('/getreplenishmentrequestsFU/:_id', getReplenishmentRequestsByIdFU);
-router.get('/getreplenishmentrequestsBU', getReplenishmentRequestsBU);
-router.get('/getreplenishmentrequestsBU/:_id', getReplenishmentRequestsByIdBU);
+// router.get('/getreplenishmentrequestsBU', getReplenishmentRequestsBU);
+// router.get('/getreplenishmentrequestsBU/:_id', getReplenishmentRequestsByIdBU);
 router.post('/addreplenishmentrequest', addReplenishmentRequest);
 router.delete('/deletereplenishmentrequest/:_id', deleteReplenishmentRequest);
 router.put('/updatereplenishmentrequest', updateReplenishmentRequest);

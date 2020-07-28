@@ -46,6 +46,17 @@ const runValidators = function (reqParam, paramObj) {
     return true;
 };
 
+const checkEligibility = function (eligible) {
+if(eligible)
+{
+    return true
+}
+else{
+    return false
+}
+};
+
 module.exports = {
-    validateParams: validateParams
+    validateParams: validateParams,
+    abc:checkEligibility
 };

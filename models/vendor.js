@@ -5,7 +5,7 @@ const VendorSchema = new mongoose.Schema({
         type: String
     },
     vendorNo: {
-
+        type:String
     },
     englishName: {
         type: String,
@@ -37,10 +37,6 @@ const VendorSchema = new mongoose.Schema({
     zipcode: {
         type: String,
         required: [true, 'Please add zipcode']
-    },
-    pobox: {
-        type: String,
-        required: [true, 'Please add P.O.Box']
     },
     faxno: {
         type: String,
@@ -75,9 +71,11 @@ const VendorSchema = new mongoose.Schema({
     cls: {
         type: String
     },
-    subClass:{
+    subClass:[
+        {
         type: String
-    },
+    }
+    ],
     createdAt: {
         type: Date,
         default: Date.now

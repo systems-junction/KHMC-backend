@@ -13,12 +13,14 @@ const asyncHandler = require('../middleware/async');
     };
 
     exports.addWhInventory = (req, res, next) => {
-        const { itemId, qty } = req.body;
+        const { itemId, qty, maximumLevel, reorderLevel } = req.body;
         
         try{
             WhInventory.create({
                 itemId,
-                qty
+                qty,
+                maximumLevel,
+                reorderLevel
             }).then((response, err) => {
                 if(err) throw err;
                 res.status(200).send({ success: true, message: "Warehouse inventory added successfully"});
@@ -65,7 +67,17 @@ const asyncHandler = require('../middleware/async');
                 as: 'itemId',
               },
             },
-            { $unwind: '$itemId' },
+            
+            { $unwind: '$itemId'},
+            {
+              $lookup: {
+                from: 'vendors',
+                localField: 'itemId.vendorId',
+                foreignField: '_id',
+                as: 'vendorId',
+              },
+            },
+            { $unwind: '$vendorId'},
             {
               $match: {
                 'itemId.expiration':{$lte:todayDate},
@@ -86,6 +98,15 @@ const asyncHandler = require('../middleware/async');
               },
             },
             { $unwind: '$itemId' },
+            {
+              $lookup: {
+                from: 'vendors',
+                localField: 'itemId.vendorId',
+                foreignField: '_id',
+                as: 'vendorId',
+              },
+            },
+            { $unwind: '$vendorId'},
             {
               $match: {
                 'itemId.expiration':{$lte:inputDate},

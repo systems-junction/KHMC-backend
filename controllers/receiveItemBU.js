@@ -1,10 +1,18 @@
 /* eslint-disable prefer-const */
+const notification = require('../components/notification')
+const { v4: uuidv4 } = require('uuid');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const ReceiveItemBU = require('../models/receiveItemBU');
 const BUInventory = require('../models/buInventory');
 const FUInventory = require('../models/fuInventory');
+const PurchaseRequest = require('../models/purchaseRequest');
+const ReplenishmentRequest = require('../models/replenishmentRequest');
+const Item = require('../models/item');
+const WHInventory = require('../models/warehouseInventory');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
+const FunctionalUnit = require('../models/functionalUnit')
+
 exports.getReceiveItemsBU = asyncHandler(async (req, res) => {
     const receiveItems = await ReceiveItemBU.find().populate('vendorId');
     const data = {
@@ -16,7 +24,9 @@ exports.getReceiveItemsBU = asyncHandler(async (req, res) => {
 exports.addReceiveItemBU = asyncHandler(async (req, res) => {
     const { itemId,currentQty, requestedQty, receivedQty, bonusQty, batchNumber,lotNumber,
         expiryDate,unit, discount, unitDiscount, discountAmount, tax, taxAmount, finalUnitPrice, subTotal, 
-        discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,replenishmentRequestId,replenishmentRequestStatus,fuId } = req.body;
+        discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,replenishmentRequestId,replenishmentRequestStatus,fuId,
+        replenishmentRequestItemId
+     } = req.body;
     await ReceiveItemBU.create({
         itemId,
         currentQty,
@@ -40,45 +50,100 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         dateInvoice,
         dateReceived,
         notes,
-        replenishmentRequestId
+        replenishmentRequestId,
+        replenishmentRequestItemId
     });
-    await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:req.body.replenishmentRequestStatus,secondStatus:req.body.replenishmentRequestStatus }},{new:true});
-    if((req.body.replenishmentRequestStatus=="ReceivedTest")||(req.body.replenishmentRequestStatus=="Partially ReceivedTest"))
-    {       
-            const bu = await BUInventory.findOne({itemId: itemId})
-            const fu = await FUInventory.findOne({itemId: itemId})
-            await BUInventory.findOneAndUpdate({itemId: itemId}, { $set: { qty: bu.qty+receivedQty }},{new:true})
-            const pr = await FUInventory.findOneAndUpdate({itemId: itemId}, { $set: { qty: fu.qty-receivedQty }},{new:true}).populate('itemId')
-        //     if(pr.qty<=pr.itemId.reorderLevel)
-        //     {
-        //     const j =await Item.findOne({_id:req.body.itemId}) 
-        //     var item={
-        //         itemId:req.body.itemId,
-        //         currQty:0,
-        //         reqQty:100,
-        //         comments:'System',
-        //         name:j.name,
-        //         description:j.description,
-        //         itemCode:j.itemCode
-        //     }
-        //         await PurchaseRequest.create({
-        //             requestNo: uuidv4(),
-        //             generated:'System',
-        //             generatedBy:'System',
-        //             committeeStatus: 'to_do',
-        //             status:'to_do',
-        //             comments:'System',
-        //             reason:'System',
-        //             item,
-        //             vendorId:j.vendorId,
-        //             requesterName:'System',
-        //             department:'System',
-        //             orderType:'System',
-        //           });
-        // }
-    }
+    if(req.body.replenishmentRequestStatus=="complete")
+    { 
+        const rrId = await ReplenishmentRequestBU.findOne({_id: replenishmentRequestId})
 
-    res.status(200).json({ success: true});
+        for (let i=0; i<rrId.item.length; i++)
+        {
+        await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId, 'item.itemId':req.body.itemId},
+        { $set: { 'item.$.status':req.body.replenishmentRequestStatus,'item.$.secondStatus':req.body.replenishmentRequestStatus }}
+        ,{new:true});      
+        }
+        notification("Item Received", "Item Received against Professional Order "+rrId.requestNo, "FU Member")
+        const fUnit = await FunctionalUnit.findOne({_id:req.body.fuId})
+        const fu = await FUInventory.findOne({itemId: req.body.itemId,fuId:fUnit._id})   
+        var less = fu.qty-req.body.requestedQty
+        if (less <= -1)
+        {
+          less = 0;
+        }
+        const fui = await FUInventory.findOneAndUpdate({itemId: req.body.itemId,_id:fu._id }, { $set: { qty: less }},{new:true}).populate('itemId');
+        const wh = await WHInventory.findOne({itemId:req.body.itemId})
+        const item = await Item.findOne({_id:req.body.itemId})
+        var st;
+        var st2;
+        if(wh.qty<(fui.maximumLevel-fui.qty))
+        {
+         st = "pending"
+         st2 = "Cannot be fulfilled"
+        }
+        else
+        {
+         st = "pending"
+         st2 = "Can be fulfilled"
+        }
+        if(fui.qty<=fui.reorderLevel)
+        {
+        notification("Replenishment Request Generated", "New Replenishment Request Generated", "Warehouse Member")
+        notification("Replenishment Request Generated", "New Replenishment Request Generated", "FU Member")
+           const rrS = await ReplenishmentRequest.create({
+                requestNo: uuidv4(),
+                generated:'System',
+                generatedBy:'System',
+                reason:'reactivated_items',
+                fuId:req.body.fuId,
+                itemId:req.body.itemId,
+                comments:'System generated Replenishment Request',
+                currentQty:fui.qty,
+                requestedQty:fui.maximumLevel-fui.qty,
+                description:item.description,
+                status: st,
+                secondStatus:st2,
+                requesterName:'System',
+                orderType:'',
+                to:'Warehouse',
+                from:'FU',
+                recieptUnit:item.receiptUnit,
+                issueUnit:item.issueUnit,
+                fuItemCost:0,
+                department:'',
+                rrB:req.body.rrBUId
+              });
+              
+            if(st2 == "Cannot be fulfilled")
+            {
+      var item2={
+          itemId:req.body.itemId,
+          currQty:wh.qty,
+          reqQty:wh.maximumLevel-wh.qty,
+          comments:'System',
+          name:item.name,
+          description:item.description,
+          itemCode:item.itemCode
+      }
+          const purchase = await PurchaseRequest.create({
+              requestNo: uuidv4(),
+              generated:'System',
+              generatedBy:'System',
+              committeeStatus: 'to_do',
+              status:'to_do',
+              comments:'System',
+              reason:'reactivated_items',
+              item:item2,
+              vendorId:item.vendorId,
+              requesterName:'System',
+              department:'',
+              orderType:'',
+              rr:rrS._id
+            });
+            notification("Purchase Request", "A new Purchase Request "+purchase.requestNo+" has been generated at "+purchase.createdAt, "admin")
+            }
+            }}
+      res.status(200).json({ success: true});
 });
 
 exports.deleteReceiveItemBU = asyncHandler(async (req, res, next) => {
@@ -107,3 +172,10 @@ exports.updateReceiveItemBU = asyncHandler(async (req, res, next) => {
     receiveItem = await ReceiveItemBU.updateOne({_id: _id}, req.body);
     res.status(200).json({ success: true, data: receiveItem });
 });
+
+
+
+ 
+
+    // const bu = await BUInventory.findOne({itemId: req.body.itemId,buId:req.body.buId})
+    // await BUInventory.findOneAndUpdate({itemId: req.body.itemId,buId:req.body.buId}, { $set: { qty: bu.qty+req.body.requestedQty }},{new:true})

@@ -42,6 +42,9 @@ const itemSchema = new mongoose.Schema({
   cls: {
     type: String,
   },
+  medClass:{
+    type:String
+  },
   subClass: {
     type: String,
   },

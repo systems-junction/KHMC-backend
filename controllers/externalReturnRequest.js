@@ -1,4 +1,5 @@
 /* eslint-disable prefer-const */
+const notification = require('../components/notification')
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const { v4: uuidv4 } = require('uuid');
@@ -37,7 +38,7 @@ exports.deleteExternalReturnRequests = asyncHandler(async (req, res, next) => {
 exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
     const { generatedBy,generated,dateGenerated,expiryDate,itemId,currentQty,reason,
            reasonDetail,description,status,damageReport,prId} = req.body;
-    await ExternalReturnRequest.create({
+   const err =  await ExternalReturnRequest.create({
         returnRequestNo: uuidv4(),
         generatedBy,
         generated,
@@ -52,6 +53,9 @@ exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
         status,
         prId
     });
+    notification("Return Request", "A new Return Request "+err.returnRequestNo+" has been generated at "+err.createdAt+" Manually", "Warehouse Incharge")
+    const send = await ExternalReturnRequest.find().populate('itemId');
+    globalVariable.io.emit("get_data", send)
     res.status(200).json({ success: true });
 });
 
@@ -64,6 +68,19 @@ exports.updateExternalRequest = asyncHandler(async (req, res, next) => {
         new ErrorResponse(`External Return not found with id of ${_id}`, 404)
         );
     }
+    if(req.body.status == "approved")
+    {
+        notification("Return Request", "The Return Request "+req.body.returnRequestNo+" has been approved at "+req.body.updatedAt, "admin")
+        const send = await ExternalReturnRequest.find().populate('itemId');
+        globalVariable.io.emit("get_data", send)
+    }
+    if(req.body.status == "reject")
+    {
+        notification("Return Request", "The Return Request "+req.body.returnRequestNo+" has been rejected at "+req.body.updatedAt, "admin")
+        const send = await ExternalReturnRequest.find().populate('itemId');
+        globalVariable.io.emit("get_data", send)
+    }
+
     // if(req.body.status=="approved")
     // {
     //     req.body.status="Item Returned to Warehouse";

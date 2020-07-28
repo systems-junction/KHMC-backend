@@ -34,11 +34,6 @@ router.post('/addvendor', validateParams([
         type: 'string'
     },
     {
-        param_key: 'pobox',
-        required: true,
-        type: 'string'
-    },
-    {
         param_key: 'taxno',
         required: true,
         type: 'string'

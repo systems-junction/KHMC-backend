@@ -1,25 +1,15 @@
-const webpush = require("web-push");
+const notification = require('../components/notification')
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
-const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
+const ErrorResponse = require('../utils/errorResponse');
 const WarehouseInventory = require('../models/warehouseInventory');
 const PurchaseRequest = require('../models/purchaseRequest');
 const PurchaseRequestItems = require('../models/purchaseRequestItems');
-const Subscription = require('../models/subscriber')
-const StaffType = require('../models/staffType')
-const Staff = require('../models/staff')
-const User = require('../models/user')
-const privateVapidKey = "s92YuYXxjJ38VQhRSuayTb9yjN_KnVjgKfbpsHOLpjc";
-const publicVapidKey = "BOHtR0qVVMIA-IJEru-PbIKodcux05OzVVIJoIBKQu3Sp1mjvGkjaT-1PIzkEwAiAk6OuSCZfNGsgYkJJjOyV7k"
-webpush.setVapidDetails(
-  "mailto:hannanbutt1995@gmail.com",
-  publicVapidKey,
-  privateVapidKey
-);
+
 exports.getPurchaseRequests = asyncHandler(async (req, res) => {
   const purchaseRequest = await PurchaseRequest.find()
-    .populate('itemId')
+    .populate('item.itemId')
     .populate('vendorId');
   const status = [
     { key: 'to_do', value: 'To do' },
@@ -61,49 +51,11 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     department,
     orderType,
   });
-  const payload = JSON.stringify({ title: "Purchase Requested Generated",message:"Kindly check the request" });
-  const type = await StaffType.findOne({type:"Committe Member"})
-  const user = await User.find({staffTypeId:type._id})
-  for(var i = 0; i<user.length; i++ )
-  {
-  Subscription.find({user:user[i]._id}, (err, subscriptions) => {
-    if (err) {
-      console.error(`Error occurred while getting subscriptions`);
-      res.status(500).json({
-        error: 'Technical error occurred',
-      });
-    } else {
-      let parallelSubscriptionCalls = subscriptions.map((subscription) => {
-        return new Promise((resolve, reject) => {
-          const pushSubscription = {
-            endpoint: subscription.endpoint,
-            keys: {
-              p256dh: subscription.keys.p256dh,
-              auth: subscription.keys.auth,
-            },
-          };
-          const pushPayload = payload;
-          webpush
-            .sendNotification(pushSubscription, pushPayload)
-            .then((value) => {
-              resolve({
-                status: true,
-                endpoint: subscription.endpoint,
-                data: value,
-              });
-            })
-            .catch((err) => {
-              reject({
-                status: false,
-                endpoint: subscription.endpoint,
-                data: err,
-              });
-            });
-        });
-      });
-    }
-  });
-}
+  notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")
+  const pr = await PurchaseRequest.find()
+  .populate('itemId')
+  .populate('vendorId');
+  globalVariable.io.emit("get_data", pr)
   res.status(200).json({ success: true, data: purchaseRequest });
 });
 
@@ -135,6 +87,11 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
 
   if (req.body.committeeStatus === 'approved') {
     req.body.status = 'in_progress';
+    notification("Purchase Request", "A new Purchase Request "+req.body.requestNo+"has been generated at "+req.body.updatedAt, "admin")
+    const pr = await PurchaseRequest.find()
+    .populate('itemId')
+    .populate('vendorId');
+    globalVariable.io.emit("get_data", pr)
   }
 
   purchaseRequest = await PurchaseRequest.findOneAndUpdate(

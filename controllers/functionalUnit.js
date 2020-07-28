@@ -7,6 +7,14 @@ const FunctionalUnitLog = require('../models/functionalUnitLogs');
 const BusinessUnit = require('../models/businessUnit');
 const Staff = require('../models/staff');
 
+exports.getFUById = asyncHandler(async (req, res) => {
+  const functionalUnits = await FunctionalUnit.findOne({_id:req.params._id}).populate('fuHead').populate('buId');  
+  res.status(200).json({ success: true, data: functionalUnits });
+});
+exports.getWithBU = asyncHandler(async (req, res) => {
+  const functionalUnits = await FunctionalUnit.find({buId:req.params._id}).populate('fuHead').populate('buId');  
+  res.status(200).json({ success: true, data: functionalUnits });
+});
 exports.getFunctionalUnits = asyncHandler(async (req, res) => {
   const functionalUnits = await FunctionalUnit.find().populate('fuHead').populate('buId').populate('fuLogId');
   const businessUnit = await BusinessUnit.find();
@@ -24,7 +32,6 @@ exports.getFunctionalUnits = asyncHandler(async (req, res) => {
 });
 
 exports.getFunctionalUnitLogs = asyncHandler(async (req, res) => {
-  console.log("req: ", req.params)
   const fuLogs = await FunctionalUnitLog.find({fuId: req.params._id});
 
   res.status(200).json({ success: true, data: fuLogs });
@@ -83,7 +90,6 @@ exports.updateFunctionalUnit = asyncHandler(async (req, res, next) => {
     );
   }
   else if(updatedBy !== functionalUnitLog.updatedBy || (status && functionalUnitLog.status !== status)){ // create new log when staus or updated by changed
-    console.log("Create: ", reason, status);
     functionalUnitLog = await FunctionalUnitLog.create({
       uuid: uuidv4(),
       status,

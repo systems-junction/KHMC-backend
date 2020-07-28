@@ -9,6 +9,12 @@ const WarehouseInventorySchema = new mongoose.Schema({
     qty: {
         type: Number
     },
+    maximumLevel:{
+        type:Number
+    },
+    reorderLevel:{
+        type:Number
+    },
     createdAt: {
         type: Date,
         default: Date.now

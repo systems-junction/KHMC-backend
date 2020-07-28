@@ -1,20 +1,40 @@
 const express = require('express');
+const notification = require('./components/notification')
+const pOrderModel = require('./models/purchaseOrder')
+const MaterialRecievingModel = require('./models/materialReceiving')
 const dotenv = require('dotenv');
 const bodyparser = require('body-parser');
+const http = require('http');
+const socketIO = require('socket.io');
 const cors = require('cors');
-const WebSocketServer = require('websocket').server;
+const { v4: uuidv4 } = require('uuid');
+const moment = require('moment');
 const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
-let connection = null;
+var nodemailer = require('nodemailer');
+// const db = require('monk')(
+//   'mongodb+srv://khmc-staging:khmc-staging@khmc-staging.rvomo.mongodb.net/staging?retryWrites=true&w=majority'
+// );
 
+const db = require('monk')(
+  'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
+);
 dotenv.config({ path: './config/.env' });
 connectDB();
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'abdulhannan.itsolution@gmail.com',
+    pass: 'Abc123##',
+  },
+});
 // Route files
 const auth = require('./routes/auth');
 const item = require('./routes/item');
 const vendor = require('./routes/vendor');
 const buInventory = require('./routes/buInventory');
+const fuInventory = require('./routes/fuInventory');
 const buRepRequest = require('./routes/buRepRequest');
 const functionalUnit = require('./routes/functionalUnit');
 const buReturn = require('./routes/buReturn');
@@ -38,30 +58,34 @@ const materialReceiving = require('./routes/materialReceiving');
 const shippingTerm = require('./routes/shippingTerm');
 const accessLevel = require('./routes/accessLevel');
 const account = require('./routes/account');
-const replenishmentRequest = require('./routes/replenishmentRequest')
-const replenishmentRequestBU = require('./routes/replenishmentRequestBU')
-const internalReturnRequest = require('./routes/internalReturnRequest')
-const externalReturnRequest = require('./routes/externalReturnRequest')
-const subscriber = require('./routes/subscriber')
-const patient = require('./routes/patient')
+const replenishmentRequest = require('./routes/replenishmentRequest');
+const replenishmentRequestBU = require('./routes/replenishmentRequestBU');
+const internalReturnRequest = require('./routes/internalReturnRequest');
+const externalReturnRequest = require('./routes/externalReturnRequest');
+const subscriber = require('./routes/subscriber');
+const patient = require('./routes/patient');
+const insurance = require('./routes/insurance');
+const radiologyService = require('./routes/radiologyService');
+const laboratoryService = require('./routes/laboratoryService');
+const surgeryService = require('./routes/surgeryService');
+const nurseService = require('./routes/nurseService');
+const EDR = require('./routes/EDR');
+const ECR = require('./routes/ECR');
 const app = express();
-
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
-
-// Enable CORS
 app.use(cors());
 
 // Auth routes
-const { protect } = require('./middleware/auth');
-
-app.use(protect);
+// const { protect } = require('./middleware/auth');
+// app.use(protect);
 
 // Mount routers
 app.use('/api/auth', auth);
 app.use('/api/item', item);
 app.use('/api/vendor', vendor);
 app.use('/api/buinventory', buInventory);
+app.use('/api/fuinventory', fuInventory);
 app.use('/api/bureprequest', buRepRequest);
 app.use('/api/functionalunit', functionalUnit);
 app.use('/api/bureturn', buReturn);
@@ -92,17 +116,119 @@ app.use('/api/internalreturnrequest', internalReturnRequest);
 app.use('/api/externalreturnrequest', externalReturnRequest);
 app.use('/api/subscriber', subscriber);
 app.use('/api/patient', patient);
+app.use('/api/insurance', insurance);
+app.use('/api/radiologyservice', radiologyService);
+app.use('/api/laboratoryservice', laboratoryService);
+app.use('/api/surgeryservice', surgeryService);
+app.use('/api/nurseservice', nurseService);
+app.use('/api/edr', EDR);
+app.use('/api/ecr', ECR);
 app.use(errorHandler);
 
-// Set static folder
-// app.use(express.static(path.join(__dirname, 'public')));
-
 const PORT = process.env.PORT || 8080;
-
-const server = app.listen(
+const port = 4001;
+app.listen(
   PORT,
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
+const serverSocket = http.createServer(app);
+const io = socketIO(serverSocket);
+io.origins('*:*');
+io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+const pRequest = db.get('purchaserequests');
+const pOrder = db.get('purchaseorders');
+cron.schedule('*/10 * * * * *', () => {
+  // cron.schedule('* 7 * * *', () => {
+  pRequest
+    .find({ committeeStatus: 'approved', generated: 'System' })
+    .then((docs) => {
+      var temp = [];
+      for (let i = 0; i < docs.length; i++) {
+        temp.push(docs[i]);
+      }
+      while(temp.length >0)
+      {
+        var c= [];
+        var temp2 = temp[0]
+        if(temp2)
+        {
+        c = temp.filter((i)=> i.vendorId.toString() === temp2.vendorId.toString())
+      }
+       if(c.length>0)
+      {
+        var abc =[];
+               c.map(u=>{
+          abc.push(u._id)
+        })
+        pOrder.insert({
+        purchaseOrderNo: uuidv4(),
+        purchaseRequestId:abc,
+        generated:'System',
+        generatedBy:'System',
+        date:moment().toDate(),
+        vendorId:c[0].vendorId,
+        status: 'pending_reception',
+        committeeStatus: 'approved',
+        sentAt:moment().toDate(),
+        createdAt:moment().toDate(),
+        updatedAt:moment().toDate()
+      })  
+        pOrderModel.findOneAndUpdate({committeeStatus:'approved',generated:'System'},{ $set: { committeeStatus: "po_sent", status:"po_sent"}},{new:true}).populate({
+          path : 'purchaseRequestId',
+          populate: [{
+              path : 'item.itemId',
+              }]
+      }).populate('vendorId').then(function(data, err){
+
+      notification("Purchase Order", "A new Purchase Order "+data.purchaseOrderNo+" has been generated at "+data.createdAt+" by System", "admin")
+      const vendorEmail = data.vendorId.contactEmail
+      var content = data.purchaseRequestId.reduce(function(a, b) {
+    return a + '<tr><td>' + b.item.itemId.itemCode + '</a></td><td>' + b.item.itemId.name + '</td><td>' + b.item.reqQty + '</td></tr>';
+     }, '');
+       var mailOptions = {
+           from: 'abdulhannan.itsolution@gmail.com',
+           to: vendorEmail,
+           subject: 'Request for items',
+           html: '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' + 
+           content + '</tbody></table></div>'
+         };
+         transporter.sendMail(mailOptions, function(error, info){
+           if (error) {
+             console.log(error);
+           } else {
+             console.log('Email sent: ' + info.response);
+           }
+         });
+    var work = [];
+    for(let q=0; q<abc.length; q++)
+    {
+      work.push(
+        {id:abc[q]._id, status:"not recieved"}
+      )
+    }
+         MaterialRecievingModel.create({
+           prId : work,
+           poId : data._id,
+           vendorId : data.vendorId._id,
+           status : "pending_reception"
+       }).then(function(data, err){
+       })
+      })
+         temp = temp.filter((i)=>i.vendorId.toString()!=c[0].vendorId.toString())
+        }
+      }
+      for (let i = 0; i < docs.length; i++) {
+        pRequest.update(
+          { _id: docs[i]._id },
+          { $set: { committeeStatus: 'completed' } }
+        );
+      }
+    });
+});
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
@@ -110,45 +236,7 @@ process.on('unhandledRejection', (err, promise) => {
   // Close server & exit process
   // server.close(() => process.exit(1));
 });
-
-// pass the server object to the WebSocketServer library to do all the job, this class will override the req/res
-const websocket = new WebSocketServer({
-  httpServer: server,
-});
-
-// when a legit websocket request comes listen to it and get the connection .. once you get a connection thats it!
-websocket.on('request', (request) => {
-  connection = request.accept(null, request.origin);
-  connection.on('open', () => console.log('Opened!!!'));
-  connection.on('close', () => console.log('CLOSED!!!'));
-  connection.on('message', (message) => {
-    console.log(`Received message ${message.utf8Data}`);
-    if (message.utf8Data === 'add_vendor') {
-      setTimeout(function () {
-        connection.send(message.utf8Data);
-      }, 500);
-    } else {
-      connection.send(`got your message: ${message.utf8Data}`);
-    }
-  });
-
-  // use connection.send to send stuff to the client
-  sendevery5seconds();
-});
-
-function sendevery5seconds() {
-  connection.send(`Message ${Math.random()}`);
-  setTimeout(sendevery5seconds, 10000);
-}
-// schedule tasks to be run on the server
-// * * * * * *
-// | | | | | |
-// | | | | | day of week
-// | | | | month
-// | | | day of month
-// | | hour
-// | minute
-// second ( optional )
-// cron.schedule('10 * * * *', function () {
-//   console.log('running a task every 10 minutes');
-// });
+global.globalVariable = { io: io };
+serverSocket.listen(port, () =>
+  console.log(`Socket is listening on port ${port}`)
+);

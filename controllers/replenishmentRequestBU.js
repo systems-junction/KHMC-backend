@@ -1,75 +1,128 @@
 /* eslint-disable prefer-const */
+const notification = require ('../components/notification')
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const { v4: uuidv4 } = require('uuid');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
-const WHInventory = require('../models/warehouseInventory');
 const FunctionalUnit = require('../models/functionalUnit');
 const FUInventory = require('../models/fuInventory');
 const BUInventory = require('../models/buInventory');
+const WHInventory = require('../models/warehouseInventory');
+const ReplenishmentRequest = require('../models/replenishmentRequest');
 const PurchaseRequest = require('../models/purchaseRequest');
 const Item = require('../models/item');
+var st;
+var st2;    
+
 exports.getReplenishmentRequestsBU = asyncHandler(async (req, res) => {
-    const replenishmentRequest = await ReplenishmentRequestBU.find().populate('buId').populate('fuId').populate('itemId');    
+    const replenishmentRequest = await ReplenishmentRequestBU.find().populate('buId').populate('fuId').populate('item.itemId');    
     res.status(200).json({ success: true, data: replenishmentRequest });
 });
+
+exports.getReplenishmentRequestsBUP = asyncHandler(async (req, res) => {
+  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Pharmaceutical"}).populate('buId').populate('fuId').populate('item.itemId');    
+  res.status(200).json({ success: true, data: replenishmentRequest });
+});
+
+exports.getReplenishmentRequestsBUNP = asyncHandler(async (req, res) => {
+  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Non Pharmaceutical"}).populate('buId').populate('fuId').populate('item.itemId');    
+  res.status(200).json({ success: true, data: replenishmentRequest });
+});
+
 exports.getReplenishmentRequestsByIdBU = asyncHandler(async (req, res) => {
-    const replenishmentRequest = await ReplenishmentRequestBU.findOne({_id:_id}).populate('buId').populate('fuId').populate('itemId');
+    const replenishmentRequest = await ReplenishmentRequestBU.findOne({_id:req.body._id}).populate('buId').populate('fuId').populate('itemId');
     res.status(200).json({ success: true, data: replenishmentRequest });
 });
+
 exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
-    const { generated,generatedBy,dateGenerated,buId,comments,itemId,currentQty,requestedQty,
-           description,status,secondStatus} = req.body;
-            const bu = await FunctionalUnit.findOne({buId:req.body.buId})//wrong logic change when more data
-            const fu = await FUInventory.findOne({itemId: req.body.itemId,fuId:bu._id})
-            if(fu.qty<req.body.requestedQty)
+    const { generated,generatedBy,dateGenerated,buId,comments,item,currentQty,requestedQty,orderFor,
+           description,patientReferenceNo, requesterName, department, orderType,orderBy, reason} = req.body;
+          //  status,secondStatus
+           const func = await FunctionalUnit.findOne({_id:req.body.fuId})
+           for(let i=0; i<req.body.item.length; i++)
+           {
+           const fui = await FUInventory.findOne({itemId: req.body.item[i].itemId,fuId:func._id}).populate('itemId')
+           if(fui.qty<parseInt(req.body.item[i].requestedQty))
             {
-                req.body.secondStatus = "Cannot be fulfilled"
-                const i =await Item.findOne({_id:req.body.itemId}) 
-                var item={
-                    itemId:req.body.itemId,
-                    currQty:0,
-                    reqQty:100,
-                    comments:'System',
-                    name:i.name,
-                    description:i.description,
-                    itemCode:i.itemCode
-                }
-                    await PurchaseRequest.create({
-                        requestNo: uuidv4(),
-                        generated:'System',
-                        generatedBy:'System',
-                        committeeStatus: 'to_do',
-                        status:'to_do',
-                        comments:'System',
-                        reason:'System',
-                        item,
-                        vendorId:i.vendorId,
-                        requesterName:'System',
-                        department:'System',
-                        orderType:'System',
-                      });                           
+            req.body.item[i].secondStatus = "Cannot be fulfilled"
             }
             else
             {
-                req.body.secondStatus = "Can be fulfilled"
+                req.body.item[i].secondStatus = "Can be fulfilled"
             }
-    await ReplenishmentRequestBU.create({
+          }
+    const rrBU = await ReplenishmentRequestBU.create({
         requestNo: uuidv4(),
         generated,
         generatedBy,
         dateGenerated,        
-        fuId:bu._id,
+        fuId:func._id,
         buId,
         comments,
-        itemId,
+        orderType,
+        item,
         currentQty,
         requestedQty,
         description,
-        status,
+        // status,
+        requesterName,
+        orderFor,
+        orderBy,
+        department,
+        reason,
+        patientReferenceNo,
         // secondStatus,
-        secondStatus:req.body.secondStatus,
+        // secondStatus:req.body.secondStatus,
     });
+    notification("Professional Order", "A new Professional Order has been generated at "+rrBU.createdAt, "Committe Member")
+    const send = await ReplenishmentRequestBU.find().populate('buId').populate('fuId').populate('item.itemId');
+    globalVariable.io.emit("get_data", send)
+    for(let i=0; i<req.body.item.length; i++)
+    {
+    if(req.body.item[i].secondStatus == "Cannot be fulfilled")
+    {
+      const fu2 = await FUInventory.findOne({itemId: req.body.item[i].itemId,fuId:func._id}).populate('itemId')
+      const wh = await WHInventory.findOne({itemId:req.body.item[i].itemId}).populate('itemId')
+      const item = await Item.findOne({_id:req.body.item[i].itemId})
+      if(wh.qty<(parseInt(req.body.item[i].requestedQty) + (fu2.qty-fu2.maximumLevel)))
+      {
+      st = "pending"
+      st2 = "Cannot be fulfilled"
+      }
+      else
+      {
+      st = "pending"
+      st2 = "Can be fulfilled"
+      }
+      notification("Replenishment Request", "A new replenishment request has been generated by System at "+rrBU.createdAt, "Warehouse Member")
+      notification("Replenishment Request", "A new replenishment request has been generated by System at "+rrBU.createdAt, "FU Member")
+      const rrS = await ReplenishmentRequest.create({
+        requestNo: uuidv4(),
+        generated:'System',
+        generatedBy:'System',
+        reason:'reactivated_items',
+        fuId:req.body.fuId,
+        itemId:req.body.item[i].itemId,
+        comments:'System generated Replenishment Request',
+        currentQty:fu2.qty,
+        requestedQty:fu2.maximumLevel-fu2.qty,
+        description:item.description,
+        status: st,
+        secondStatus:st2,
+        requesterName:'System',
+        orderType:'',
+        to:'Warehouse',
+        from:'FU',
+        recieptUnit:item.receiptUnit,
+        issueUnit:item.issueUnit,
+        fuItemCost:0,
+        department:'',
+        rrB:rrBU._id
+      });
+//here   
+const send = await ReplenishmentRequest.find().populate('fuId').populate('itemId').populate('approvedBy');
+globalVariable.io.emit("get_data", send)   
+    }}
     res.status(200).json({ success: true });
 });
 
@@ -81,12 +134,9 @@ exports.deleteReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
         new ErrorResponse(`Replenishment Request not found with id of ${_id}`, 404)
         );
     }
-
     await ReplenishmentRequest.deleteOne({_id: _id});
-
     res.status(200).json({ success: true, data: {} });
 });
-
 exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
     const { _id } = req.body;
     let replenishmentRequest = await ReplenishmentRequestBU.findById(_id);
@@ -95,22 +145,57 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
         new ErrorResponse(`Replenishment Request not found with id of ${_id}`, 404)
         );
     }
-    if(req.body.status=="complete")
-    { 
-        const bui = await FunctionalUnit.findOne({buId:req.body.buId})//wrong logic change when more data
-        const fui = await FUInventory.findOne({itemId: req.body.itemId,fuId:bui._id})   
-        const bu = await BUInventory.findOne({itemId: req.body.itemId,buId:req.body.buId})
-        const fu = await FUInventory.findOne({itemId: req.body.itemId,_id:fui._id})
-        await BUInventory.findOneAndUpdate({itemId: req.body.itemId,buId:req.body.buId}, { $set: { qty: bu.qty+req.body.requestedQty }},{new:true})
-        await FUInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: fu.qty-req.body.requestedQty }},{new:true}).populate('itemId')   
-    }
+
     replenishmentRequest = await ReplenishmentRequestBU.findOneAndUpdate({_id: _id}, req.body,{new:true});
+    for (let i = 0; i<req.body.item.length; i++)
+    {
+      if(req.body.item[i].status == "in_progress")     
+      {
+        notification("Professional Order", "Professional Order "+replenishmentRequest.requestNo+" item has been updated to In Progress by the Inventory Keeper at "+replenishmentRequest.updatedAt, "BU Member") 
+      }
+      else if (req.body.item[i].status == "Delivery in Progress")
+      {
+        notification("Professional Order", "Professional Order "+replenishmentRequest.requestNo+" item has been updated to Delivery In Progress by the Inventory Keeper at "+replenishmentRequest.updatedAt, "BU Member") 
+      }
+    }
+
+
     res.status(200).json({ success: true, data: replenishmentRequest });
 });
   exports.getCurrentItemQuantityBU = asyncHandler(async (req, res) => {
     const buInventory = await BUInventory.findOne(
-      { itemId: req.body.itemId,buId:req.body.buId,fuId:req.body.fuId },
+      { itemId: req.body.itemId,buId:req.body.buId },
       { qty: 1 }
     );
     res.status(200).json({ success: true, data: buInventory });
   });
+
+
+//here2
+//   if(st2 == "Cannot be fulfilled")
+//   {
+// var item2={
+// itemId:req.body.itemId,
+// currQty:wh.qty,
+// reqQty:wh.maximumLevel - (fui.maximumLevel-fui.qty),
+// comments:'System',
+// name:item.name,
+// description:item.description,
+// itemCode:item.itemCode
+// }
+// await PurchaseRequest.create({
+//     requestNo: uuidv4(),
+//     generated:'System',
+//     generatedBy:'System',
+//     committeeStatus: 'to_do',
+//     status:'to_do',
+//     comments:'System',
+//     reason:'reactivated_items',
+//     item:item2,
+//     vendorId:item.vendorId,
+//     requesterName:'System',
+//     department:'',
+//     orderType:'',
+//     rr:rrS._id
+//   });
+//   }

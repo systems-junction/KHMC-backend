@@ -24,25 +24,29 @@ exports.getItems = asyncHandler(async (req, res) => {
     { key: 'medical', value: 'Medical' },
     { key: 'non_medical', value: 'Non Medical' },
   ];
+  const medClasses = [
+    { key: 'pharmaceutical', value: 'Pharmaceutical', parent: 'medical',},
+    { key: 'non_pharmaceutical', value: 'Non Pharmaceutical', parent: 'medical',},
+  ];
   const subClasses = [
     {
       key: 'medical_supplies',
       value: 'Medical Supplies & Instruments',
-      parent: 'medical',
+      parent: 'pharmaceutical',
     },
-    { key: 'medicine', value: 'Medicine', parent: 'medical' },
+    { key: 'medicine', value: 'Medicine', parent: 'pharmaceutical' },
     {
       key: 'laboratory_supplies',
       value: 'Laboratory Supplies',
-      parent: 'medical',
+      parent: 'pharmaceutical',
     },
     {
       key: 'radiology_medicine',
       value: 'Radiology Medicine & Supplies',
-      parent: 'medical',
+      parent: 'pharmaceutical',
     },
-    { key: 'food_beverage', value: 'Food & Beverage', parent: 'non_medical' },
-    { key: 'food_supplies', value: 'Food Supplies', parent: 'non_medical' },
+    { key: 'food_beverage', value: 'Food & Beverage', parent: 'non_pharmaceutical' },
+    { key: 'food_supplies', value: 'Food Supplies', parent: 'non_pharmaceutical' },
     {
       key: 'housekeeping_supplies',
       value: 'Housekeeping Supplies',
@@ -197,6 +201,7 @@ exports.getItems = asyncHandler(async (req, res) => {
     vendors,
     functionalUnit,
     classes,
+    medClasses,
     subClasses,
     grandSubClasses,
   };
@@ -213,7 +218,33 @@ exports.getSearchedItems = asyncHandler(async (req, res) => {
   };
   res.status(200).json({ success: true, data: data });
 });
-
+exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
+  const items = await Item.find({
+    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'non_medical'
+  });
+  const data = {
+    items,
+  };
+  res.status(200).json({ success: true, data: data });
+});
+exports.getSearchedItemsP = asyncHandler(async (req, res) => {
+  const items = await Item.find({
+    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'medical',medClass:'pharmaceutical'
+  });
+  const data = {
+    items,
+  };
+  res.status(200).json({ success: true, data: data });
+});
+exports.getSearchedItemsNP = asyncHandler(async (req, res) => {
+  const items = await Item.find({
+    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'non_medical',medClass:'non_pharmaceutical'
+  });
+  const data = {
+    items,
+  };
+  res.status(200).json({ success: true, data: data });
+});
 exports.addItem = asyncHandler(async (req, res, next) => {
   const {
     name,
@@ -227,6 +258,7 @@ exports.addItem = asyncHandler(async (req, res, next) => {
     maximumLevel,
     reorderLevel,
     cls,
+    medClass,
     subClass,
     grandSubClass,
     comments,
@@ -255,6 +287,7 @@ exports.addItem = asyncHandler(async (req, res, next) => {
     maximumLevel,
     reorderLevel,
     cls,
+    medClass,
     subClass,
     grandSubClass,
     comments,

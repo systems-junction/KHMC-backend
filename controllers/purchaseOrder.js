@@ -1,27 +1,24 @@
-const webpush = require("web-push");
 const { v4: uuidv4 } = require('uuid');
+const notification = require('../components/notification')
 var nodemailer = require('nodemailer');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Vendor = require('../models/vendor');
 const PurchaseOrder = require('../models/purchaseOrder');
 const MaterialRecieving = require('../models/materialReceiving');
-const StaffType = require('../models/staffType')
-const User = require('../models/user')
-const Subscription = require('../models/subscriber')
-const privateVapidKey = "s92YuYXxjJ38VQhRSuayTb9yjN_KnVjgKfbpsHOLpjc";
-const publicVapidKey = "BOHtR0qVVMIA-IJEru-PbIKodcux05OzVVIJoIBKQu3Sp1mjvGkjaT-1PIzkEwAiAk6OuSCZfNGsgYkJJjOyV7k"
-webpush.setVapidDetails(
-  "mailto:hannanbutt1995@gmail.com",
-  publicVapidKey,
-  privateVapidKey
-);
+
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'abdulhannan.itsolution@gmail.com',
     pass: 'Abc123##',
   },
+});
+exports.getPurchaseOrder = asyncHandler(async (req, res) => {
+  const purchaseOrder = await PurchaseOrder.find()
+  .populate('vendorId')
+  // .populate('purchaseRequestId');
+  res.status(200).json({ success: true, data: purchaseOrder });
 });
 exports.getPurchaseOrders = asyncHandler(async (req, res) => {
   const purchaseOrder = await PurchaseOrder.find()
@@ -76,49 +73,11 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     status,
     committeeStatus: 'to_do',
   });
-  const payload = JSON.stringify({ title: "Purchase Order Generated",message:"Kindly check the order" });
-  const type = await StaffType.findOne({type:"Committe Member"})
-  const user = await User.find({staffTypeId:type._id})
-  for(var i = 0; i<user.length; i++ )
-  {
-  Subscription.find({user:user[i]._id}, (err, subscriptions) => {
-    if (err) {
-      console.error(`Error occurred while getting subscriptions`);
-      res.status(500).json({
-        error: 'Technical error occurred',
-      });
-    } else {
-      let parallelSubscriptionCalls = subscriptions.map((subscription) => {
-        return new Promise((resolve, reject) => {
-          const pushSubscription = {
-            endpoint: subscription.endpoint,
-            keys: {
-              p256dh: subscription.keys.p256dh,
-              auth: subscription.keys.auth,
-            },
-          };
-          const pushPayload = payload;
-          webpush
-            .sendNotification(pushSubscription, pushPayload)
-            .then((value) => {
-              resolve({
-                status: true,
-                endpoint: subscription.endpoint,
-                data: value,
-              });
-            })
-            .catch((err) => {
-              reject({
-                status: false,
-                endpoint: subscription.endpoint,
-                data: err,
-              });
-            });
-        });
-      });
-    }
-  });
-}
+  notification("Purchase Order", "A new Purchase Order "+purchaseOrder.purchaseOrderNo +" has been generated at "+purchaseOrder.createdAt, "admin")
+  const po = await PurchaseOrder.find()
+  .populate('vendorId')
+  .populate('purchaseRequestId');
+  globalVariable.io.emit("get_data", po)
   res.status(200).json({ success: true, data: purchaseOrder });
 });
 
@@ -147,7 +106,8 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
   }
 
   if (req.body.committeeStatus === 'approved') {
-    req.body.status = 'items_in_transit';
+    notification("Purchase Order", "Purchase Order "+req.body.purchaseOrderNo+" has been approved by Accounts at"+req.body.updatedAt, "admin")
+    req.body.status = 'pending_reception';
     req.body.sentAt = Date.now();
     // Sending Email to Vendor
 
@@ -178,15 +138,66 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
          });
   }
   purchaseOrder = await PurchaseOrder.findOneAndUpdate({ _id: _id }, req.body,{new: true});
-  if(purchaseOrder.status === "items_in_transit")
+  if(purchaseOrder.status === "pending_reception")
   {
     const { prId} = req.body;
     await MaterialRecieving.create({
       prId,
       poId : purchaseOrder._id,
       vendorId : purchaseOrder.vendorId,
-      status : "items_in_transit"
+      status : "pending_reception"
   });
   }
   res.status(200).json({ success: true, data: purchaseOrder });
 });
+
+
+
+
+// const payload = JSON.stringify({ title: "Purchase Order Generated",message:"Kindly check the order" });
+// const type = await StaffType.findOne({type:"Committe Member"})
+// const user = await User.find({staffTypeId:type._id})
+// for(var i = 0; i<user.length; i++ )
+// {
+// Subscription.find({user:user[i]._id}, (err, subscriptions) => {
+//   if (err) {
+//     console.error(`Error occurred while getting subscriptions`);
+//     res.status(500).json({
+//       error: 'Technical error occurred',
+//     });
+//   } else {
+//     let parallelSubscriptionCalls = subscriptions.map((subscription) => {
+//       return new Promise((resolve, reject) => {
+//         const pushSubscription = {
+//           endpoint: subscription.endpoint,
+//           keys: {
+//             p256dh: subscription.keys.p256dh,
+//             auth: subscription.keys.auth,
+//           },
+//         };
+//         const pushPayload = payload;
+//         webpush
+//           .sendNotification(pushSubscription, pushPayload)
+//           .then((value) => {
+//             resolve({
+//               status: true,
+//               endpoint: subscription.endpoint,
+//               data: value,
+//             });
+//           })
+//           .catch((err) => {
+//             reject({
+//               status: false,
+//               endpoint: subscription.endpoint,
+//               data: err,
+//             });
+//           });
+//       });
+//     });
+//   }
+// });
+// }
+// const po = await PurchaseOrder.find()
+// .populate('vendorId')
+// .populate('purchaseRequestId');
+// globalVariable.io.emit("get_data", po)

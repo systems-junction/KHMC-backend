@@ -21,29 +21,65 @@ const replenishmentRequestBUSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'businessUnit'
     },
+    patientReferenceNo:{
+        type:String,
+    },
     comments:{
         type: String
     },
-    itemId:{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Item'
+    orderFor:{
+        type:String
     },
-    currentQty:{
-        type:Number
-    },
-    requestedQty:{
-        type:Number
-    },
+    item:[{
+        itemId:{
+            type: mongoose.Schema.ObjectId,
+            ref: 'Item'
+        },
+        currentQty:{
+            type:Number
+        },
+        requestedQty:{
+            type:Number
+        },
+        status: {
+            type: String
+        },
+        secondStatus:{
+            type:String
+        },
+        dosage:{
+            type:Number
+        },
+        noOfTimes:{
+            type:Number
+        },
+        duration:{
+            type:Number
+        },
+        form:{
+            type:String
+        }
+    }],
+
     description:{
         type:String
     },
-    status: {
-        type: String
-    },
-    secondStatus:{
+    commentNote:{
         type:String
     },
-    commentNote:{
+    requesterName: {
+        type:String
+    },
+    department: {
+        type:String
+    },
+    orderType:{
+        type:String
+    },
+    orderBy:{
+        type:String
+    },
+    reason:{
         type:String
     },
     createdAt: {

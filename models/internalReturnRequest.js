@@ -22,6 +22,9 @@ const internalReturnRequestSchema = new mongoose.Schema({
     currentQty:{
         type:Number
     },
+    returnedQty:{
+        type:Number
+    },
     itemId:{
         type: mongoose.Schema.ObjectId,
         ref: 'Item'

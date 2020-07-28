@@ -12,7 +12,7 @@ exports.register = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    staffTypeId
+    staffTypeId,
   });
 
   sendTokenResponse(user, 200, res);
@@ -26,7 +26,6 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // Check for user
   const user = await User.findOne({ email }).populate('staffTypeId');
-  console.log("user: ", user);
 
   if (!user) {
     return next(new ErrorResponse('Invalid credentials', 401));
@@ -35,7 +34,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   // Check if password matches
   const isMatch = await user.matchPassword(password);
 
-  if(!isMatch){
+  if (!isMatch) {
     return next(new ErrorResponse('Invalid credentials', 401));
   }
   sendTokenResponse(user, 200, res);
@@ -47,12 +46,12 @@ exports.login = asyncHandler(async (req, res, next) => {
 exports.logout = asyncHandler(async (req, res) => {
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true
+    httpOnly: false,
   });
 
   res.status(200).json({
     success: true,
-    data: {}
+    data: {},
   });
 });
 
@@ -64,7 +63,7 @@ exports.getMe = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: user
+    data: user,
   });
 });
 
@@ -77,7 +76,7 @@ const sendTokenResponse = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true
+    httpOnly: false,
   };
 
   if (process.env.NODE_ENV === 'production') {
@@ -86,11 +85,10 @@ const sendTokenResponse = (user, statusCode, res) => {
 
   const data = {
     token,
-    user
-  }
-  res.status(statusCode).cookie('token', token, options)
-    .json({
-      success: true,
-      data
-    });
+    user,
+  };
+  res.status(statusCode).cookie('token', token, options).json({
+    success: true,
+    data,
+  });
 };

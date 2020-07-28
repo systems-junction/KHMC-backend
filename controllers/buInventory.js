@@ -5,6 +5,10 @@ const BuInventory = require('../models/buInventory');
 const Items = require('../models/item');
 const BusinessUnit = require('../models/businessUnit');
 
+exports.getBuInventoryById = asyncHandler(async (req, res) => {
+  const buInventory = await BuInventory.find({buId:req.params._id}).populate('itemId').populate('buId');
+   res.status(200).json({ success: true, data: buInventory });
+});
 exports.getBuInventory = asyncHandler(async (req, res) => {
     const buInventory = await BuInventory.find().populate('itemId').populate('buId');
     const items = await Items.find();

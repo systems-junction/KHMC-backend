@@ -7,7 +7,7 @@ const fuInventorySchema = new mongoose.Schema({
     fuId: {
         type: mongoose.Schema.ObjectId,
         ref: 'functionalUnit',
-        required: [true, 'Please select Business Unit']
+        // required: [true, 'Please select Business Unit']
     },
     itemId: {
         type: mongoose.Schema.ObjectId,
@@ -17,6 +17,12 @@ const fuInventorySchema = new mongoose.Schema({
     qty: {
         type: Number,
         required: [true, 'Please add qty']
+    },
+    maximumLevel:{
+        type:Number
+    },
+    reorderLevel:{
+        type:Number
     },
     createdAt: {
         type: Date,

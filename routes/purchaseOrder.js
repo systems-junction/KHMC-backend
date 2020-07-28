@@ -2,6 +2,7 @@ const express = require('express');
 const { validateParams } = require('../middleware/validator');
 
 const {
+    getPurchaseOrder,
     getPurchaseOrders,
     addPurchaseOrder,
     deletePurchaseOrder,
@@ -10,7 +11,7 @@ const {
 
 const router = express.Router();
 
-
+router.get('/getpurchaseorder', getPurchaseOrder);
 router.get('/getpurchaseorders', getPurchaseOrders);
 router.post('/addpurchaseorder', validateParams([
     {

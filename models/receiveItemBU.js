@@ -88,6 +88,9 @@ const ReceiveItemBUSchema = new mongoose.Schema({
     replenishmentRequestId:{
         type: mongoose.Schema.ObjectId,
         ref: 'ReplenishmentRequestBU'
+    },
+    replenishmentRequestItemId:{
+        type: mongoose.Schema.ObjectId,
     }
 });
 
