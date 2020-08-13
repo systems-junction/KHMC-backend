@@ -1,7 +1,8 @@
 const express = require('express');
 
 const {
-    getECR,
+    getECRfromEDR,
+    getECRfromIPR,
     getECRById,
     addECR,
     deleteECR,
@@ -10,7 +11,8 @@ const {
 
 const router = express.Router();
 router.get('/getecr/:id', getECRById);
-router.get('/getecr', getECR);
+router.get('/getecrfromedr/:_id', getECRfromEDR);
+router.get('/getecrfromipr/:_id', getECRfromIPR);
 router.post('/addecr', addECR);
 router.delete('/deleteecr/:_id', deleteECR);
 router.put('/updateecr', updateECR);

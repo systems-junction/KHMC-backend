@@ -1,26 +1,34 @@
 const mongoose = require('mongoose');
-
+const name      = require("./humanName");
+const telecom         = require("./contactPoint");
+const address   = require("./address");
 const patientSchema = new mongoose.Schema({
-  profileNo: {
+  profileNo: { //notneeded
     type: String,
     unique: true,
   },
-  SIN: {
+  SIN: { //notneeded
     type: String,
     unique: true,
   },
-  title: {
-    type: String,
+  active:{
+    type:Boolean
   },
-  firstName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
-  gender: {
-    type: String,
-  },
+  //FHIR
+  name:[ name.humanName ],
+  telecom:[ telecom.contactPoint ],
+  gender:{ type: String, enum: [ "male", "female", "other", "unknown" ]},
+  birthDate:{ type: Date },
+  deceasedBoolean:{type:Boolean},
+  deceasedDateTime:{type:Date},
+  address:[ address.address ],
+  maritalStatus:  { type: String },
+  multipleBirthBoolean:{type:Boolean},
+  multipleBirthInteger:{type:Number},
+  photo:[{type:String}],
+  generalPractitioner:[{type:mongoose.Schema.ObjectId}],
+  managingOrganization:{type:mongoose.Schema.ObjectId},
+  //FHIR End
   age: {
     type: Number,
   },

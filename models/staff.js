@@ -61,6 +61,9 @@ const staffSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add status'],
     },
+    routes :[
+      {type:String}
+    ]
   },
   {
     timestamps: true,

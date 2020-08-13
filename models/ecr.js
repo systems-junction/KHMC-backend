@@ -4,132 +4,28 @@ const ECRSchema = new mongoose.Schema({
   requestNo: {
     type: String,
   },
-  patientId: {
+  edrId:{
     type: mongoose.Schema.ObjectId,
-    ref: 'patient',
+    ref: 'EDR',    
   },
-  consultationNote: [
-    {
-      consultationNo: {
-        type: String,
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-      description: {
-        type: String,
-      },
-      consultationNotes: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-    },
-  ],
-  pharmacyRequest: [
-    {
-      requestNo: {
-        type: String,
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-      status: {
-        type: String,
-      },
-      consultationNotes: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      medicine: [
-        {
-          medicineName: {
-            type: String,
-          },
-          duration: {
-            type: String,
-          },
-          dosage: {
-            type: String,
-          },
-          additionalNote: {
-            type: String,
-          },
-        },
-      ],
-    },
-  ],
-  labRequest: [
-    {
-      serviceId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'LaboratoryService',
-      },
-      status: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
-  radiologyRequest: [
-    {
-      serviceId: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'RadiologyService',
-      },
-      status: {
-        type: String,
-      },
-      requester: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'staff',
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
-  inPatientRequest: {},
-  status: {
-    type: String,
+  iprId:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'IPR',
   },
-  triageAssessment: {
-    triageLevel: {
-      type: String,
-    },
-    generalAppearance: {
-      type: String,
-    },
-    headNeck: {
-      type: String,
-    },
-    respiratory: {
-      type: String,
-    },
-    cardiac: {
-      type: String,
-    },
-    abdomen: {
-      type: String,
-    },
-    neurological: {
-      type: String,
-    },
+  generatedBy:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff',
+  },
+  generatedFor:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff',
+  },
+  patient:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'patient'
+  },
+  generatedFrom:{
+    type:String
   },
   createdAt: {
     type: Date,

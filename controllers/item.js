@@ -32,13 +32,13 @@ exports.getItems = asyncHandler(async (req, res) => {
     {
       key: 'medical_supplies',
       value: 'Medical Supplies & Instruments',
-      parent: 'pharmaceutical',
+      parent: 'non_pharmaceutical',
     },
     { key: 'medicine', value: 'Medicine', parent: 'pharmaceutical' },
     {
       key: 'laboratory_supplies',
       value: 'Laboratory Supplies',
-      parent: 'pharmaceutical',
+      parent: 'non_pharmaceutical',
     },
     {
       key: 'radiology_medicine',
@@ -211,7 +211,7 @@ exports.getItems = asyncHandler(async (req, res) => {
 
 exports.getSearchedItems = asyncHandler(async (req, res) => {
   const items = await Item.find({
-    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],
+    $or: [{ tradeName: {$regex: req.params.keyword, $options: 'i'} },{ scientificName: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],
   });
   const data = {
     items,
@@ -220,7 +220,7 @@ exports.getSearchedItems = asyncHandler(async (req, res) => {
 });
 exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
   const items = await Item.find({
-    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'non_medical'
+    $or: [{ tradeName: {$regex: req.params.keyword, $options: 'i'} },{ scientificName: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'non_medical'
   });
   const data = {
     items,
@@ -229,7 +229,7 @@ exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
 });
 exports.getSearchedItemsP = asyncHandler(async (req, res) => {
   const items = await Item.find({
-    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'medical',medClass:'pharmaceutical'
+    $or: [{ tradeName: {$regex: req.params.keyword, $options: 'i'} },{ scientificName: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'medical',medClass:'pharmaceutical'
   });
   const data = {
     items,
@@ -238,7 +238,7 @@ exports.getSearchedItemsP = asyncHandler(async (req, res) => {
 });
 exports.getSearchedItemsNP = asyncHandler(async (req, res) => {
   const items = await Item.find({
-    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'non_medical',medClass:'non_pharmaceutical'
+    $or: [{ tradeName: {$regex: req.params.keyword, $options: 'i'} },{ scientificName: {$regex: req.params.keyword, $options: 'i'} }, { itemCode: {$regex: req.params.keyword, $options: 'i'} }],cls:'medical',medClass:'non_pharmaceutical'
   });
   const data = {
     items,
@@ -257,6 +257,8 @@ exports.addItem = asyncHandler(async (req, res, next) => {
     minimumLevel,
     maximumLevel,
     reorderLevel,
+    form,
+    drugAllergy,
     cls,
     medClass,
     subClass,
@@ -286,6 +288,8 @@ exports.addItem = asyncHandler(async (req, res, next) => {
     minimumLevel,
     maximumLevel,
     reorderLevel,
+    form,
+    drugAllergy,
     cls,
     medClass,
     subClass,

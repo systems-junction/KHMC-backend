@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const EDRSchema = new mongoose.Schema({
+
+const IPRSchema = new mongoose.Schema({
     requestNo:{
         type:String
     },
@@ -48,6 +49,9 @@ const EDRSchema = new mongoose.Schema({
           note: {
             type:String
           },
+          status:{
+              type:String
+          }
         },
       ],
     pharmacyRequest:[
@@ -97,18 +101,18 @@ const EDRSchema = new mongoose.Schema({
     ],
     labRequest:[
         {
-            serviceCode:{
-                type:String
-            },
             serviceId:{
                 type:mongoose.Schema.ObjectId,
                 ref:'LaboratoryService'
             },
-            serviceName:{
-                type:String
-            },
             requesterName:
             {
+                type:String
+            },
+            serviceCode:{
+                type:String
+            },
+            serviceName:{
                 type:String
             },
             status:{
@@ -130,8 +134,34 @@ const EDRSchema = new mongoose.Schema({
                 type:mongoose.Schema.ObjectId,
                 ref:'RadiologyService'
             },
+            serviceCode:{
+                type:String
+            },
+            status:{
+                type:String
+            },
+            requesterName:
+            {
+                type:String
+            },
             serviceName:{
                 type:String
+            },
+            requester:{
+                type:mongoose.Schema.ObjectId,
+                ref:'staff'
+            },
+            date:{
+                type:Date,
+                default:Date.now
+            }
+        }
+    ],
+    nurseService:[
+        {
+            serviceId:{
+                type:mongoose.Schema.ObjectId,
+                ref:'NurseService'
             },
             requesterName:
             {
@@ -141,6 +171,9 @@ const EDRSchema = new mongoose.Schema({
                 type:String
             },
             status:{
+                type:String
+            },
+            serviceName:{
                 type:String
             },
             requester:{
@@ -245,7 +278,7 @@ const EDRSchema = new mongoose.Schema({
     },
     requestType:{
         type:String,
-        default:'EDR'
+        default:'IPR'
     },
      createdAt: {
         type: Date,
@@ -256,4 +289,5 @@ const EDRSchema = new mongoose.Schema({
         default: Date.now
     }
 });
-module.exports = mongoose.model('EDR', EDRSchema);
+
+module.exports = mongoose.model('IPR', IPRSchema);

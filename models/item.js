@@ -13,6 +13,12 @@ const itemSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add bar code'],
   },
+  form:{
+    type:String
+  },
+  drugAllergy:[
+    {type:String}
+  ],
   receiptUnit: {
     type: String,
     required: [true, 'Please Insert Receipt Unit'],

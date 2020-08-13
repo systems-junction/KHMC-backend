@@ -54,3 +54,10 @@ exports.updateSurgeryService = asyncHandler(async (req, res, next) => {
   surgeryService = await SurgeryService.findOneAndUpdate({ _id: _id }, req.body,{new: true});
   res.status(200).json({ success: true, data: surgeryService });
 });
+
+exports.getSearchedSurgery = asyncHandler(async (req, res) => {
+  const surgeryService = await SurgeryService.find({
+    $or: [{ name: {$regex: req.params.keyword, $options: 'i'} }, { serviceNo: {$regex: req.params.keyword, $options: 'i'} }],
+  });
+  res.status(200).json({ success: true, data: surgeryService });
+});

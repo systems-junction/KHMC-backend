@@ -20,6 +20,12 @@ exports.getStaff = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: data });
 });
 
+exports.getExternalConsultant = asyncHandler(async (req, res) => {
+  const staff = await Staff.find({staffTypeId:'5f28f500b0d678b22fd9cafb'})
+    .populate('systemAdminId')
+    .populate('staffTypeId');
+  res.status(200).json({ success: true, data: staff });
+});
 exports.addStaff = asyncHandler(async (req, res) => {
   const {
     staffTypeId,
@@ -35,6 +41,7 @@ exports.addStaff = asyncHandler(async (req, res) => {
     address,
     systemAdminId,
     status,
+    routes
   } = req.body;
 
   const staff = await Staff.create({
@@ -51,6 +58,7 @@ exports.addStaff = asyncHandler(async (req, res) => {
     address,
     systemAdminId,
     status,
+    routes
   });
 
   // Create user

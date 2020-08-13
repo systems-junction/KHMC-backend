@@ -47,6 +47,12 @@ const replenishmentRequestBUSchema = new mongoose.Schema({
         secondStatus:{
             type:String
         },
+        priority:{
+            type:String
+        },
+        schedule:{
+            type:String
+        },
         dosage:{
             type:Number
         },

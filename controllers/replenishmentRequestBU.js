@@ -19,13 +19,13 @@ exports.getReplenishmentRequestsBU = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: replenishmentRequest });
 });
 
-exports.getReplenishmentRequestsBUP = asyncHandler(async (req, res) => {
-  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Pharmaceutical"}).populate('buId').populate('fuId').populate('item.itemId');    
+exports.getReplenishmentRequestsBUM = asyncHandler(async (req, res) => {
+  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Medical"}).populate('buId').populate('fuId').populate('item.itemId');    
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 
-exports.getReplenishmentRequestsBUNP = asyncHandler(async (req, res) => {
-  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Non Pharmaceutical"}).populate('buId').populate('fuId').populate('item.itemId');    
+exports.getReplenishmentRequestsBUNM = asyncHandler(async (req, res) => {
+  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Non Medical"}).populate('buId').populate('fuId').populate('item.itemId');    
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 
