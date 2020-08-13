@@ -146,7 +146,6 @@ exports.deletePatient = asyncHandler(async (req, res, next) => {
 
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   var { _id } = JSON.parse(req.body.data);
-
   var patient = await Patient.findById(_id);
   if (!patient) {
     return next(new ErrorResponse(`Patient not found with id of ${_id}`, 404));
@@ -154,12 +153,21 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
   if (req.file) {
     patient = await Patient.findOneAndUpdate(
       { _id: _id },
-      { $set: { depositSlip: req.file.path } },
       JSON.parse(req.body.data),
       { new: true }
     );
+    await Patient.findOneAndUpdate(
+      { _id: _id },
+      { $set: { depositSlip: req.file.path } },
+      { new: true }
+    );
   } else {
-    patient = await Patient.findOneAndUpdate({ _id: _id },JSON.parse(req.body.data),{ new: true });
+    patient = await Patient.findOneAndUpdate(
+      { _id: _id },
+      JSON.parse(req.body.data),
+      { new: true }
+    );
   }
   res.status(200).json({ success: true, data: patient });
 });
+
