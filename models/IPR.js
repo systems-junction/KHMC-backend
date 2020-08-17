@@ -276,6 +276,38 @@ const IPRSchema = new mongoose.Schema({
             type:String
         }
     },
+    followUp:[
+        {
+            requester:
+            {
+                type:mongoose.Schema.ObjectId,
+                ref:'staff'
+            },
+            file:{
+                type:String
+            },
+            description:{
+                type:String
+            },
+            notes:{
+                type:String
+            },
+            status:{
+                type:String
+            },
+            doctorName:{
+                type:String
+            },
+            doctor:{
+                type:mongoose.Schema.ObjectId,
+                ref:'staff'
+            },
+            date:{
+                type:Date,
+                default:Date.now
+            }
+        }
+    ],
     requestType:{
         type:String,
         default:'IPR'
