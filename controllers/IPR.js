@@ -163,8 +163,8 @@ exports.getIPRById = asyncHandler(async (req, res) => {
   });
 
 exports.addIPR = asyncHandler(async (req, res) => {
-  const {  patientId, generatedBy, consultationNote, residentNotes, pharmacyRequest, labRequest, radiologyRequest, nurseService,
-    dischargeRequest, status, triageAssessment,followUp } = req.body;
+  const {  patientId, generatedBy, consultationNote, residentNotes, pharmacyRequest, labRequest, radiologyRequest, nurseService,followUp,
+    dischargeRequest, status, triageAssessment } = req.body;
   const ipr = await IPR.create({
     requestNo:uuidv4(),
     patientId,
@@ -176,9 +176,9 @@ exports.addIPR = asyncHandler(async (req, res) => {
     radiologyRequest,
     dischargeRequest,
     nurseService,
+    followUp,
     status,
     triageAssessment,
-    followUp
   });
   res.status(200).json({ success: true, data: ipr });
 });
