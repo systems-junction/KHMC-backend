@@ -17,7 +17,8 @@ const {
     getIPRById,
     addIPR,
     deleteIPR,
-    updateIPR
+    updateIPR,
+    addFollowUp
 } = require('../controllers/IPR');
 
 const router = express.Router();
@@ -38,5 +39,5 @@ router.put('/updaterad', putRRIPRById);
 router.post('/addipr', addIPR);
 router.delete('/deleteipr/:_id', deleteIPR);
 router.put('/updateipr', updateIPR);
-
+router.put('/addfollowup', addFollowUp);
 module.exports = router;

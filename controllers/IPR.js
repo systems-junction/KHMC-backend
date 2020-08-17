@@ -205,3 +205,11 @@ exports.updateIPR = asyncHandler(async (req, res, next) => {
   ipr = await IPR.updateOne({ _id: _id }, req.body);
   res.status(200).json({ success: true, data: ipr });
 });
+exports.addFollowUp = asyncHandler(async(req,res) =>{
+  if (req.file) {
+    await IPR.findOneAndUpdate({'followUp._id': req.body._id},{ $set: { 'followUp.$.file': req.file.path }},{new: true})
+  } else {
+    await IPR.updateOne({ 'followUp._id': req.body._id }, JSON.parse(req.body.followUp));
+  }
+  res.status(200).json({success:true})
+  })
