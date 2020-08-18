@@ -1,4 +1,18 @@
 const express = require('express');
+const multer = require('multer');
+const PATH = './uploads';
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, PATH);
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname
+    );
+  },
+});
+var upload = multer({ storage: storage });
 
 const {
     getIPR,
@@ -39,5 +53,5 @@ router.put('/updaterad', putRRIPRById);
 router.post('/addipr', addIPR);
 router.delete('/deleteipr/:_id', deleteIPR);
 router.put('/updateipr', updateIPR);
-router.put('/addfollowup', addFollowUp);
+router.put('/addfollowup', upload.single('file'), addFollowUp);
 module.exports = router;
