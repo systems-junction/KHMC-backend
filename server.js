@@ -80,7 +80,7 @@ const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 app.use(cors());
-
+app.use('/uploads', express.static('uploads'));
 // Auth routes
 // const { protect } = require('./middleware/auth');
 // app.use(protect);
