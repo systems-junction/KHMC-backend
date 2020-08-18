@@ -283,6 +283,13 @@ const IPRSchema = new mongoose.Schema({
                 type:mongoose.Schema.ObjectId,
                 ref:'staff'
             },
+            approvalNumber:{
+                type:String
+            },
+            approvalPerson:{
+                type:mongoose.Schema.ObjectId,
+                ref:'staff'
+            },
             file:{
                 type:String
             },
