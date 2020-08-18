@@ -1,13 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose  = require('mongoose');
 const name      = require("./humanName");
-const telecom         = require("./contactPoint");
+const telecom   = require("./contactPoint");
 const address   = require("./address");
+const contact   = require("./contact");
+const photo     = require("./attachment");
 const patientSchema = new mongoose.Schema({
-  profileNo: {
-    type: String,
-    unique: true,
-  },
-
   name:[
      name.humanName 
     ],
@@ -39,8 +36,9 @@ const patientSchema = new mongoose.Schema({
   multipleBirthInteger:{
     type:Number
   },
-  photo:[
-    {type:String}
+  photo:[photo.attachment],
+  contact:[
+    contact.contact
   ],
   generalPractitioner:[
     {type:mongoose.Schema.ObjectId}
@@ -58,4 +56,4 @@ const patientSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('patient', patientSchema);
+module.exports = mongoose.model('patientfhir', patientSchema);
