@@ -209,10 +209,10 @@ exports.addFollowUp = asyncHandler(async(req,res) =>{
   var data = JSON.parse(req.body.data);
 
   if (req.file) {
-    await IPR.findOneAndUpdate({'followUp._id': data.followUpId }, data);
-    await IPR.findOneAndUpdate({'followUp._id': data.followUpId},{ $set: { 'followUp.$.file': req.file.path }},{new: true})
+    await IPR.findOneAndUpdate({'followUp._id': data.followUpId,_id:data.IPRId  }, data);
+    await IPR.findOneAndUpdate({'followUp._id': data.followUpId,_id:data.IPRId },{ $set: { 'followUp.$.file': req.file.path }},{new: true})
   } else {
-    await IPR.findOneAndUpdate({ 'followUp._id': data.followUpId}, data);
+    await IPR.findOneAndUpdate({'followUp._id': data.followUpId,_id:data.IPRId }, data);
   }
   res.status(200).json({success:true})
   })
