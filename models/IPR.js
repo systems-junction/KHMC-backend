@@ -122,6 +122,12 @@ const IPRSchema = new mongoose.Schema({
                 type:mongoose.Schema.ObjectId,
                 ref:'staff'
             },
+            results:{
+                type:String
+            },
+            sampleId:{
+                type:String
+            },
             date:{
                 type:Date,
                 default:Date.now
@@ -150,6 +156,9 @@ const IPRSchema = new mongoose.Schema({
             requester:{
                 type:mongoose.Schema.ObjectId,
                 ref:'staff'
+            },
+            results:{
+                type:String
             },
             date:{
                 type:Date,

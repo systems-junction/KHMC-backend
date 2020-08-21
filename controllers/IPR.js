@@ -108,11 +108,23 @@ exports.getRRIPRById = asyncHandler(async (req, res) => {
 });
 
 exports.putRRIPRById = asyncHandler(async (req, res) => {
-  const ipr = await IPR.findOneAndUpdate({'radiologyRequest._id': req.body._id},{ $set: { 'radiologyRequest.$.status': req.body.status }},{new: true})
-  .populate('radiologyRequest.requester')
-  .populate('radiologyRequest.serviceId').select({radiologyRequest:1})
-   res.status(200).json({ success: true, data: ipr });
+  var data = JSON.parse(req.body.data);
+  if (req.file) {
+    await IPR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.IPRId  }, data);
+    await IPR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.IPRId },{ $set: { 'radiologyRequest.$.results': req.file.path }},{new: true})
+    await IPR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.IPRId },{ $set: { 'radiologyRequest.$.status': data.status }},{new: true})
+  } else {
+    await IPR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.IPRId }, data);
+    await IPR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.IPRId },{ $set: { 'radiologyRequest.$.status': data.status }},{new: true})
+  }
+  res.status(200).json({success:true})
+
+  // const ipr = await IPR.findOneAndUpdate({'radiologyRequest._id': req.body._id},{ $set: { 'radiologyRequest.$.status': req.body.status }},{new: true})
+  // .populate('radiologyRequest.requester')
+  // .populate('radiologyRequest.serviceId').select({radiologyRequest:1})
+  //  res.status(200).json({ success: true, data: ipr });
 });
+
 exports.getLRIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find({labRequest : {$ne:[]}}).populate('patientId').populate('labRequest.requester')
   .populate('labRequest.serviceId').select({labRequest:1, requestNo:1})
@@ -148,10 +160,21 @@ exports.getLRIPRById = asyncHandler(async (req, res) => {
 });
 
 exports.putLRIPRById = asyncHandler(async (req, res) => {
-  const ipr = await IPR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-  .populate('labRequest.requester')
-  .populate('labRequest.serviceId').select({labRequest:1})
-   res.status(200).json({ success: true, data: ipr });
+  var data = JSON.parse(req.body.data);
+  if (req.file) {
+    await IPR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.IPRId  }, data);
+    await IPR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.IPRId },{ $set: { 'labRequest.$.results': req.file.path }},{new: true})
+    await IPR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.IPRId },{ $set: { 'labRequest.$.status': data.status }},{new: true})
+  } else {
+    await IPR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.IPRId }, data);
+    await IPR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.IPRId },{ $set: { 'labRequest.$.status': data.status }},{new: true})
+  }
+  res.status(200).json({success:true})
+
+  // const ipr = await IPR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
+  // .populate('labRequest.requester')
+  // .populate('labRequest.serviceId').select({labRequest:1})
+  //  res.status(200).json({ success: true, data: ipr });
 });
 
 exports.getIPRById = asyncHandler(async (req, res) => {
