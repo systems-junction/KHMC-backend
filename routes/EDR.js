@@ -18,7 +18,8 @@ const {
     addEDR,
     addRadiologyRequest,
     deleteEDR,
-    updateEDR
+    updateEDR,
+    addLabRequest
 } = require('../controllers/EDR');
 
 const router = express.Router();
@@ -40,5 +41,6 @@ router.post('/addedr', addEDR);
 router.delete('/deleteedr/:_id', deleteEDR);
 router.put('/updateedr', updateEDR);
 router.put('/addrr', addRadiologyRequest);
+router.put('/addlr', addLabRequest)
 
 module.exports = router;

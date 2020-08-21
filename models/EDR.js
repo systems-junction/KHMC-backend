@@ -118,6 +118,12 @@ const EDRSchema = new mongoose.Schema({
                 type:mongoose.Schema.ObjectId,
                 ref:'staff'
             },
+            results:{
+                type:String
+            },
+            sampleId:{
+                type:String
+            },
             date:{
                 type:Date,
                 default:Date.now
