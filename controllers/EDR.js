@@ -105,12 +105,7 @@ exports.getLREDRById = asyncHandler(async (req, res) => {
    res.status(200).json({ success: true, data: lab });
 });
 
-exports.putLREDRById = asyncHandler(async (req, res) => {
-  const edr = await EDR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-  .populate('labRequest.requester')
-  .populate('labRequest.serviceId').select({labRequest:1})
-   res.status(200).json({ success: true, data: edr });
-});
+
 
 exports.getRREDRById = asyncHandler(async (req, res) => {
   const edr = await EDR.findOne({'radiologyRequest._id':req.params._id}).populate('radiologyRequest.requester')
@@ -207,11 +202,30 @@ exports.addLabRequest = asyncHandler(async(req,res) =>{
   if (req.file) {
     await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId  }, data);
     await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId },{ $set: { 'labRequest.$.results': req.file.path }},{new: true})
+    await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId },{ $set: { 'labRequest.$.status': data.status }},{new: true})
   } else {
     await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId }, data);
+    await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId },{ $set: { 'labRequest.$.status': data.status }},{new: true})
   }
   res.status(200).json({success:true})
   })
+
+  exports.putLREDRById = asyncHandler(async (req, res) => {
+    var data = JSON.parse(req.body.data);
+    if (req.file) {
+      await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId  }, data);
+      await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId },{ $set: { 'labRequest.$.results': req.file.path }},{new: true})
+      await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId },{ $set: { 'labRequest.$.status': data.status }},{new: true})
+    } else {
+      await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId }, data);
+      await EDR.findOneAndUpdate({'labRequest._id': data.labRequestId,_id:data.EDRId },{ $set: { 'labRequest.$.status': data.status }},{new: true})
+    }
+    res.status(200).json({success:true})
+    // const edr = await EDR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
+    // .populate('labRequest.requester')
+    // .populate('labRequest.serviceId').select({labRequest:1})
+    //  res.status(200).json({ success: true, data: edr });
+  });
 
 exports.addRadiologyRequest = asyncHandler(async(req,res) =>{
   var data = JSON.parse(req.body.data);
