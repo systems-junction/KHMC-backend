@@ -214,6 +214,12 @@ exports.addLabRequest = asyncHandler(async(req,res) =>{
   })
 
 exports.addRadiologyRequest = asyncHandler(async(req,res) =>{
-await EDR.updateOne({ _id: req.body._id },{ $push: { radiologyRequest: req.body.radiologyRequest }})
+  var data = JSON.parse(req.body.data);
+  if (req.file) {
+    await EDR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.EDRId  }, data);
+    await EDR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.EDRId },{ $set: { 'radiologyRequest.$.results': req.file.path }},{new: true})
+  } else {
+    await EDR.findOneAndUpdate({'radiologyRequest._id': data.radiologyRequestId,_id:data.EDRId }, data);
+  }
 res.status(200).json({success:true})
 })

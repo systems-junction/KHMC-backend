@@ -1,5 +1,18 @@
 const express = require('express');
-
+const multer = require('multer');
+const PATH = './uploads';
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, PATH);
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname
+    );
+  },
+});
+var upload = multer({ storage: storage });
 const {
     getEDR,
     getDischargeEDR,
@@ -40,7 +53,7 @@ router.put('/updaterad', putRREDRById);
 router.post('/addedr', addEDR);
 router.delete('/deleteedr/:_id', deleteEDR);
 router.put('/updateedr', updateEDR);
-router.put('/addrr', addRadiologyRequest);
-router.put('/addlr', addLabRequest)
+router.put('/addrr', upload.single('file'), addRadiologyRequest);
+router.put('/addlr', upload.single('file'), addLabRequest)
 
 module.exports = router;
