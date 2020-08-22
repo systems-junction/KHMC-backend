@@ -1,7 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Patient = require('../models/patient');
-
+const PatientFHIR = require('../models/patientFHIR/patientFHIR')
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find().populate('receivedBy');
   res.status(200).json({ success: true, data: patient });
@@ -132,6 +132,19 @@ exports.addPatient = asyncHandler(async (req, res) => {
       receivedBy:parsed.receivedBy
     });
   }
+  res.status(200).json({ success: true, data: patient });
+});
+
+exports.addPatientFHIR = asyncHandler(async (req, res) => {
+  const {
+    name,telecom,gender,birthDate,deceasedBoolean,deceasedDateTime,address,maritalStatus,multipleBirthBoolean,
+    multipleBirthInteger,photo,contact,generalPractitioner,managingOrganization
+  } = req.body.data; 
+   var patient = await PatientFHIR.create({
+    name,telecom,gender,birthDate,deceasedBoolean,deceasedDateTime,address,maritalStatus,multipleBirthBoolean,
+    multipleBirthInteger,photo,contact,generalPractitioner,managingOrganization
+    });
+
   res.status(200).json({ success: true, data: patient });
 });
 
