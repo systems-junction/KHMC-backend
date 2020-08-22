@@ -1,5 +1,7 @@
 const humanName = {
-    use:    {type: String,enum: ['USUAL', 'OFFICIAL', 'TEMP', 'NICKNAME', 'ANONYMOUS', 'OLD', 'MAIDEN']},
+    use:    {type: String,
+        // enum: ['USUAL', 'OFFICIAL', 'TEMP', 'NICKNAME', 'ANONYMOUS', 'OLD', 'MAIDEN']
+    },
     text:   String,
     family: String,
     given:  [{type:String}],

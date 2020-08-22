@@ -1,8 +1,12 @@
 const period = require('./common/period');
 
 const address = {
-    use:        { type: String, enum: ['home', 'work', 'temp', 'old', 'billing']}, 
-    type:       { type: String, enum: ['postal', 'physical', 'both']}, 
+    use:        { type: String,
+        //  enum: ['home', 'work', 'temp', 'old', 'billing']
+        }, 
+    type:       { type: String, 
+        // enum: ['postal', 'physical', 'both']
+}, 
     text:       String,
     line:       [String],
     city:       String,
