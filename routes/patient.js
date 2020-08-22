@@ -35,7 +35,7 @@ router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
 router.post('/addpatient', upload.single('file'), addPatient);
-router.post('/addpatientfhir', addPatient);
+router.post('/addpatientfhir', addPatientFHIR);
 router.delete('/deletepatient/:_id', deletePatient);
 router.put('/updatepatient', upload.single('file'), updatePatient);
 
