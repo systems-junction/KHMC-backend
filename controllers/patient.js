@@ -139,7 +139,7 @@ exports.addPatientFHIR = asyncHandler(async (req, res) => {
   const {
     name,telecom,gender,birthDate,deceasedBoolean,deceasedDateTime,address,maritalStatus,multipleBirthBoolean,
     multipleBirthInteger,photo,contact,generalPractitioner,managingOrganization
-  } = req.body.data; 
+  } = req.body; 
    var patient = await PatientFHIR.create({
     name,telecom,gender,birthDate,deceasedBoolean,deceasedDateTime,address,maritalStatus,multipleBirthBoolean,
     multipleBirthInteger,photo,contact,generalPractitioner,managingOrganization
