@@ -35,11 +35,11 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     comments,
     items,
     status,
-    secondStatus,
     approvedBy,
     requesterName,
     orderType,
     department,
+    secondStatus
   } = req.body;
   for(let i=0; i<items.length; i++){
     var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
@@ -67,7 +67,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     comments,
     items,
     status,
-    secondStatus,
+    secondStatus:"pending",
     approvedBy,
     requesterName,
     orderType,
