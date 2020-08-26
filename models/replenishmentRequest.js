@@ -30,7 +30,7 @@ const replenishmentRequestSchema = new mongoose.Schema({
     comments:{
         type: String
     },
-    item:[
+    items:[
         {
         itemId:{
             type: mongoose.Schema.ObjectId,

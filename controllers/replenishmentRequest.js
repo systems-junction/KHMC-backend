@@ -33,13 +33,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     to,
     from,
     comments,
-    itemId,
-    currentQty,
-    requestedQty,
-    recieptUnit,
-    issueUnit,
-    fuItemCost,
-    description,
+    items,
     status,
     secondStatus,
     approvedBy,
@@ -47,12 +41,20 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     orderType,
     department,
   } = req.body;
-  const wh = await WHInventory.findOne({ itemId: req.body.itemId });
-  if (wh.qty < req.body.requestedQty) {
-    req.body.secondStatus = 'Cannot be fulfilled';
-  } else {
-    req.body.secondStatus = 'Can be fulfilled';
+  for(let i=0; i<items.length; i++){
+    var wahi = await WHInventory.findOne({ itemId: req.body.item[i].itemId });
+    if (wahi.qty < req.body.item[i].requestedQty) {
+      req.body.item[i].secondStatus = 'Cannot be fulfilled';
+    } else {
+      req.body.item[i].secondStatus = 'Can be fulfilled';
+    }
   }
+  // const wh = await WHInventory.findOne({ itemId: req.body.itemId });
+  // if (wh.qty < req.body.requestedQty) {
+  //   req.body.secondStatus = 'Cannot be fulfilled';
+  // } else {
+  //   req.body.secondStatus = 'Can be fulfilled';
+  // }
   const rrS = await ReplenishmentRequest.create({
     requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
     generated,
@@ -63,15 +65,9 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     to,
     from,
     comments,
-    itemId,
-    currentQty,
-    requestedQty,
-    recieptUnit,
-    issueUnit,
-    fuItemCost,
-    description,
+    items,
     status,
-    secondStatus: req.body.secondStatus,
+    secondStatus,
     approvedBy,
     requesterName,
     orderType,
@@ -87,41 +83,41 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     'A new Manual replenishment request has been generated at ' + rrS.createdAt,
     'FU Member'
   );
-  if (req.body.secondStatus == 'Cannot be fulfilled') {
-    const i = await Item.findOne({ _id: req.body.itemId });
-    var item = {
-      itemId: req.body.itemId,
-      currQty: wh.qty,
-      reqQty: wh.maximumLevel - wh.qty,
-      comments: 'System',
-      name: i.name,
-      description: i.description,
-      itemCode: i.itemCode,
-    };
-    const purchase = await PurchaseRequest.create({
-      requestNo: uuidv4(),
-      generated: 'System',
-      generatedBy: 'System',
-      committeeStatus: 'to_do',
-      status: 'to_do',
-      comments: 'System',
-      reason: 'System',
-      item,
-      vendorId: i.vendorId,
-      requesterName: 'System',
-      department: 'System',
-      orderType: 'System',
-      rr: rrS._id,
-    });
-    notification(
-      'Purchase Request',
-      'A new Purchase Request ' +
-        purchase.requestNo +
-        ' has been generated at ' +
-        purchase.createdAt,
-      'admin'
-    );
-  }
+  // if (req.body.secondStatus == 'Cannot be fulfilled') {
+  //   const i = await Item.findOne({ _id: req.body.itemId });
+  //   var item = {
+  //     itemId: req.body.itemId,
+  //     currQty: wh.qty,
+  //     reqQty: wh.maximumLevel - wh.qty,
+  //     comments: 'System',
+  //     name: i.name,
+  //     description: i.description,
+  //     itemCode: i.itemCode,
+  //   };
+  //   const purchase = await PurchaseRequest.create({
+  //     requestNo: uuidv4(),
+  //     generated: 'System',
+  //     generatedBy: 'System',
+  //     committeeStatus: 'to_do',
+  //     status: 'to_do',
+  //     comments: 'System',
+  //     reason: 'System',
+  //     item,
+  //     vendorId: i.vendorId,
+  //     requesterName: 'System',
+  //     department: 'System',
+  //     orderType: 'System',
+  //     rr: rrS._id,
+  //   });
+  //   notification(
+  //     'Purchase Request',
+  //     'A new Purchase Request ' +
+  //       purchase.requestNo +
+  //       ' has been generated at ' +
+  //       purchase.createdAt,
+  //     'admin'
+  //   );
+  // }
   res.status(200).json({ success: true });
 });
 
