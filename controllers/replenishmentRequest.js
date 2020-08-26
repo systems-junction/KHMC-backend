@@ -13,14 +13,14 @@ const requestNoFormat = require('dateformat');
 exports.getReplenishmentRequestsFU = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequest.find()
     .populate('fuId')
-    .populate('itemId')
+    .populate('items.itemId')
     .populate('approvedBy');
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 exports.getReplenishmentRequestsByIdFU = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequest.findOne({ _id: _id })
     .populate('fuId')
-    .populate('itemId');
+    .populate('items.itemId');
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
