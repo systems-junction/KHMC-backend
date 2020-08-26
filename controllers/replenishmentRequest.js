@@ -42,11 +42,11 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     department,
   } = req.body;
   for(let i=0; i<items.length; i++){
-    var wahi = await WHInventory.findOne({ itemId: req.body.item[i].itemId });
+    var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
     if (wahi.qty < req.body.item[i].requestedQty) {
-      req.body.item[i].secondStatus = 'Cannot be fulfilled';
+      req.body.items[i].secondStatus = 'Cannot be fulfilled';
     } else {
-      req.body.item[i].secondStatus = 'Can be fulfilled';
+      req.body.items[i].secondStatus = 'Can be fulfilled';
     }
   }
   // const wh = await WHInventory.findOne({ itemId: req.body.itemId });
