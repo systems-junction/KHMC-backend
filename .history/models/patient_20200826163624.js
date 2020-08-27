@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const patientSchema = new mongoose.Schema({
   profileNo: {
     type: String,
-    unique: true,
+    // unique: true,
   },
   SIN: {
     type: String,
-    unique: true,
+    // unique: true,
   },
   title: {
     type: String,
@@ -109,9 +109,6 @@ const patientSchema = new mongoose.Schema({
     type: String,
   },
   relation: {
-    type: String,
-  },
-  coveredFamilyMembers: {
     type: String,
   },
   createdAt: {

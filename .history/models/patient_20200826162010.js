@@ -111,9 +111,6 @@ const patientSchema = new mongoose.Schema({
   relation: {
     type: String,
   },
-  coveredFamilyMembers: {
-    type: String,
-  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -112,7 +112,6 @@ exports.addPatient = asyncHandler(async (req, res) => {
       name: parsed.name,
       contactNo: parsed.contactNo,
       relation: parsed.relation,
-      coveredFamilyMembers: parsed.relation,
     });
   } else {
     patient = await Patient.create({
@@ -150,7 +149,6 @@ exports.addPatient = asyncHandler(async (req, res) => {
       name: parsed.name,
       contactNo: parsed.contactNo,
       relation: parsed.relation,
-      coveredFamilyMembers: parsed.relation,
     });
   }
   res.status(200).json({ success: true, data: patient });
