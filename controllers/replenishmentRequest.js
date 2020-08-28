@@ -147,11 +147,6 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
       )
     );
   }
-  replenishmentRequest = await ReplenishmentRequest.findOneAndUpdate(
-    { _id: _id },
-    req.body,
-    { new: true }
-  );
   for(let i=0; i<req.body.items.length; i++){
     var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
     if (wahi.qty < req.body.items[i].requestedQty) {
@@ -160,6 +155,12 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
       req.body.items[i].secondStatus = 'Can be fulfilled';
     }
   }
+  replenishmentRequest = await ReplenishmentRequest.findOneAndUpdate(
+    { _id: _id },
+    req.body,
+    { new: true }
+  );
+
   if (req.body.status == 'Fulfillment Initiated') {
     notification(
       'Replenishment Request',
