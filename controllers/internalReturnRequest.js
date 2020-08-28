@@ -88,7 +88,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
          const receive = await receiveItemFU.findOne({replenishmentRequestId:req.body.replenishmentRequestFU})
          const fu = await FUInventory.findOne({itemId: req.body.itemId, fuId:req.body.fuId})
          const wh = await WHInventory.findOne({itemId: req.body.itemId})
-         await FUInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: fu.qty-req.body.returnedQty }},{new:true})
+         await FUInventory.findOneAndUpdate({itemId: req.body.itemId,fuId:req.body.fuId}, { $set: { qty: fu.qty-req.body.returnedQty }},{new:true})
         //  await WHInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: wh.qty+receive.receivedQty }},{new:true})
          await ReplenishmentRequest.findOneAndUpdate({_id:req.body.replenishmentRequestFU,'items.itemId':req.body.itemId},{ $set: { 'items.$.secondStatus': "Returned", 'items.$.status':"Returned"}})
          await ReturnedQty.create({
