@@ -134,7 +134,7 @@ exports.deleteReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
         new ErrorResponse(`Replenishment Request not found with id of ${_id}`, 404)
         );
     }
-    await ReplenishmentRequest.deleteOne({_id: _id});
+    await ReplenishmentRequestBU.deleteOne({_id: _id});
     res.status(200).json({ success: true, data: {} });
 });
 exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
