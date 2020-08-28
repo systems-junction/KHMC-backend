@@ -15,25 +15,24 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 const {
-  getIPR,
-  getDischargeIPR,
-  getDischargeIPRById,
-  putDischargeIPRById,
-  getPHRIPR,
-  getPHRIPRById,
-  putPHRIPRById,
-  getLRIPR,
-  getLRIPRById,
-  putLRIPRById,
-  getRRIPR,
-  getRRIPRById,
-  putRRIPRById,
-  getIPRById,
-  addIPR,
-  deleteIPR,
-  updateIPR,
-  addFollowUp,
-  getPatientRRIPR,
+    getIPR,
+    getDischargeIPR,
+    getDischargeIPRById,
+    putDischargeIPRById,
+    getPHRIPR,
+    getPHRIPRById,
+    putPHRIPRById,
+    getLRIPR,
+    getLRIPRById,
+    putLRIPRById,
+    getRRIPR,
+    getRRIPRById,
+    putRRIPRById,
+    getIPRById,
+    addIPR,
+    deleteIPR,
+    updateIPR,
+    addFollowUp
 } = require('../controllers/IPR');
 
 const router = express.Router();
@@ -50,10 +49,9 @@ router.get('/getlripr/:_id', getLRIPRById);
 router.put('/updatelab', upload.single('file'), putLRIPRById);
 router.get('/getrripr', getRRIPR);
 router.get('/getrripr/:_id', getRRIPRById);
-router.put('/updaterad', upload.single('file'), putRRIPRById);
+router.put('/updaterad',upload.single('file'), putRRIPRById);
 router.post('/addipr', addIPR);
 router.delete('/deleteipr/:_id', deleteIPR);
 router.put('/updateipr', updateIPR);
 router.put('/addfollowup', upload.single('file'), addFollowUp);
-router.get('/getpatientrripr/:_id', getPatientRRIPR);
 module.exports = router;
