@@ -66,7 +66,24 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
             } 
             if(fu && pr)
             {
-             await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId, 'items.itemId':req.body.itemId},{ $set: { status:req.body.replenishmentRequestStatus,secondStatus:req.body.replenishmentRequestStatus,'items.$.secondStatus':"Can be fulfilled",'items.$.status':"Can be fulfilled" }},{new:true});
+            await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId, 'items.itemId':req.body.itemId},{ $set: { 'items.$.secondStatus':req.body.replenishmentRequestStatus,'items.$.status':req.body.replenishmentRequestStatus }},{new:true});
+            const stat =  await ReplenishmentRequest.findOne({_id: replenishmentRequestId})  
+            var count = 0; 
+            for(let i = 0 ; i<stat.items.length; i++)
+            {
+            if(stat.items[i].status == "Received"||stat.items[i].status == "Partially Received")
+            {
+                count++
+            }
+            }
+            if(count == stat.items.length)
+            {
+                await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:"Received",secondStatus:"Received"}},{new:true});
+            }
+            else{
+                await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:"Partially Received",secondStatus:"Partially Received"}},{new:true});
+            }
+
         //     if(pr.qty<=pr.reorderLevel)
         //     {
         //     const j =await Item.findOne({_id:req.body.itemId}) 
