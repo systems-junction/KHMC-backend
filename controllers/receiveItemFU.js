@@ -66,36 +66,37 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
             } 
             if(fu && pr)
             {
-             await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:req.body.replenishmentRequestStatus,secondStatus:req.body.replenishmentRequestStatus }},{new:true});
-            if(pr.qty<=pr.reorderLevel)
-            {
-            const j =await Item.findOne({_id:req.body.itemId}) 
-            var item={
-                itemId:req.body.itemId,
-                currQty:pr.qty,
-                reqQty:pr.maximumLevel-pr.qty,
-                comments:'System',
-                name:j.name,
-                description:j.description,
-                itemCode:j.itemCode
-            }
-              const purchaseRequest = await PurchaseRequest.create({
-                    requestNo: uuidv4(),
-                    generated:'System',
-                    generatedBy:'System',
-                    committeeStatus: 'to_do',
-                    status:'to_do',
-                    comments:'System',
-                    reason:'reactivated_items',
-                    item,
-                    vendorId:j.vendorId,
-                    requesterName:'System',
-                    department:'',
-                    orderType:'',
-                    rr: replenishmentRequestId
-                  });
-                  notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")         
-        }}}
+             await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId, 'items.itemId':req.body.itemId},{ $set: { status:req.body.replenishmentRequestStatus,secondStatus:req.body.replenishmentRequestStatus,'items.$.secondStatus':"Can be fulfilled",'items.$.status':"Can be fulfilled" }},{new:true});
+        //     if(pr.qty<=pr.reorderLevel)
+        //     {
+        //     const j =await Item.findOne({_id:req.body.itemId}) 
+        //     var item={
+        //         itemId:req.body.itemId,
+        //         currQty:pr.qty,
+        //         reqQty:pr.maximumLevel-pr.qty,
+        //         comments:'System',
+        //         name:j.name,
+        //         description:j.description,
+        //         itemCode:j.itemCode
+        //     }
+        //       const purchaseRequest = await PurchaseRequest.create({
+        //             requestNo: uuidv4(),
+        //             generated:'System',
+        //             generatedBy:'System',
+        //             committeeStatus: 'to_do',
+        //             status:'to_do',
+        //             comments:'System',
+        //             reason:'reactivated_items',
+        //             item,
+        //             vendorId:j.vendorId,
+        //             requesterName:'System',
+        //             department:'',
+        //             orderType:'',
+        //             rr: replenishmentRequestId
+        //           });
+        //           notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")         
+        // }
+    }}
     res.status(200).json({ success: true});
 });
 
