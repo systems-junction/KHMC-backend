@@ -55,5 +55,5 @@ router.post('/addipr', addIPR);
 router.delete('/deleteipr/:_id', deleteIPR);
 router.put('/updateipr', updateIPR);
 router.put('/addfollowup', upload.single('file'), addFollowUp);
-router.get('/getpatientrripr/:_id', getPatientRRIPR);
+router.get('/getpatientrripr', getPatientRRIPR);
 module.exports = router;

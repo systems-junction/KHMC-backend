@@ -2,7 +2,6 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const { v4: uuidv4 } = require('uuid');
 const IPR = require('../models/IPR');
-const EDR = require('../models/EDR');
 const requestNoFormat = require('dateformat');
 
 exports.getIPR = asyncHandler(async (req, res) => {
@@ -121,31 +120,13 @@ exports.getRRIPR = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: data });
 });
 
-exports.getPatientRRIPR = asyncHandler(async (req, res) => {
-  const edr = await EDR.find()
-    .populate('patientId')
-    .populate('radiologyRequest.requester')
-    .populate('radiologyRequest.serviceId')
-    .select({ radiologyRequest: 1, requestNo: 1 });
-  var data1 = [];
-  for (let i = 0; i < edr.length; i++) {
-    let rr = edr[i].radiologyRequest;
-    for (let j = 0; j < rr.length; j++) {
-      let temp = JSON.parse(JSON.stringify(rr[j]));
-      var obj = {
-        ...temp,
-        edrId: edr[i],
-        patientData: edr[i].patientId,
-      };
-      data1.push(obj);
-    }
-  }
+exports.getPatienRRIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find()
     .populate('patientId')
     .populate('radiologyRequest.requester')
     .populate('radiologyRequest.serviceId')
     .select({ radiologyRequest: 1, requestNo: 1 });
-  var data2 = [];
+  var data = [];
   for (let i = 0; i < ipr.length; i++) {
     let rr = ipr[i].radiologyRequest;
     for (let j = 0; j < rr.length; j++) {
@@ -155,13 +136,9 @@ exports.getPatientRRIPR = asyncHandler(async (req, res) => {
         iprId: ipr[i],
         patientData: ipr[i].patientId,
       };
-      data2.push(obj);
+      data.push(obj);
     }
   }
-  var data = {
-    data1,
-    data2,
-  };
   res.status(200).json({ success: true, data: data });
 });
 

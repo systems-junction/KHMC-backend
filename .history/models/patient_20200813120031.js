@@ -21,9 +21,6 @@ const patientSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
-  nationality: {
-    type: String,
-  },
   age: {
     type: Number,
   },
@@ -81,8 +78,8 @@ const patientSchema = new mongoose.Schema({
   depositSlip: {
     type: String,
   },
-  insuranceNo: { type: String },
-  insuranceVendor: { type: String },
+  insuranceNo:{type:String},
+  insuranceVendor:{type:String},
   // insuranceId: {
   //   //Vendor
   //   type: mongoose.Schema.ObjectId,
@@ -104,21 +101,6 @@ const patientSchema = new mongoose.Schema({
     //Vendor
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
-  },
-  emergencyName: {
-    type: String,
-  },
-  emergencyContactNo: {
-    type: String,
-  },
-  emergencyRelation: {
-    type: String,
-  },
-  coveredFamilyMembers: {
-    type: String,
-  },
-  otherCoverageDetails:{
-    type:String
   },
   createdAt: {
     type: Date,

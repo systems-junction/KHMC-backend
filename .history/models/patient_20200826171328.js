@@ -21,9 +21,6 @@ const patientSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
-  nationality: {
-    type: String,
-  },
   age: {
     type: Number,
   },
@@ -105,20 +102,17 @@ const patientSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
-  emergencyName: {
+  name: {
     type: String,
   },
-  emergencyContactNo: {
+  contactNo: {
     type: String,
   },
-  emergencyRelation: {
+  relation: {
     type: String,
   },
   coveredFamilyMembers: {
     type: String,
-  },
-  otherCoverageDetails:{
-    type:String
   },
   createdAt: {
     type: Date,

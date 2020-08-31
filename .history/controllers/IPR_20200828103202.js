@@ -127,40 +127,14 @@ exports.getPatientRRIPR = asyncHandler(async (req, res) => {
     .populate('radiologyRequest.requester')
     .populate('radiologyRequest.serviceId')
     .select({ radiologyRequest: 1, requestNo: 1 });
-  var data1 = [];
-  for (let i = 0; i < edr.length; i++) {
-    let rr = edr[i].radiologyRequest;
-    for (let j = 0; j < rr.length; j++) {
-      let temp = JSON.parse(JSON.stringify(rr[j]));
-      var obj = {
-        ...temp,
-        edrId: edr[i],
-        patientData: edr[i].patientId,
-      };
-      data1.push(obj);
-    }
-  }
   const ipr = await IPR.find()
     .populate('patientId')
     .populate('radiologyRequest.requester')
     .populate('radiologyRequest.serviceId')
     .select({ radiologyRequest: 1, requestNo: 1 });
-  var data2 = [];
-  for (let i = 0; i < ipr.length; i++) {
-    let rr = ipr[i].radiologyRequest;
-    for (let j = 0; j < rr.length; j++) {
-      let temp = JSON.parse(JSON.stringify(rr[j]));
-      var obj = {
-        ...temp,
-        iprId: ipr[i],
-        patientData: ipr[i].patientId,
-      };
-      data2.push(obj);
-    }
-  }
   var data = {
-    data1,
-    data2,
+    edr,
+    ipr,
   };
   res.status(200).json({ success: true, data: data });
 });

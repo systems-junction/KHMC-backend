@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const patientSchema = new mongoose.Schema({
   profileNo: {
     type: String,
-    unique: true,
+    // unique: true,
   },
   SIN: {
     type: String,
-    unique: true,
+    // unique: true,
   },
   title: {
     type: String,
@@ -19,9 +19,6 @@ const patientSchema = new mongoose.Schema({
     type: String,
   },
   gender: {
-    type: String,
-  },
-  nationality: {
     type: String,
   },
   age: {
@@ -105,20 +102,14 @@ const patientSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
-  emergencyName: {
+  name: {
     type: String,
   },
-  emergencyContactNo: {
+  contactNo: {
     type: String,
   },
-  emergencyRelation: {
+  relation: {
     type: String,
-  },
-  coveredFamilyMembers: {
-    type: String,
-  },
-  otherCoverageDetails:{
-    type:String
   },
   createdAt: {
     type: Date,
