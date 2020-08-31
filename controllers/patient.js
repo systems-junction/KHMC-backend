@@ -2,6 +2,9 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Patient = require('../models/patient');
 const PatientFHIR = require('../models/patientFHIR/patientFHIR');
+const IPR = require('../models/IPR');
+const EDR = require('../models/EDR');
+
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find().populate('receivedBy');
   res.status(200).json({ success: true, data: patient });
@@ -44,6 +47,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     firstName,
     lastName,
     gender,
+    nationality,
     dob,
     drugAllergy,
     phoneNumber,
@@ -69,9 +73,11 @@ exports.addPatient = asyncHandler(async (req, res) => {
     receivedBy,
     insuranceNo,
     insuranceVendor,
-    name,
-    contactNo,
-    relation,
+    emergencyName,
+    emergencyContactNo,
+    emergencyRelation,
+    coveredFamilyMembers,
+    otherCoverageDetails
   } = req.body.data;
   var parsed = JSON.parse(req.body.data);
   var patient;
@@ -83,6 +89,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       firstName: parsed.firstName,
       lastName: parsed.lastName,
       gender: parsed.gender,
+      nationality: parsed.nationality,
       dob: parsed.dob,
       drugAllergy: parsed.drugAllergy,
       age: parsed.age,
@@ -109,10 +116,11 @@ exports.addPatient = asyncHandler(async (req, res) => {
       payment: parsed.payment,
       registeredIn: parsed.registeredIn,
       receivedBy: parsed.receivedBy,
-      name: parsed.name,
-      contactNo: parsed.contactNo,
-      relation: parsed.relation,
-      coveredFamilyMembers: parsed.relation,
+      emergencyName: parsed.emergencyName,
+      emergencyContactNo: parsed.emergencyContactNo,
+      emergencyRelation: parsed.emergencyRelation,
+      coveredFamilyMembers: parsed.coveredFamilyMembers,
+      otherCoverageDetails: parsed.otherCoverageDetails,
     });
   } else {
     patient = await Patient.create({
@@ -122,6 +130,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       firstName: parsed.firstName,
       lastName: parsed.lastName,
       gender: parsed.gender,
+      nationality: parsed.nationality,
       dob: parsed.dob,
       drugAllergy: parsed.drugAllergy,
       age: parsed.age,
@@ -147,10 +156,11 @@ exports.addPatient = asyncHandler(async (req, res) => {
       payment: parsed.payment,
       registeredIn: parsed.registeredIn,
       receivedBy: parsed.receivedBy,
-      name: parsed.name,
-      contactNo: parsed.contactNo,
-      relation: parsed.relation,
-      coveredFamilyMembers: parsed.relation,
+      emergencyName: parsed.emergencyName,
+      emergencyContactNo: parsed.emergencyContactNo,
+      emergencyRelation: parsed.emergencyRelation,
+      coveredFamilyMembers: parsed.coveredFamilyMembers,
+      otherCoverageDetails: parsed.otherCoverageDetails,
     });
   }
   res.status(200).json({ success: true, data: patient });
@@ -243,4 +253,44 @@ exports.updatePatientFHIR = asyncHandler(async (req, res, next) => {
   });
   console.log('patientfhir', patientfhir);
   res.status(200).json({ success: true, data: patientfhir });
+});
+
+exports.getPatientIPREDR = asyncHandler(async (req, res) => {
+  if(await IPR.find({ patientId: req.params._id }) !== null)
+  {
+  const ipr = await IPR.find({ patientId: req.params._id })
+    .populate('patientId')
+    .populate('consultationNote.requester')
+    .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest.medicine.itemId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester')
+    .populate('residentNotes.doctor')
+    .populate('residentNotes.doctorRef')
+    .populate('nurseService.serviceId')
+    .populate('nurseService.requester')
+    .populate('dischargeRequest.dischargeMedication.requester')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .populate('followUp.approvalPerson');
+  res.status(200).json({ success: true, data: ipr });
+  }
+  else if(await EDR.find({ patientId: req.params._id })!== null)
+  {
+  const edr = await EDR.find({ patientId: req.params._id })
+    .populate('patientId')
+    .populate('consultationNote.requester')
+    .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest.medicine.itemId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester')
+    .populate('residentNotes.doctor')
+    .populate('residentNotes.doctorRef')
+    .populate('dischargeRequest.dischargeMedication.requester')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId');
+  res.status(200).json({ success: true, data: edr });
+  }
 });
