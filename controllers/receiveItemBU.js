@@ -12,6 +12,7 @@ const Item = require('../models/item');
 const WHInventory = require('../models/warehouseInventory');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const FunctionalUnit = require('../models/functionalUnit')
+const requestNoFormat = require('dateformat');
 
 exports.getReceiveItemsBU = asyncHandler(async (req, res) => {
     const receiveItems = await ReceiveItemBU.find().populate('vendorId');
@@ -91,25 +92,31 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         notification("Replenishment Request Generated", "New Replenishment Request Generated", "Warehouse Member")
         notification("Replenishment Request Generated", "New Replenishment Request Generated", "FU Member")
            const rrS = await ReplenishmentRequest.create({
-                requestNo: uuidv4(),
+                requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
                 generated:'System',
                 generatedBy:'System',
                 reason:'reactivated_items',
                 fuId:req.body.fuId,
-                itemId:req.body.itemId,
+                items:[
+                {
+                    itemId:req.body.itemId,
+                    currentQty:fui.qty,
+                    requestedQty:fui.maximumLevel-fui.qty,
+                    recieptUnit:item.receiptUnit,
+                    issueUnit:item.issueUnit,
+                    fuItemCost:0,
+                    description:item.description,
+                    status: st,
+                    secondStatus:st2,
+                }
+                ],
                 comments:'System generated Replenishment Request',
-                currentQty:fui.qty,
-                requestedQty:fui.maximumLevel-fui.qty,
-                description:item.description,
-                status: st,
-                secondStatus:st2,
+                status: "pending",
+                secondStatus:"pending",
                 requesterName:'System',
                 orderType:'',
                 to:'Warehouse',
                 from:'FU',
-                recieptUnit:item.receiptUnit,
-                issueUnit:item.issueUnit,
-                fuItemCost:0,
                 department:'',
                 rrB:req.body.rrBUId
               });

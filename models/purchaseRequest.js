@@ -28,7 +28,7 @@ const PurchaseRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'ReplenishmentRequest' 
 },
-  item: {
+  item: [{
     itemId: {
       type: mongoose.Schema.ObjectId,
       ref: 'Item',
@@ -57,7 +57,15 @@ const PurchaseRequestSchema = new mongoose.Schema({
       type: String,
       required: [true, 'Please add bar code'],
     },
-  },
+    status: {
+      type: String,
+      required: true,
+    },
+    secondStatus: {
+      type: String,
+      required: true,
+    },
+  }],
   requesterName: {
     type: String,
   },
