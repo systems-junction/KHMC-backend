@@ -45,8 +45,6 @@ const {
   putPHRById,
   getDischarge,
   getDischargeById,
-  putDischargeById,
-  getIPREDRById,
 } = require('../controllers/IPR');
 
 const router = express.Router();
@@ -80,6 +78,4 @@ router.get('/getphrbyid/:_id', getPHRById);
 router.put('/updatephrbyid', putPHRById);
 router.get('/getdischarge', getDischarge);
 router.get('/getdischargebyid/:_id', getDischargeById);
-router.put('/updatedischargebyid', putDischargeById);
-router.get('/getipredrbyid/:_id', getIPREDRById);
 module.exports = router;

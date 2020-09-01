@@ -100,11 +100,13 @@ exports.getPHRById = asyncHandler(async (req, res) => {
         var phr1 = ipr.pharmacyRequest[i];
       }
     }
-    res.status(200).json({
-      success: true,
-      data: phr1,
-      data2: ipr.dischargeRequest.dischargeMedication,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        data: phr1,
+        data2: ipr.dischargeRequest.dischargeMedication,
+      });
   }
 
   if ((await EDR.findOne({ 'pharmacyRequest._id': req.params._id })) !== null) {
@@ -117,11 +119,13 @@ exports.getPHRById = asyncHandler(async (req, res) => {
         var phr2 = edr.pharmacyRequest[i];
       }
     }
-    res.status(200).json({
-      success: true,
-      data: phr2,
-      data2: edr.dischargeRequest.dischargeMedication,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        data: phr2,
+        data2: edr.dischargeRequest.dischargeMedication,
+      });
   }
 });
 
@@ -779,46 +783,6 @@ exports.getIPRById = asyncHandler(async (req, res) => {
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
     .populate('followUp.approvalPerson');
   res.status(200).json({ success: true, data: ipr });
-});
-
-exports.getIPREDRById = asyncHandler(async (req, res) => {
-  const a = await IPR.find({ _id: req.params._id });
-  if (a !== null) {
-    const ipr = await IPR.find({ _id: req.params._id })
-      .populate('patientId')
-      .populate('consultationNote.requester')
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .populate('labRequest.requester')
-      .populate('labRequest.serviceId')
-      .populate('radiologyRequest.serviceId')
-      .populate('radiologyRequest.requester')
-      .populate('residentNotes.doctor')
-      .populate('residentNotes.doctorRef')
-      .populate('nurseService.serviceId')
-      .populate('nurseService.requester')
-      .populate('dischargeRequest.dischargeMedication.requester')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .populate('followUp.approvalPerson');
-    res.status(200).json({ success: true, data: ipr });
-  }
-  const b = await EDR.find({ _id: req.params._id });
-  if (b !== null) {
-    const edr = await EDR.find({ _id: req.params._id })
-      .populate('patientId')
-      .populate('consultationNote.requester')
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .populate('labRequest.requester')
-      .populate('labRequest.serviceId')
-      .populate('radiologyRequest.serviceId')
-      .populate('radiologyRequest.requester')
-      .populate('residentNotes.doctor')
-      .populate('residentNotes.doctorRef')
-      .populate('dischargeRequest.dischargeMedication.requester')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-    res.status(200).json({ success: true, data: edr });
-  }
 });
 
 exports.addIPR = asyncHandler(async (req, res) => {

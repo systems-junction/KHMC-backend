@@ -781,7 +781,7 @@ exports.getIPRById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: ipr });
 });
 
-exports.getIPREDRById = asyncHandler(async (req, res) => {
+exports.getIPRById = asyncHandler(async (req, res) => {
   const a = await IPR.find({ _id: req.params._id });
   if (a !== null) {
     const ipr = await IPR.find({ _id: req.params._id })

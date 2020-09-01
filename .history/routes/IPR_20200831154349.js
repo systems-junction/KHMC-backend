@@ -40,13 +40,6 @@ const {
   getLRById,
   getPHRPatient,
   getPHRById,
-  putRRById,
-  putLRById,
-  putPHRById,
-  getDischarge,
-  getDischargeById,
-  putDischargeById,
-  getIPREDRById,
 } = require('../controllers/IPR');
 
 const router = express.Router();
@@ -71,15 +64,8 @@ router.put('/addfollowup', upload.single('file'), addFollowUp);
 router.get('/getrrpatient', getRRPatient);
 router.get('/getrrpatientbyid/:_id', getRRPatientById);
 router.get('/getrrbyid/:_id', getRRById);
-router.put('/updaterr', upload.single('file'), putRRById);
 router.get('/getlrpatient', getLRPatient);
 router.get('/getlrbyid/:_id', getLRById);
-router.put('/updatelr', upload.single('file'), putLRById);
 router.get('/getphrpatient', getPHRPatient);
-router.get('/getphrbyid/:_id', getPHRById);
-router.put('/updatephrbyid', putPHRById);
-router.get('/getdischarge', getDischarge);
-router.get('/getdischargebyid/:_id', getDischargeById);
-router.put('/updatedischargebyid', putDischargeById);
-router.get('/getipredrbyid/:_id', getIPREDRById);
+router.get('/getphrbyid', getPHRById);
 module.exports = router;

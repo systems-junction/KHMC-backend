@@ -93,35 +93,27 @@ exports.getPHRById = asyncHandler(async (req, res) => {
   if ((await IPR.findOne({ 'pharmacyRequest._id': req.params._id })) !== null) {
     const ipr = await IPR.findOne({ 'pharmacyRequest._id': req.params._id })
       .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.serviceId');
-    // .select({ pharmacyRequest: 1 });
+      .populate('pharmacyRequest.serviceId')
+      .select({ pharmacyRequest: 1 });
     for (let i = 0; i < ipr.pharmacyRequest.length; i++) {
       if (ipr.pharmacyRequest[i]._id == req.params._id) {
         var phr1 = ipr.pharmacyRequest[i];
       }
     }
-    res.status(200).json({
-      success: true,
-      data: phr1,
-      data2: ipr.dischargeRequest.dischargeMedication,
-    });
+    res.status(200).json({ success: true, data: phr1 });
   }
 
   if ((await EDR.findOne({ 'pharmacyRequest._id': req.params._id })) !== null) {
     const edr = await EDR.findOne({ 'pharmacyRequest._id': req.params._id })
       .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.serviceId');
-    // .select({ pharmacyRequest: 1 });
+      .populate('pharmacyRequest.serviceId')
+      .select({ pharmacyRequest: 1 });
     for (let i = 0; i < edr.pharmacyRequest.length; i++) {
       if (edr.pharmacyRequest[i]._id == req.params._id) {
         var phr2 = edr.pharmacyRequest[i];
       }
     }
-    res.status(200).json({
-      success: true,
-      data: phr2,
-      data2: edr.dischargeRequest.dischargeMedication,
-    });
+    res.status(200).json({ success: true, data: phr2 });
   }
 });
 
@@ -150,33 +142,6 @@ exports.putPHRIPRById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: ipr });
 });
 
-exports.putPHRById = asyncHandler(async (req, res) => {
-  const a = await IPR.findOne({ 'pharmacyRequest._id': req.body._id });
-  if (a !== null) {
-    const ipr = await IPR.findOneAndUpdate(
-      { 'pharmacyRequest._id': req.body._id },
-      { $set: { 'pharmacyRequest.$.status': req.body.status } },
-      { new: true }
-    )
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .select({ pharmacyRequest: 1 });
-    res.status(200).json({ success: true, data: ipr });
-  }
-  const b = await EDR.findOne({ 'pharmacyRequest._id': req.body._id });
-  if (b !== null) {
-    const edr = await EDR.findOneAndUpdate(
-      { 'pharmacyRequest._id': req.body._id },
-      { $set: { 'pharmacyRequest.$.status': req.body.status } },
-      { new: true }
-    )
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .select({ pharmacyRequest: 1 });
-    res.status(200).json({ success: true, data: edr });
-  }
-});
-
 exports.getDischargeIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find({
     'dischargeRequest.dischargeMedication.medicine': { $ne: [] },
@@ -187,52 +152,12 @@ exports.getDischargeIPR = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: ipr });
 });
 
-exports.getDischarge = asyncHandler(async (req, res) => {
-  const ipr = await IPR.find({
-    'dischargeRequest.dischargeMedication.medicine': { $ne: [] },
-  })
-    .populate('patientId')
-    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-    .select({ dischargeRequest: 1, requestNo: 1 });
-  // res.status(200).json({ success: true, data: ipr });
-
-  const edr = await EDR.find({
-    'dischargeRequest.dischargeMedication.medicine': { $ne: [] },
-  })
-    .populate('patientId')
-    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-    .select({ dischargeRequest: 1, requestNo: 1 });
-  var data = [ipr.concat(edr)];
-  // ipr.push(edr)
-  res.status(200).json({ success: true, data: data });
-});
-
 exports.getDischargeIPRById = asyncHandler(async (req, res) => {
   const ipr = await IPR.findOne({ _id: req.params._id })
     .populate('patientId')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
     .select({ dischargeRequest: 1, requestNo: 1 });
   res.status(200).json({ success: true, data: ipr });
-});
-
-exports.getDischargeById = asyncHandler(async (req, res) => {
-  const a = await IPR.findOne({ _id: req.params._id });
-  if (a !== null) {
-    const ipr = await IPR.findOne({ _id: req.params._id })
-      .populate('patientId')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .select({ dischargeRequest: 1, requestNo: 1 });
-    res.status(200).json({ success: true, data: ipr });
-  }
-
-  const b = await EDR.findOne({ _id: req.params._id });
-  if (b !== null) {
-    const edr = await EDR.findOne({ _id: req.params._id })
-      .populate('patientId')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .select({ dischargeRequest: 1, requestNo: 1 });
-    res.status(200).json({ success: true, data: edr });
-  }
 });
 
 exports.putDischargeIPRById = asyncHandler(async (req, res) => {
@@ -244,31 +169,6 @@ exports.putDischargeIPRById = asyncHandler(async (req, res) => {
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
     .select({ dischargeRequest: 1 });
   res.status(200).json({ success: true, data: ipr });
-});
-
-exports.putDischargeById = asyncHandler(async (req, res) => {
-  const a = await IPR.findOne({ _id: req.body._id });
-  if (a !== null) {
-    const ipr = await IPR.findOneAndUpdate(
-      { _id: req.body._id },
-      { $set: { 'dischargeRequest.status': req.body.status } },
-      { new: true }
-    )
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .select({ dischargeRequest: 1 });
-    res.status(200).json({ success: true, data: ipr });
-  }
-  const b = await EDR.findOne({ _id: req.body._id });
-  if (b !== null) {
-    const edr = await EDR.findOneAndUpdate(
-      { _id: req.body._id },
-      { $set: { 'dischargeRequest.status': req.body.status } },
-      { new: true }
-    )
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .select({ dischargeRequest: 1 });
-    res.status(200).json({ success: true, data: edr });
-  }
 });
 
 exports.getRRIPR = asyncHandler(async (req, res) => {
@@ -466,7 +366,6 @@ exports.putRRById = asyncHandler(async (req, res) => {
     'radiologyRequest._id': data.radiologyRequestId,
   });
   if (a !== null) {
-    console.log('rrr');
     if (req.file) {
       await IPR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
@@ -493,15 +392,13 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { new: true }
       );
     }
-    res.status(200).json({ success: true });
   }
 
   const b = await EDR.findOne({
     'radiologyRequest._id': data.radiologyRequestId,
   });
 
-  if (b !== null) {
-    console.log('fff', data.EDRId);
+  if (b) {
     if (req.file) {
       await EDR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
@@ -528,8 +425,9 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { new: true }
       );
     }
-    res.status(200).json({ success: true });
   }
+
+  res.status(200).json({ success: true });
 
   // const ipr = await IPR.findOneAndUpdate({'radiologyRequest._id': req.body._id},{ $set: { 'radiologyRequest.$.status': req.body.status }},{new: true})
   // .populate('radiologyRequest.requester')
@@ -679,88 +577,6 @@ exports.putLRIPRById = asyncHandler(async (req, res) => {
   //  res.status(200).json({ success: true, data: ipr });
 });
 
-exports.putLRById = asyncHandler(async (req, res) => {
-  var data = JSON.parse(req.body.data);
-  const a = await IPR.findOne({
-    'labRequest._id': data.labRequestId,
-  });
-
-  if (a !== null) {
-    console.log('good');
-    if (req.file) {
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        data
-      );
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.results': req.file.path } },
-        { new: true }
-      );
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.status': data.status } },
-        { new: true }
-      );
-    } else {
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        data
-      );
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.status': data.status } },
-        { new: true }
-      );
-    }
-    res.status(200).json({ success: true });
-
-    // const ipr = await IPR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-    // .populate('labRequest.requester')
-    // .populate('labRequest.serviceId').select({labRequest:1})
-    //  res.status(200).json({ success: true, data: ipr });
-  }
-
-  const b = await EDR.findOne({
-    'labRequest._id': data.labRequestId,
-  });
-
-  if (b !== null) {
-    console.log('good');
-    if (req.file) {
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        data
-      );
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.results': req.file.path } },
-        { new: true }
-      );
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.status': data.status } },
-        { new: true }
-      );
-    } else {
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        data
-      );
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.status': data.status } },
-        { new: true }
-      );
-    }
-    res.status(200).json({ success: true });
-    // const edr = await EDR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-    // .populate('labRequest.requester')
-    // .populate('labRequest.serviceId').select({labRequest:1})
-    //  res.status(200).json({ success: true, data: edr });
-  }
-});
-
 exports.getIPRById = asyncHandler(async (req, res) => {
   const ipr = await IPR.find({ _id: req.params._id })
     .populate('patientId')
@@ -779,46 +595,6 @@ exports.getIPRById = asyncHandler(async (req, res) => {
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
     .populate('followUp.approvalPerson');
   res.status(200).json({ success: true, data: ipr });
-});
-
-exports.getIPREDRById = asyncHandler(async (req, res) => {
-  const a = await IPR.find({ _id: req.params._id });
-  if (a !== null) {
-    const ipr = await IPR.find({ _id: req.params._id })
-      .populate('patientId')
-      .populate('consultationNote.requester')
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .populate('labRequest.requester')
-      .populate('labRequest.serviceId')
-      .populate('radiologyRequest.serviceId')
-      .populate('radiologyRequest.requester')
-      .populate('residentNotes.doctor')
-      .populate('residentNotes.doctorRef')
-      .populate('nurseService.serviceId')
-      .populate('nurseService.requester')
-      .populate('dischargeRequest.dischargeMedication.requester')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .populate('followUp.approvalPerson');
-    res.status(200).json({ success: true, data: ipr });
-  }
-  const b = await EDR.find({ _id: req.params._id });
-  if (b !== null) {
-    const edr = await EDR.find({ _id: req.params._id })
-      .populate('patientId')
-      .populate('consultationNote.requester')
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .populate('labRequest.requester')
-      .populate('labRequest.serviceId')
-      .populate('radiologyRequest.serviceId')
-      .populate('radiologyRequest.requester')
-      .populate('residentNotes.doctor')
-      .populate('residentNotes.doctorRef')
-      .populate('dischargeRequest.dischargeMedication.requester')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-    res.status(200).json({ success: true, data: edr });
-  }
 });
 
 exports.addIPR = asyncHandler(async (req, res) => {
