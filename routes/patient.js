@@ -25,7 +25,8 @@ const {
   updatePatient,
   addPatientFHIR,
   updatePatientFHIR,
-  getPatientIPREDR
+  getPatientIPREDR,
+  searchPatient,
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -41,5 +42,6 @@ router.post('/addpatientfhir', addPatientFHIR);
 router.put('/updatepatientfhir', updatePatientFHIR);
 router.delete('/deletepatient/:_id', deletePatient);
 router.put('/updatepatient', upload.single('file'), updatePatient);
+router.get('/searchpatient/:_id', searchPatient);
 
 module.exports = router;
