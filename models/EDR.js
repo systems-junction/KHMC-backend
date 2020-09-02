@@ -97,18 +97,18 @@ const EDRSchema = new mongoose.Schema({
     ],
     labRequest:[
         {
-            serviceCode:{
-                type:String
-            },
             serviceId:{
                 type:mongoose.Schema.ObjectId,
                 ref:'LaboratoryService'
             },
-            serviceName:{
-                type:String
-            },
             requesterName:
             {
+                type:String
+            },
+            serviceCode:{
+                type:String
+            },
+            serviceName:{
                 type:String
             },
             status:{
@@ -124,6 +124,12 @@ const EDRSchema = new mongoose.Schema({
             sampleId:{
                 type:String
             },
+            comments: {
+                type: String,
+            },
+            serviceType:{
+                type: String,
+            },
             date:{
                 type:Date,
                 default:Date.now
@@ -136,17 +142,17 @@ const EDRSchema = new mongoose.Schema({
                 type:mongoose.Schema.ObjectId,
                 ref:'RadiologyService'
             },
-            serviceName:{
+            serviceCode:{
+                type:String
+            },
+            status:{
                 type:String
             },
             requesterName:
             {
                 type:String
             },
-            serviceCode:{
-                type:String
-            },
-            status:{
+            serviceName:{
                 type:String
             },
             requester:{
@@ -155,6 +161,12 @@ const EDRSchema = new mongoose.Schema({
             },
             results:{
                 type:String
+            },
+            comments: {
+                type: String,
+            },
+            serviceType:{
+                type: String,
             },
             date:{
                 type:Date,

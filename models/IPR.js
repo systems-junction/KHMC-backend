@@ -129,6 +129,9 @@ const IPRSchema = new mongoose.Schema({
       comments: {
         type: String,
       },
+      serviceType:{
+        type: String,
+      },
       date: {
         type: Date,
         default: Date.now,
@@ -161,6 +164,9 @@ const IPRSchema = new mongoose.Schema({
         type: String,
       },
       comments: {
+        type: String,
+      },
+      serviceType: {
         type: String,
       },
       date: {
