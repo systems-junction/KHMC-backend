@@ -255,30 +255,9 @@ exports.updatePatientFHIR = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: patientfhir });
 });
 
-exports.searchPatient = asyncHandler(async (req, res) => {
-  const a = await EDR.findOne({ patientId: req.params._id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params._id })
-      .populate('patientId')
-      .populate('consultationNote.requester')
-      .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.medicine.itemId')
-      .populate('labRequest.requester')
-      .populate('labRequest.serviceId')
-      .populate('radiologyRequest.serviceId')
-      .populate('radiologyRequest.requester')
-      .populate('residentNotes.doctor')
-      .populate('residentNotes.doctorRef')
-      .populate('dischargeRequest.dischargeMedication.requester')
-      .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .sort({
-        createdAt: 'desc',
-      });
-  }
-
-  const b = await IPR.findOne({ patientId: req.params._id });
-  if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params._id })
+exports.getPatientIPREDR = asyncHandler(async (req, res) => {
+  if ((await IPR.find({ patientId: req.params._id })) !== null) {
+    const ipr = await IPR.find({ patientId: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
       .populate('pharmacyRequest.requester')
@@ -293,25 +272,69 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('nurseService.requester')
       .populate('dischargeRequest.dischargeMedication.requester')
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-      .populate('followUp.approvalPerson')
-      .sort({
-        createdAt: 'desc',
-      });
-  }
-
-  if (a && b) {
-    var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
-
-    if (isafter) {
-      res.status(200).json({ success: true, data: edr });
-    } else {
-      res.status(200).json({ success: true, data: ipr });
-    }
-  } else if (a) {
-    res.status(200).json({ success: true, data: edr });
-  } else if (b) {
+      .populate('followUp.approvalPerson');
     res.status(200).json({ success: true, data: ipr });
+  } else if ((await EDR.find({ patientId: req.params._id })) !== null) {
+    const edr = await EDR.find({ patientId: req.params._id })
+      .populate('patientId')
+      .populate('consultationNote.requester')
+      .populate('pharmacyRequest.requester')
+      .populate('pharmacyRequest.medicine.itemId')
+      .populate('labRequest.requester')
+      .populate('labRequest.serviceId')
+      .populate('radiologyRequest.serviceId')
+      .populate('radiologyRequest.requester')
+      .populate('residentNotes.doctor')
+      .populate('residentNotes.doctorRef')
+      .populate('dischargeRequest.dischargeMedication.requester')
+      .populate('dischargeRequest.dischargeMedication.medicine.itemId');
+    res.status(200).json({ success: true, data: edr });
+  }
+});
+
+exports.searchPatient = asyncHandler(async (req, res) => {
+  const edr = await EDR.findOne({ patientId: req.params._id })
+    .populate('patientId')
+    .populate('consultationNote.requester')
+    .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest.medicine.itemId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester')
+    .populate('residentNotes.doctor')
+    .populate('residentNotes.doctorRef')
+    .populate('dischargeRequest.dischargeMedication.requester')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .sort({
+      createdAt: 'desc',
+    });
+
+  const ipr = await IPR.findOne({ patientId: req.params._id })
+    .populate('patientId')
+    .populate('consultationNote.requester')
+    .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest.medicine.itemId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester')
+    .populate('residentNotes.doctor')
+    .populate('residentNotes.doctorRef')
+    .populate('nurseService.serviceId')
+    .populate('nurseService.requester')
+    .populate('dischargeRequest.dischargeMedication.requester')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .populate('followUp.approvalPerson')
+    .sort({
+      createdAt: 'desc',
+    });
+
+  var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+
+  if (isafter) {
+    res.status(200).json({ success: true, data: edr });
   } else {
-    res.status(200).json({ success: false, data: 'User not found' });
+    res.status(200).json({ success: true, data: ipr });
   }
 });

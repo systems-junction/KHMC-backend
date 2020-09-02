@@ -872,7 +872,6 @@ exports.updateIPR = asyncHandler(async (req, res, next) => {
   ipr = await IPR.updateOne({ _id: _id }, req.body);
   res.status(200).json({ success: true, data: ipr });
 });
-
 exports.addFollowUp = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
 

@@ -22,10 +22,12 @@ exports.getPatientIPR = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientById = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({ _id: req.params.id }).populate(
-    'receivedBy'
-  );
-  res.status(200).json({ success: true, data: patient });
+  if ((await Patient.find({ _id: req.params.id })) !== null) {
+    const patient = await Patient.find({ _id: req.params.id }).populate(
+      'receivedBy'
+    );
+    res.status(200).json({ success: true, data: patient });
+  }
 });
 exports.getPatientBySIN = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ SIN: req.params.SIN }).populate(

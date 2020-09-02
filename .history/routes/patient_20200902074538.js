@@ -25,6 +25,7 @@ const {
   updatePatient,
   addPatientFHIR,
   updatePatientFHIR,
+  // getPatientIPREDR,
   searchPatient,
 } = require('../controllers/patient');
 
@@ -32,6 +33,7 @@ const router = express.Router();
 router.get('/getpatient', getPatient);
 router.get('/getpatientedr', getPatientEDR);
 router.get('/getpatientipr', getPatientIPR);
+// router.get('/getpatientipredr/:_id', getPatientIPREDR);
 router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
