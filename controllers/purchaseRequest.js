@@ -52,6 +52,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     department,
     orderType,
   });
+  console.log(purchaseRequest)
   notification(
     'Purchase Request',
     'A new Purchase Request ' +

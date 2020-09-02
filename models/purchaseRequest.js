@@ -34,36 +34,28 @@ const PurchaseRequestSchema = new mongoose.Schema({
       ref: 'Item',
     },
     currQty: {
-      type: Number,
-      required: [true, 'Please add req qty'],
+      type: Number
     },
     reqQty: {
-      type: Number,
-      required: [true, 'Please add req qty'],
+      type: Number
     },
     comments: {
-      type: String,
-      required: [true, 'Please add comments'],
+      type: String
     },
     name: {
-      type: String,
-      required: [true, 'Please add name'],
+      type: String
     },
     description: {
-      type: String,
-      required: [true, 'Please add description'],
+      type: String
     },
     itemCode: {
-      type: String,
-      required: [true, 'Please add bar code'],
+      type: String
     },
     status: {
-      type: String,
-      required: true,
+      type: String
     },
     secondStatus: {
-      type: String,
-      required: true,
+      type: String
     },
   }],
   requesterName: {
