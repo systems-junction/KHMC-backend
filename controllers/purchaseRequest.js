@@ -11,7 +11,13 @@ const requestNoFormat = require('dateformat');
 exports.getPurchaseRequests = asyncHandler(async (req, res) => {
   const purchaseRequest = await PurchaseRequest.find()
     .populate('item.itemId')
-    .populate('vendorId');
+    .populate('vendorId')
+    .populate({
+      path: 'item.itemId',
+      populate: [
+        { path: 'vendorId' }
+      ],
+    })
   const status = [
     { key: 'to_do', value: 'To do' },
     { key: 'in_progress', value: 'In Progress' },
