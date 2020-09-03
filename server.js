@@ -13,13 +13,13 @@ const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 var nodemailer = require('nodemailer');
- const db = require('monk')(
-   'mongodb+srv://khmc-staging:khmc-staging@khmc-staging.rvomo.mongodb.net/staging?retryWrites=true&w=majority'
- );
+// const db = require('monk')(
+//   'mongodb+srv://khmc-staging:khmc-staging@khmc-staging.rvomo.mongodb.net/staging?retryWrites=true&w=majority'
+// );
 
-//const db = require('monk')(
- // 'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
-//);
+const db = require('monk')(
+  'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
+);
 dotenv.config({ path: './config/.env' });
 connectDB();
 var transporter = nodemailer.createTransport({
