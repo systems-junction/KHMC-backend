@@ -58,43 +58,42 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     }
     if(count == prapp.item.length)
     {
-        await PurchaseRequest.findOneAndUpdate({'_id': prId},{ $set: { status: "pending_approval_from_accounts" }},{new: true});   
+    await PurchaseRequest.findOneAndUpdate({'_id': prId},{ $set: { status: "pending_approval_from_accounts" }},{new: true});   
+    const mat = await MaterialReceiving.findOneAndUpdate({'_id': materialId,'prId.id':prId},{ $set: { 'prId.$.status': req.body.status }},{new: true});
+    const poNum = await PurchaseOrder.findOne({_id:mat.poId});
+    var count2 = 0;
+    for(let i = 0; i<mat.prId.length; i++)
+    {
+        if(mat.prId[i].status=="received"||mat.prId[i].status=="rejected"){
+            count++;
+        }
     }
+    if(count2 == mat.prId.length)
+    {
+        const acc = await Account.create({
+            mrId:materialId,
+            status:"pending_approval_from_accounts",
+            vendorId:vendorId
+        })
+        notification("Account Approval Needed", "Purchase Order "+poNum.purchaseOrderNo+" has been received by the Inventory Keeper at "+acc.createdAt+" pending approval", "Accounts Member")
+        const ac = await Account.find().populate({
+        path : 'mrId',
+        populate: [{
+            path : 'poId',
+            populate : {
+                path : 'purchaseRequestId',
+                populate:{
+                path : 'item.itemId'
+                }
+                }}]
+        }).populate('vendorId');
+        globalVariable.io.emit("get_data", ac)
+    }    
+}
     else if(count != prapp.item.length)
     {
         await PurchaseRequest.findOneAndUpdate({'_id': prId},{ $set: { status: "partially_complete" }},{new: true});   
     }
-
-    // const mat = await MaterialReceiving.findOneAndUpdate({'_id': materialId,'prId.id':prId},{ $set: { 'prId.$.status': req.body.status }},{new: true});
-    // const poNum = await PurchaseOrder.findOne({_id:mat.poId});
-    // var count = 0;
-    // for(let i = 0; i<mat.prId.length; i++)
-    // {
-    //     if(mat.prId[i].status=="received"||mat.prId[i].status=="rejected"){
-    //         count++;
-    //     }
-    // }
-    // if(count == mat.prId.length)
-    // {
-    //     const acc = await Account.create({
-    //         mrId:materialId,
-    //         status:"pending_approval_from_accounts",
-    //         vendorId:vendorId
-    //     })
-    //     notification("Account Approval Needed", "Purchase Order "+poNum.purchaseOrderNo+" has been received by the Inventory Keeper at "+acc.createdAt+" pending approval", "Accounts Member")
-    // }
-    // const ac = await Account.find().populate({
-    //   path : 'mrId',
-    //    populate: [{
-    //       path : 'poId',
-    //       populate : {
-    //         path : 'purchaseRequestId',
-    //         populate:{
-    //           path : 'item.itemId'
-    //         }
-    //         }}]
-    // }).populate('vendorId');
-    // globalVariable.io.emit("get_data", ac)
         res.status(200).json({ success: true});
 });
 
