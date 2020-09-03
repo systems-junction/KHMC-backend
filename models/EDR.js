@@ -26,6 +26,9 @@ const EDRSchema = new mongoose.Schema({
         consultationNotes:{
             type:String
         },
+        status:{
+            type:String
+        },
         requester:{
             type:mongoose.Schema.ObjectId,
             ref:'staff'
