@@ -58,12 +58,11 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     department,
     orderType,
   });
-  console.log(purchaseRequest)
   notification(
     'Purchase Request',
     'A new Purchase Request ' +
       purchaseRequest.requestNo +
-      'has been generated at ' +
+      ' has been generated at ' +
       purchaseRequest.createdAt,
     'Committe Member'
   );
@@ -106,7 +105,7 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
       'Purchase Request',
       'A new Purchase Request ' +
         req.body.requestNo +
-        'has been generated at ' +
+        ' has been generated at ' +
         req.body.updatedAt,
       'admin'
     );

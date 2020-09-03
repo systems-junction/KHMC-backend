@@ -65,7 +65,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     for(let i = 0; i<mat.prId.length; i++)
     {
         if(mat.prId[i].status=="received"||mat.prId[i].status=="rejected"){
-            count++;
+            count2++;
         }
     }
     if(count2 == mat.prId.length)
