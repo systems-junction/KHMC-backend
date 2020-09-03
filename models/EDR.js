@@ -57,16 +57,14 @@ const EDRSchema = new mongoose.Schema({
             note: {
                 type: String
             },
-            ICDdiagnosis: [
+            section: {
+                type: String,
+            },
+            code: [
                 {
-                    section: {
-                        type: String,
-                    },
-                    code: {
-                        type: String,
-                    },
-                },
-            ],
+                    type: String,
+                }
+            ]
         },
     ],
     pharmacyRequest: [

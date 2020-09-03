@@ -61,16 +61,14 @@ const IPRSchema = new mongoose.Schema({
       status: {
         type: String,
       },
-      ICDdiagnosis: [
+      section: {
+        type: String,
+      },
+      code: [
         {
-          section: {
-            type: String,
-          },
-          code: {
-            type: String,
-          },
-        },
-      ],
+          type: String,
+        }
+      ]
     },
   ],
   pharmacyRequest: [
