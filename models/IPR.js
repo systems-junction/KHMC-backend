@@ -30,6 +30,12 @@ const IPRSchema = new mongoose.Schema({
       status: {
         type: String
       },
+      speciality: {
+        type: String
+      },
+      specialist: {
+        type: String
+      },
       requester: {
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
@@ -55,6 +61,16 @@ const IPRSchema = new mongoose.Schema({
       status: {
         type: String,
       },
+      ICDdiagnosis: [
+        {
+          section: {
+            type: String,
+          },
+          code: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   pharmacyRequest: [
