@@ -23,6 +23,9 @@ const PurchaseOrderSchema = new mongoose.Schema({
     type: String,
     // required: [true, 'Please add generated data']
   },
+  comments: {
+    type: String,
+  },
   vendorId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Vendor',

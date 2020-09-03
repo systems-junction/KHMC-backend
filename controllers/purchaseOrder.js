@@ -23,7 +23,12 @@ exports.getPurchaseOrder = asyncHandler(async (req, res) => {
 exports.getPurchaseOrders = asyncHandler(async (req, res) => {
   const purchaseOrder = await PurchaseOrder.find()
     .populate('vendorId')
-    .populate('purchaseRequestId');
+    .populate({
+      path:'purchaseRequestId',
+      populate:[
+        {path: 'vendorId'}
+      ]
+    })
   const vendor = await Vendor.find();
   const status = [
     { key: 'po_created', value: 'PO Created' },
@@ -58,6 +63,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
   const {
     generated,
     generatedBy,
+    comments,
     purchaseRequestId,
     date,
     vendorId,
@@ -69,6 +75,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     generated,
     generatedBy,
     date,
+    comments,
     vendorId,
     status,
     committeeStatus: 'to_do',
