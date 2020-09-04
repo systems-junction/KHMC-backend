@@ -324,3 +324,23 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
     res.status(200).json({ success: true, data: ipr });
   }
 });
+
+exports.updateEdrIprItem = asyncHandler(async (req, res) => {
+  var {id,itemID,requestType,status} = req.body;
+
+  if (requestType === 'EDR') {
+    await EDR.findOneAndUpdate(
+      { 'consultationNote._id': itemID, _id: id },
+      { $set: { 'consultationNote.$.status': status } },
+      { new: true }
+    );
+  }
+  if(requestType === 'IPR'){
+    await IPR.findOneAndUpdate(
+      { 'consultationNote._id': itemID, _id: id },
+      { $set: { 'consultationNote.$.status': status } },
+      { new: true }
+    );
+  }
+  res.status(200).json({ success: true });
+});

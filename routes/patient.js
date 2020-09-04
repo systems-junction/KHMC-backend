@@ -27,6 +27,7 @@ const {
   updatePatientFHIR,
   searchPatient,
   updateEdrIpr,
+  updateEdrIprItem
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -34,6 +35,7 @@ router.get('/getpatient', getPatient);
 router.get('/getpatientedr', getPatientEDR);
 router.get('/getpatientipr', getPatientIPR);
 router.put('/updateEdrIpr', updateEdrIpr);
+router.put('/updateEdrIprItem', updateEdrIprItem);
 router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
