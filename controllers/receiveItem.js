@@ -118,15 +118,15 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                 }  
             }    
     const prapp =  await PurchaseRequest.findOneAndUpdate({'_id': prId, 'item.itemId': itemId},{ $set: { 'item.$.status': status }},{new: true});
-    var count =0;
+    var count1 = 0;
     for(let i = 0 ; i<prapp.item.length; i++)
     {
         if(prapp.item[i].status=="received"||prapp.item[i].status=="rejected")
         {
-            count++;       
+            count1++;       
         }
     }
-    if(count == prapp.item.length)
+    if(count1 === prapp.item.length)
     {
     await PurchaseRequest.findOneAndUpdate({'_id': prId},{ $set: { status: "pending_approval_from_accounts" }},{new: true});   
     const mat = await MaterialReceiving.findOneAndUpdate({'_id': materialId,'prId.id':prId},{ $set: { 'prId.$.status': req.body.status }},{new: true});
@@ -160,7 +160,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         globalVariable.io.emit("get_data", ac)
     }    
 }
-    else if(count != prapp.item.length)
+    else if(count1 !== prapp.item.length)
     {
         await PurchaseRequest.findOneAndUpdate({'_id': prId},{ $set: { status: "partially_complete" }},{new: true});   
     }
