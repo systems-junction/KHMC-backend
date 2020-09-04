@@ -84,35 +84,38 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
                 await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:"Partially Received",secondStatus:"Partially Received"}},{new:true});
             }
 
-        //     if(pr.qty<=pr.reorderLevel)
-        //     {
-        //     const j =await Item.findOne({_id:req.body.itemId}) 
-        //     var item={
-        //         itemId:req.body.itemId,
-        //         currQty:pr.qty,
-        //         reqQty:pr.maximumLevel-pr.qty,
-        //         comments:'System',
-        //         name:j.name,
-        //         description:j.description,
-        //         itemCode:j.itemCode
-        //     }
-        //       const purchaseRequest = await PurchaseRequest.create({
-        //             requestNo: uuidv4(),
-        //             generated:'System',
-        //             generatedBy:'System',
-        //             committeeStatus: 'to_do',
-        //             status:'to_do',
-        //             comments:'System',
-        //             reason:'reactivated_items',
-        //             item,
-        //             vendorId:j.vendorId,
-        //             requesterName:'System',
-        //             department:'',
-        //             orderType:'',
-        //             rr: replenishmentRequestId
-        //           });
-        //           notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")         
-        // }
+            if(pr.qty<=pr.reorderLevel)
+            {
+            const j =await Item.findOne({_id:req.body.itemId}) 
+              const purchaseRequest = await PurchaseRequest.create({
+                    requestNo: uuidv4(),
+                    generated:'System',
+                    generatedBy:'System',
+                    committeeStatus: 'to_do',
+                    status:'to_do',
+                    comments:'System',
+                    reason:'reactivated_items',
+                    item:[
+                        {
+                        itemId:req.body.itemId,
+                        currQty:pr.qty,
+                        reqQty:pr.maximumLevel-pr.qty,
+                        comments:'System',
+                        name:j.name,
+                        description:j.description,
+                        itemCode:j.itemCode,
+                        status:"pending",
+                        secondStatus:"pending"
+                    }
+                    ],
+                    vendorId:j.vendorId,
+                    requesterName:'System',
+                    department:'',
+                    orderType:'',
+                    rr: replenishmentRequestId
+                  });
+                  notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")         
+        }
     }}
     res.status(200).json({ success: true});
 });

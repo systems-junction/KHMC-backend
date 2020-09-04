@@ -123,15 +123,6 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
               
             if(st2 == "Cannot be fulfilled")
             {
-      var item2={
-          itemId:req.body.itemId,
-          currQty:wh.qty,
-          reqQty:wh.maximumLevel-wh.qty,
-          comments:'System',
-          name:item.name,
-          description:item.description,
-          itemCode:item.itemCode
-      }
           const purchase = await PurchaseRequest.create({
               requestNo: uuidv4(),
               generated:'System',
@@ -140,7 +131,19 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
               status:'to_do',
               comments:'System',
               reason:'reactivated_items',
-              item:item2,
+              item:[
+                  {
+                    itemId:req.body.itemId,
+                    currQty:wh.qty,
+                    reqQty:wh.maximumLevel-wh.qty,
+                    comments:'System',
+                    name:item.name,
+                    description:item.description,
+                    itemCode:item.itemCode,
+                    status:"pending",
+                    secondStatus:"pending"
+                },
+              ],
               vendorId:item.vendorId,
               requesterName:'System',
               department:'',
