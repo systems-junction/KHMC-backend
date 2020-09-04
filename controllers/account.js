@@ -60,8 +60,8 @@ if(req.body.status=="approve"){
   await PurchaseOrder.updateOne({_id:account.mrId.poId}, { $set: { status: "complete" }})
   for(let i =0; i<account.mrId.prId.length; i++)
   {
-    if(account.mrId.prId[i].status=="received" || account.mrId.prId[i].status=="partially_complete" ){
-
+    if(account.mrId.prId[i].status=="received")
+    {
       for(let j =0 ;j<account.mrId.prId[i].id.item.length; j++)
     {
       if(account.mrId.prId[i].id.item[j].status=="received") 
@@ -77,7 +77,7 @@ if(req.body.status=="approve"){
     }
     }
     else if (account.mrId.prId[i].status=="rejected"){
-      await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "reject" }})
+      await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "partially_complete" }})
     }
   }
 }
