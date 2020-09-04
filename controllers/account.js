@@ -66,7 +66,7 @@ if(req.body.status=="approve"){
     {
       if(account.mrId.prId[i].id.item[j].status=="received") 
       {
-        var receive = await ReceiveItem.findOne({prId: account.mrId.prId[i].id,itemId:account.mrId.prId[i].id.item[j].itemId}).populate('prId')
+        var receive = await ReceiveItem.findOne({prId: account.mrId.prId[i].id._id,itemId:account.mrId.prId[i].id.item[j].itemId}).populate('prId')
         await WhInventory.updateOne({itemId: receive.itemId}, { $set: { qty: receive.currentQty+receive.receivedQty }})
         await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "receive" }})
         if(receive.prId.rr)

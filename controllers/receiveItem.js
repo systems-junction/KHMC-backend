@@ -129,7 +129,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     if(count1 === prapp.item.length)
     {
     await PurchaseRequest.findOneAndUpdate({'_id': prId},{ $set: { status: "received" }},{new: true});   
-    const mat = await MaterialReceiving.findOneAndUpdate({'_id': materialId,'prId.id':prId},{ $set: { 'prId.$.status': req.body.status }},{new: true});
+    const mat = await MaterialReceiving.findOneAndUpdate({'_id': materialId,'prId.id':prId},{ $set: { 'prId.$.status': "received" }},{new: true});
     const poNum = await PurchaseOrder.findOne({_id:mat.poId});
     var count2 = 0;
     for(let i = 0; i<mat.prId.length; i++)
