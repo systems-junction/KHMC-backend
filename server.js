@@ -212,18 +212,23 @@ cron.schedule('*/10 * * * * *', () => {
                 'admin'
               );
               const vendorEmail = data.vendorId.contactEmail;
-              var content = data.purchaseRequestId.reduce(function (a, b) {
+              var prArray = data.purchaseRequestId.reduce(function (a, b) {
+                return (
+                  b
+                );        
+            }, '');
+            var content = prArray.item.reduce(function (a, b) {
                 return (
                   a +
                   '<tr><td>' +
-                  b.item.itemId.itemCode +
+                  b.itemId.itemCode +
                   '</a></td><td>' +
-                  b.item.itemId.name +
+                  b.itemId.name +
                   '</td><td>' +
-                  b.item.reqQty +
+                  b.reqQty +
                   '</td></tr>'
-                );
-              }, '');
+                );        
+            }, '');
               var mailOptions = {
                 from: 'abdulhannan.itsolution@gmail.com',
                 to: vendorEmail,

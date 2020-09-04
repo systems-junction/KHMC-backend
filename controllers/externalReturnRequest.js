@@ -7,7 +7,7 @@ const ExternalReturnRequest = require('../models/externalReturnRequest');
 const WHInventory = require('../models/warehouseInventory');
 // const receiveItemFU = require('../models/receiveItemFU');
 // const receiveItemBU = require('../models/receiveItemBU');
-// const ReplenishmentRequest = require('../models/replenishmentRequest');
+// const RRCommented = require('../models/replenishmentRequest');
 // const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 // const FUInventory = require('../models/fuInventory');
 // const BUInventory = require('../models/buInventory');
@@ -89,7 +89,7 @@ exports.updateExternalRequest = asyncHandler(async (req, res, next) => {
     //      const wh = await WHInventory.findOne({itemId: req.body.itemId})
     //      await FUInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: fu.qty-receive.receivedQty }},{new:true})
     //      await WHInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: wh.qty-receive.receivedQty }},{new:true})
-    //      await ReplenishmentRequest.findOneAndUpdate({_id:req.body.replenishmentRequestFU},{ $set: { status: "Returned because of Issue", secondStatus:"Returned because of Issue"}})
+    //      await RRCommented.findOneAndUpdate({_id:req.body.replenishmentRequestFU},{ $set: { status: "Returned because of Issue", secondStatus:"Returned because of Issue"}})
     // }
     externalReturn = await ExternalReturnRequest.findOneAndUpdate({_id: _id}, req.body,{new:true});
     res.status(200).json({ success: true, data: externalReturn });

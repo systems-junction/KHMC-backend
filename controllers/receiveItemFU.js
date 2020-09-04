@@ -66,19 +66,27 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
             } 
             if(fu && pr)
             {
-             await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:req.body.replenishmentRequestStatus,secondStatus:req.body.replenishmentRequestStatus }},{new:true});
+            await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId, 'items.itemId':req.body.itemId},{ $set: { 'items.$.secondStatus':req.body.replenishmentRequestStatus,'items.$.status':req.body.replenishmentRequestStatus }},{new:true});
+            const stat =  await ReplenishmentRequest.findOne({_id: replenishmentRequestId})  
+            var count = 0; 
+            for(let i = 0 ; i<stat.items.length; i++)
+            {
+            if(stat.items[i].status == "Received"||stat.items[i].status == "Partially Received")
+            {
+                count++
+            }
+            }
+            if(count == stat.items.length)
+            {
+                await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:"Received",secondStatus:"Received"}},{new:true});
+            }
+            else{
+                await ReplenishmentRequest.findOneAndUpdate({_id: replenishmentRequestId},{ $set: { status:"Partially Received",secondStatus:"Partially Received"}},{new:true});
+            }
+
             if(pr.qty<=pr.reorderLevel)
             {
             const j =await Item.findOne({_id:req.body.itemId}) 
-            var item={
-                itemId:req.body.itemId,
-                currQty:pr.qty,
-                reqQty:pr.maximumLevel-pr.qty,
-                comments:'System',
-                name:j.name,
-                description:j.description,
-                itemCode:j.itemCode
-            }
               const purchaseRequest = await PurchaseRequest.create({
                     requestNo: uuidv4(),
                     generated:'System',
@@ -87,7 +95,19 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
                     status:'to_do',
                     comments:'System',
                     reason:'reactivated_items',
-                    item,
+                    item:[
+                        {
+                        itemId:req.body.itemId,
+                        currQty:pr.qty,
+                        reqQty:pr.maximumLevel-pr.qty,
+                        comments:'System',
+                        name:j.name,
+                        description:j.description,
+                        itemCode:j.itemCode,
+                        status:"pending",
+                        secondStatus:"pending"
+                    }
+                    ],
                     vendorId:j.vendorId,
                     requesterName:'System',
                     department:'',
@@ -95,7 +115,8 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
                     rr: replenishmentRequestId
                   });
                   notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")         
-        }}}
+        }
+    }}
     res.status(200).json({ success: true});
 });
 

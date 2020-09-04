@@ -21,10 +21,6 @@ const replenishmentRequestSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'functionalUnit'
     },
-    // buId:{
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: 'businessUnit'
-    // },
     to:{
         type:String
     },
@@ -34,37 +30,47 @@ const replenishmentRequestSchema = new mongoose.Schema({
     comments:{
         type: String
     },
-    itemId:{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Item'
-    },
-    rrB:{
-        type: mongoose.Schema.ObjectId,
-        ref: 'ReplenishmentRequestBU' 
-    },
-    currentQty:{
-        type:Number
-    },
-    requestedQty:{
-        type:Number
-    },
-    recieptUnit:{
-        type:String
-    },
-    issueUnit:{
-        type:String
-    },
-    fuItemCost:{
-        type:Number
-    },
-    description:{
-        type:String
-    },
+    items:[
+        {
+        itemId:{
+            type: mongoose.Schema.ObjectId,
+            ref: 'Item'
+        },
+        currentQty:{
+            type:Number
+        },
+        requestedQty:{
+            type:Number
+        },
+        recieptUnit:{
+            type:String
+        },
+        issueUnit:{
+            type:String
+        },
+        fuItemCost:{
+            type:Number
+        },
+        description:{
+            type:String
+        },
+        status: {
+            type: String
+        },
+        secondStatus:{
+            type:String
+        }
+    }
+    ],
     status: {
         type: String
     },
     secondStatus:{
         type:String
+    },
+    rrB:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'ReplenishmentRequestBU' 
     },
     approvedBy:{
         type: mongoose.Schema.ObjectId,

@@ -23,7 +23,12 @@ exports.getPurchaseOrder = asyncHandler(async (req, res) => {
 exports.getPurchaseOrders = asyncHandler(async (req, res) => {
   const purchaseOrder = await PurchaseOrder.find()
     .populate('vendorId')
-    .populate('purchaseRequestId');
+    .populate({
+      path:'purchaseRequestId',
+      populate:[
+        {path: 'vendorId'}
+      ]
+    })
   const vendor = await Vendor.find();
   const status = [
     { key: 'po_created', value: 'PO Created' },
@@ -58,6 +63,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
   const {
     generated,
     generatedBy,
+    comments,
     purchaseRequestId,
     date,
     vendorId,
@@ -69,6 +75,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     generated,
     generatedBy,
     date,
+    comments,
     vendorId,
     status,
     committeeStatus: 'to_do',
@@ -136,18 +143,24 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
       })
       .populate('vendorId');
     const vendorEmail = purchaseRequest.vendorId.contactEmail;
-    var content = purchaseRequest.purchaseRequestId.reduce(function (a, b) {
-      return (
-        a +
-        '<tr><td>' +
-        b.item.itemId.itemCode +
-        '</a></td><td>' +
-        b.item.itemId.name +
-        '</td><td>' +
-        b.item.reqQty +
-        '</td></tr>'
-      );
+    var prArray = purchaseRequest.purchaseRequestId.reduce(function (a, b) {
+        return (
+          b
+        );        
     }, '');
+    var content = prArray.item.reduce(function (a, b) {
+        return (
+          a +
+          '<tr><td>' +
+          b.itemId.itemCode +
+          '</a></td><td>' +
+          b.itemId.name +
+          '</td><td>' +
+          b.reqQty +
+          '</td></tr>'
+        );        
+    }, '');
+
     var mailOptions = {
       from: 'abdulhannan.itsolution@gmail.com',
       to: vendorEmail,

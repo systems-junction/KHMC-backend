@@ -13,14 +13,14 @@ const requestNoFormat = require('dateformat');
 exports.getReplenishmentRequestsFU = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequest.find()
     .populate('fuId')
-    .populate('itemId')
+    .populate('items.itemId')
     .populate('approvedBy');
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 exports.getReplenishmentRequestsByIdFU = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequest.findOne({ _id: _id })
     .populate('fuId')
-    .populate('itemId');
+    .populate('items.itemId');
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
@@ -33,26 +33,28 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     to,
     from,
     comments,
-    itemId,
-    currentQty,
-    requestedQty,
-    recieptUnit,
-    issueUnit,
-    fuItemCost,
-    description,
+    items,
     status,
-    secondStatus,
     approvedBy,
     requesterName,
     orderType,
     department,
+    secondStatus
   } = req.body;
-  const wh = await WHInventory.findOne({ itemId: req.body.itemId });
-  if (wh.qty < req.body.requestedQty) {
-    req.body.secondStatus = 'Cannot be fulfilled';
-  } else {
-    req.body.secondStatus = 'Can be fulfilled';
+  for(let i=0; i<items.length; i++){
+    var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
+    if (wahi.qty < req.body.items[i].requestedQty) {
+      req.body.items[i].secondStatus = 'Cannot be fulfilled';
+    } else {
+      req.body.items[i].secondStatus = 'Can be fulfilled';
+    }
   }
+  // const wh = await WHInventory.findOne({ itemId: req.body.itemId });
+  // if (wh.qty < req.body.requestedQty) {
+  //   req.body.secondStatus = 'Cannot be fulfilled';
+  // } else {
+  //   req.body.secondStatus = 'Can be fulfilled';
+  // }
   const rrS = await ReplenishmentRequest.create({
     requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
     generated,
@@ -63,15 +65,9 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     to,
     from,
     comments,
-    itemId,
-    currentQty,
-    requestedQty,
-    recieptUnit,
-    issueUnit,
-    fuItemCost,
-    description,
+    items,
     status,
-    secondStatus: req.body.secondStatus,
+    secondStatus:"pending",
     approvedBy,
     requesterName,
     orderType,
@@ -89,15 +85,6 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
   );
   if (req.body.secondStatus == 'Cannot be fulfilled') {
     const i = await Item.findOne({ _id: req.body.itemId });
-    var item = {
-      itemId: req.body.itemId,
-      currQty: wh.qty,
-      reqQty: wh.maximumLevel - wh.qty,
-      comments: 'System',
-      name: i.name,
-      description: i.description,
-      itemCode: i.itemCode,
-    };
     const purchase = await PurchaseRequest.create({
       requestNo: uuidv4(),
       generated: 'System',
@@ -106,7 +93,19 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
       status: 'to_do',
       comments: 'System',
       reason: 'System',
-      item,
+      item:[
+        {
+          itemId: req.body.itemId,
+          currQty: wh.qty,
+          reqQty: wh.maximumLevel - wh.qty,
+          comments: 'System',
+          name: i.name,
+          description: i.description,
+          itemCode: i.itemCode,
+          status:"pending",
+          secondStatus:"pending"
+        }
+      ],
       vendorId: i.vendorId,
       requesterName: 'System',
       department: 'System',
@@ -151,11 +150,20 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
       )
     );
   }
+  for(let i=0; i<req.body.items.length; i++){
+    var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
+    if (wahi.qty < req.body.items[i].requestedQty) {
+      req.body.items[i].secondStatus = 'Cannot be fulfilled';
+    } else {
+      req.body.items[i].secondStatus = 'Can be fulfilled';
+    }
+  }
   replenishmentRequest = await ReplenishmentRequest.findOneAndUpdate(
     { _id: _id },
     req.body,
     { new: true }
   );
+
   if (req.body.status == 'Fulfillment Initiated') {
     notification(
       'Replenishment Request',
@@ -176,7 +184,6 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
       'FU Member'
     );
   }
-
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 

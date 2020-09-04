@@ -11,7 +11,13 @@ const requestNoFormat = require('dateformat');
 exports.getPurchaseRequests = asyncHandler(async (req, res) => {
   const purchaseRequest = await PurchaseRequest.find()
     .populate('item.itemId')
-    .populate('vendorId');
+    .populate('vendorId')
+    .populate({
+      path: 'item.itemId',
+      populate: [
+        { path: 'vendorId' }
+      ],
+    })
   const status = [
     { key: 'to_do', value: 'To do' },
     { key: 'in_progress', value: 'In Progress' },
@@ -56,7 +62,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     'Purchase Request',
     'A new Purchase Request ' +
       purchaseRequest.requestNo +
-      'has been generated at ' +
+      ' has been generated at ' +
       purchaseRequest.createdAt,
     'Committe Member'
   );
@@ -99,7 +105,7 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
       'Purchase Request',
       'A new Purchase Request ' +
         req.body.requestNo +
-        'has been generated at ' +
+        ' has been generated at ' +
         req.body.updatedAt,
       'admin'
     );

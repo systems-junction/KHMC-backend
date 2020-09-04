@@ -50,23 +50,34 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
   }
 if(req.body.status=="approve"){
   const account = await Account.findOne({_id:req.body._id}).populate({
-    path : 'mrId'
+    path : 'mrId',
+    populate: [{
+       path : 'prId.id'
+}]
   })
+
   await MaterialReceiving.updateOne({_id:account.mrId._id}, { $set: { status: "complete" }})
   await PurchaseOrder.updateOne({_id:account.mrId.poId}, { $set: { status: "complete" }})
   for(let i =0; i<account.mrId.prId.length; i++)
   {
-    if(account.mrId.prId[i].status=="received"){
-      var receive = await ReceiveItem.findOne({prId: account.mrId.prId[i].id}).populate('prId')
-      await WhInventory.updateOne({itemId: receive.itemId}, { $set: { qty: receive.currentQty+receive.receivedQty }})
-      await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "receive" }})
-      if(receive.prId.rr)
+    if(account.mrId.prId[i].status=="received"||account.mrId.prId[i].status=="partially_complete")
+    {
+      for(let j =0 ;j<account.mrId.prId[i].id.item.length; j++)
+    {
+      if(account.mrId.prId[i].id.item[j].status=="received") 
       {
-      await ReplenishmentRequest.updateOne({_id:receive.prId.rr}, { $set: { secondStatus: "Can be fulfilled" }})
+        var receive = await ReceiveItem.findOne({prId: account.mrId.prId[i].id._id,itemId:account.mrId.prId[i].id.item[j].itemId}).populate('prId')
+        await WhInventory.updateOne({itemId: receive.itemId}, { $set: { qty: receive.currentQty+receive.receivedQty }})
+        await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "receive" }})
+        if(receive.prId.rr)
+        {
+        await ReplenishmentRequest.updateOne({_id:receive.prId.rr}, { $set: { secondStatus: "Can be fulfilled" }})
+      }
+      }
     }
     }
     else if (account.mrId.prId[i].status=="rejected"){
-      await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "reject" }})
+      await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "partially_complete" }})
     }
   }
 }

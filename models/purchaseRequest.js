@@ -28,36 +28,36 @@ const PurchaseRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'ReplenishmentRequest' 
 },
-  item: {
+  item: [{
     itemId: {
       type: mongoose.Schema.ObjectId,
       ref: 'Item',
     },
     currQty: {
-      type: Number,
-      required: [true, 'Please add req qty'],
+      type: Number
     },
     reqQty: {
-      type: Number,
-      required: [true, 'Please add req qty'],
+      type: Number
     },
     comments: {
-      type: String,
-      required: [true, 'Please add comments'],
+      type: String
     },
     name: {
-      type: String,
-      required: [true, 'Please add name'],
+      type: String
     },
     description: {
-      type: String,
-      required: [true, 'Please add description'],
+      type: String
     },
     itemCode: {
-      type: String,
-      required: [true, 'Please add bar code'],
+      type: String
     },
-  },
+    status: {
+      type: String
+    },
+    secondStatus: {
+      type: String
+    },
+  }],
   requesterName: {
     type: String,
   },

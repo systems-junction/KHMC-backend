@@ -227,7 +227,7 @@ exports.getSearchedItems = asyncHandler(async (req, res) => {
       { scientificName: { $regex: req.params.keyword, $options: 'i' } },
       { itemCode: { $regex: req.params.keyword, $options: 'i' } },
     ],
-  });
+  }).populate('vendorId');
   const data = {
     items,
   };
@@ -241,7 +241,7 @@ exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
       { itemCode: { $regex: req.params.keyword, $options: 'i' } },
     ],
     cls: 'non_medical',
-  });
+  }).populate('vendorId');
   const data = {
     items,
   };
@@ -256,7 +256,7 @@ exports.getSearchedItemsP = asyncHandler(async (req, res) => {
     ],
     cls: 'medical',
     medClass: 'pharmaceutical',
-  });
+  }).populate('vendorId');
   const data = {
     items,
   };
@@ -271,7 +271,7 @@ exports.getSearchedItemsNP = asyncHandler(async (req, res) => {
     ],
     cls: 'medical',
     medClass: 'non_pharmaceutical',
-  });
+  }).populate('vendorId');
   const data = {
     items,
   };
