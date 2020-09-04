@@ -38,6 +38,9 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
   var dischargeIpr;
   var dateEdr;
   var dateIpr;
+  const rc = await RC.findOne({patient:req.params._id},
+    {},
+    { sort: { createdAt: -1 } })
   const edr = await EDR.findOne(
     { patientId: req.params._id },
     {},
@@ -102,6 +105,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     nsIpr,
     dischargeIpr,
     dateIpr,
+    rc
   };
   res.status(200).json({ success: true, data: data });
 });
