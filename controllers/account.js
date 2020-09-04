@@ -60,7 +60,7 @@ if(req.body.status=="approve"){
   await PurchaseOrder.updateOne({_id:account.mrId.poId}, { $set: { status: "complete" }})
   for(let i =0; i<account.mrId.prId.length; i++)
   {
-    if(account.mrId.prId[i].status=="received")
+    if(account.mrId.prId[i].status=="received"||account.mrId.prId[i].status=="partially_complete")
     {
       for(let j =0 ;j<account.mrId.prId[i].id.item.length; j++)
     {
