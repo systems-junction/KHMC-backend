@@ -381,12 +381,12 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
 
 exports.triage = asyncHandler(async(req,res)=>{
   const patient= await Patient.findOne({_id:req.params.id})
-    notification(
+  notification(
       'Patient',
       'A Patient with MRN ' +
         patient.profileNo +
         ' has been registered with Triage Level',
-      'Doctor/Physician Nurse'
+      'Doctor/Physician'
     );
     const pat = await Patient.find()
     .populate('receivedBy')
