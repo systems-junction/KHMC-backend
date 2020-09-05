@@ -96,3 +96,45 @@ exports.updateOPR = asyncHandler(async (req, res, next) => {
   opr = await OPR.updateOne({ _id: _id }, req.body);
   res.status(200).json({ success: true, data: opr });
 });
+
+exports.putLROPRById = asyncHandler(async (req, res) => {
+  var data = JSON.parse(req.body.data);
+  if (req.file) {
+    await OPR.findOneAndUpdate(
+      { 'labRequest._id': data.labRequestId, _id: data.OPRId },
+      data
+    );
+    await OPR.findOneAndUpdate(
+      { 'labRequest._id': data.labRequestId, _id: data.OPRId },
+      { $set: { 'labRequest.$.results': req.file.path } },
+      { new: true }
+    );
+  } else {
+    await OPR.findOneAndUpdate(
+      { 'labRequest._id': data.labRequestId, _id: data.OPRId },
+      data
+    );
+  }
+  res.status(200).json({ success: true });
+});
+
+exports.putRROPRById = asyncHandler(async (req, res) => {
+  var data = JSON.parse(req.body.data);
+  if (req.file) {
+    await OPR.findOneAndUpdate(
+      { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
+      data
+    );
+    await OPR.findOneAndUpdate(
+      { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
+      { $set: { 'radiologyRequest.$.results': req.file.path } },
+      { new: true }
+    );
+  } else {
+    await OPR.findOneAndUpdate(
+      { 'labRequest._id': data.radiologyRequestId, _id: data.OPRId },
+      data
+    );
+  }
+  res.status(200).json({ success: true });
+});

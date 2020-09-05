@@ -83,6 +83,9 @@ const OPRSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      results: {
+        type: String
+    },
     },
   ],
   radiologyRequest: [
@@ -111,6 +114,9 @@ const OPRSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      results: {
+        type: String
+    },
     },
   ],
 
