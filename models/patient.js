@@ -43,6 +43,9 @@ const patientSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
   },
+  mobileNumber: {
+    type: String,
+  },
   email: {
     type: String,
     // unique: true,
