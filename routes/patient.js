@@ -27,7 +27,13 @@ const {
   updatePatientFHIR,
   searchPatient,
   updateEdrIpr,
-  updateEdrIprItem
+  updateEdrIprItem,
+  triage,
+  pharmacy,
+  lab,
+  rad,
+  consultation,
+  discharge
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -45,5 +51,10 @@ router.put('/updatepatientfhir', updatePatientFHIR);
 router.delete('/deletepatient/:_id', deletePatient);
 router.put('/updatepatient', upload.single('file'), updatePatient);
 router.get('/searchpatient/:_id', searchPatient);
-
+router.get('/triage/:id', triage);
+router.get('/pharmacy/:id', pharmacy);
+router.get('/lab/:id', lab);
+router.get('/rad/:id', rad);
+router.get('/consultation/:id', consultation);
+router.get('/discharge/:id', discharge);
 module.exports = router;
