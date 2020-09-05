@@ -1,5 +1,6 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
+const notification = require('../components/notification');
 const Patient = require('../models/patient');
 const PatientFHIR = require('../models/patientFHIR/patientFHIR');
 const IPR = require('../models/IPR');
@@ -166,6 +167,16 @@ exports.addPatient = asyncHandler(async (req, res) => {
       otherCoverageDetails: parsed.otherCoverageDetails,
     });
   }
+  notification(
+    'Patient',
+    'A new Patient with MRN ' +
+      patient.profileNo +
+      ' has been registered ',
+    'Registered Nurse'
+  );
+  const pat = await Patient.find()
+  .populate('receivedBy')
+  globalVariable.io.emit('get_data', pat);
   res.status(200).json({ success: true, data: patient });
 });
 exports.addPatientFHIR = asyncHandler(async (req, res) => {
