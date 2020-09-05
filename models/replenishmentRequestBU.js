@@ -64,7 +64,9 @@ const replenishmentRequestBUSchema = new mongoose.Schema({
         },
         form:{
             type:String
-        }
+        },
+        size:{type:String},
+        make_model:{type:String}
     }],
 
     description:{
