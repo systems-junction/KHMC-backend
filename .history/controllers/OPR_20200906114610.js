@@ -97,7 +97,15 @@ exports.updateOPR = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: opr });
 });
 
-exports.getLROPRById = asyncHandler(async (req, res) => {
+// exports.getLROPRById = asyncHandler(async (req, res) => {
+
+//     await OPR.findOne(
+//       { 'labRequest._id': req.params.LRId, _id: req.params.OPRId }
+//     );
+//   res.status(200).json({ success: true });
+// });
+
+exports.getRROPRById = asyncHandler(async (req, res) => {
   const edr = await OPR.findOne({ 'labRequest._id': req.params._id })
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
@@ -105,19 +113,6 @@ exports.getLROPRById = asyncHandler(async (req, res) => {
   for (let i = 0; i < edr.labRequest.length; i++) {
     if (edr.labRequest[i]._id == req.params._id) {
       var lab = edr.labRequest[i];
-    }
-  }
-  res.status(200).json({ success: true, data: lab });
-});
-
-exports.getRROPRById = asyncHandler(async (req, res) => {
-  const edr = await OPR.findOne({ 'radiologyRequest._id': req.params._id })
-    .populate('radiologyRequest.requester')
-    .populate('radiologyRequest.serviceId')
-    .select({ radiologyRequest: 1 });
-  for (let i = 0; i < edr.radiologyRequest.length; i++) {
-    if (edr.radiologyRequest[i]._id == req.params._id) {
-      var lab = edr.radiologyRequest[i];
     }
   }
   res.status(200).json({ success: true, data: lab });

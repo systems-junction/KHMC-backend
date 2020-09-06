@@ -97,7 +97,7 @@ exports.updateOPR = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: opr });
 });
 
-exports.getLROPRById = asyncHandler(async (req, res) => {
+exports.getRROPRById = asyncHandler(async (req, res) => {
   const edr = await OPR.findOne({ 'labRequest._id': req.params._id })
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
@@ -110,7 +110,7 @@ exports.getLROPRById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: lab });
 });
 
-exports.getRROPRById = asyncHandler(async (req, res) => {
+exports.getLROPRById = asyncHandler(async (req, res) => {
   const edr = await OPR.findOne({ 'radiologyRequest._id': req.params._id })
     .populate('radiologyRequest.requester')
     .populate('radiologyRequest.serviceId')

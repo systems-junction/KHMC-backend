@@ -26,7 +26,6 @@ const {
   putLROPRById,
   putRROPRById,
   getRROPRById,
-  getLROPRById,
 } = require('../controllers/OPR');
 
 const router = express.Router();
@@ -41,6 +40,5 @@ router.put('/updateopr', updateOPR);
 router.put('/updatelab', upload.single('file'), putLROPRById);
 router.put('/updaterad', upload.single('file'), putRROPRById);
 router.get('/getrroprbyid/:_id', getRROPRById);
-router.get('/getlroprbyid/:_id', getLROPRById);
 
 module.exports = router;

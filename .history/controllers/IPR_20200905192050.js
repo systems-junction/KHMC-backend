@@ -464,7 +464,7 @@ exports.putRRIPRById = asyncHandler(async (req, res) => {
 
 exports.putRRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
-  var not;
+  var not
   const a = await IPR.findOne({
     'radiologyRequest._id': data.radiologyRequestId,
   });
@@ -479,7 +479,7 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { $set: { 'radiologyRequest.$.results': req.file.path } },
         { new: true }
       );
-      not = await IPR.findOneAndUpdate(
+     not =  await IPR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
         { new: true }
@@ -487,19 +487,19 @@ exports.putRRById = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
-          ' updated for Patient MRN ' +
+        data.radiologyRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Radiology/Imaging'
       );
-      const pat = await IPR.findOne({ patientId: not.patientId });
+      const pat = await IPR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     } else {
       await IPR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         data
       );
-      not = await IPR.findOneAndUpdate(
+    not = await IPR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
         { new: true }
@@ -507,12 +507,12 @@ exports.putRRById = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
-          ' updated for Patient MRN ' +
+        data.radiologyRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Radiology/Imaging'
       );
-      const pat = await IPR.findOne({ patientId: not.patientId });
+      const pat = await IPR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     }
     res.status(200).json({ success: true });
@@ -541,12 +541,12 @@ exports.putRRById = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
-          ' updated for Patient MRN ' +
+        data.radiologyRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Radiology/Imaging'
       );
-      const pat = await EDR.findOne({ patientId: not.patientId });
+      const pat = await EDR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     } else {
       await EDR.findOneAndUpdate(
@@ -561,12 +561,12 @@ exports.putRRById = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
-          ' updated for Patient MRN ' +
+        data.radiologyRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Radiology/Imaging'
       );
-      const pat = await EDR.findOne({ patientId: not.patientId });
+      const pat = await EDR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     }
     res.status(200).json({ success: true });
@@ -722,7 +722,7 @@ exports.putLRIPRById = asyncHandler(async (req, res) => {
 
 exports.putLRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
-  var not;
+  var not
   const a = await IPR.findOne({
     'labRequest._id': data.labRequestId,
   });
@@ -738,7 +738,7 @@ exports.putLRById = asyncHandler(async (req, res) => {
         { $set: { 'labRequest.$.results': req.file.path } },
         { new: true }
       );
-      not = await IPR.findOneAndUpdate(
+     not = await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
         { $set: { 'labRequest.$.status': data.status } },
         { new: true }
@@ -747,12 +747,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
-          ' updated for Patient MRN ' +
+        data.labRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Lab Technician'
       );
-      const pat = await IPR.findOne({ patientId: not.patientId });
+      const pat = await IPR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     } else {
       await IPR.findOneAndUpdate(
@@ -767,12 +767,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
-          ' updated for Patient MRN ' +
+        data.labRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Lab Technician'
       );
-      const pat = await IPR.findOne({ patientId: not.patientId });
+      const pat = await IPR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     }
     res.status(200).json({ success: true });
@@ -806,19 +806,19 @@ exports.putLRById = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
-          ' updated for Patient MRN ' +
+        data.labRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Lab Technician'
       );
-      const pat = await EDR.findOne({ patientId: not.patientId });
+      const pat = await EDR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     } else {
       await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
         data
       );
-      not = await EDR.findOneAndUpdate(
+     not = await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
         { $set: { 'labRequest.$.status': data.status } },
         { new: true }
@@ -826,12 +826,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
-          ' updated for Patient MRN ' +
+        data.labRequestId +
+          ' updated for Patient MRN '+
           not.patientId.profileNo,
         'Lab Technician'
       );
-      const pat = await EDR.findOne({ patientId: not.patientId });
+      const pat = await EDR.findOne({patientId: not.patientId})
       globalVariable.io.emit('get_data', pat);
     }
     res.status(200).json({ success: true });
