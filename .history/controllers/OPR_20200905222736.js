@@ -120,7 +120,6 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
 
 exports.putRROPRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
-  console.log('data', data);
   if (req.file) {
     await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
@@ -133,7 +132,7 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
     );
   } else {
     await OPR.findOneAndUpdate(
-      { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
+      { 'labRequest._id': data.radiologyRequestId, _id: data.OPRId },
       data
     );
   }

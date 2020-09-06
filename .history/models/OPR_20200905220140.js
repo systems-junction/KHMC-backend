@@ -84,12 +84,8 @@ const OPRSchema = new mongoose.Schema({
         default: Date.now,
       },
       results: {
-        type: String,
-      },
-      comments: {},
-      sampleId: {
-        type: String,
-      },
+        type: String
+    },
     },
   ],
   radiologyRequest: [
@@ -119,12 +115,8 @@ const OPRSchema = new mongoose.Schema({
         default: Date.now,
       },
       results: {
-        type: String,
-      },
-      comments: {},
-      sampleId: {
-        type: String,
-      },
+        type: String
+    },
     },
   ],
 
@@ -135,10 +127,10 @@ const OPRSchema = new mongoose.Schema({
   status: {
     type: String,
   },
-  requestType: {
-    type: String,
-    default: 'OPR',
-  },
+  requestType:{
+    type:String,
+    default:'OPR'
+},
   createdAt: {
     type: Date,
     default: Date.now,

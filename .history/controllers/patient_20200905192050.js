@@ -99,7 +99,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       weight: parsed.weight,
       bloodGroup: parsed.bloodGroup,
       phoneNumber: parsed.phoneNumber,
-      mobileNumber: parsed.mobileNumber,
+      mobileNumber:parsed.mobileNumber,
       email: parsed.email,
       country: parsed.country,
       city: parsed.city,
@@ -141,7 +141,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       weight: parsed.weight,
       bloodGroup: parsed.bloodGroup,
       phoneNumber: parsed.phoneNumber,
-      mobileNumber: parsed.mobileNumber,
+      mobileNumber:parsed.mobileNumber,
       email: parsed.email,
       country: parsed.country,
       city: parsed.city,
@@ -169,10 +169,13 @@ exports.addPatient = asyncHandler(async (req, res) => {
   }
   notification(
     'Patient',
-    'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
+    'A new Patient with MRN ' +
+      patient.profileNo +
+      ' has been registered ',
     'Registered Nurse'
   );
-  const pat = await Patient.find().populate('receivedBy');
+  const pat = await Patient.find()
+  .populate('receivedBy')
   globalVariable.io.emit('get_data', pat);
   res.status(200).json({ success: true, data: patient });
 });
@@ -337,10 +340,10 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateEdrIprItem = asyncHandler(async (req, res) => {
-  var { id, itemID, requestType, status } = req.body;
-  var not;
+  var {id,itemID,requestType,status} = req.body;
+  var not
   if (requestType === 'EDR') {
-    not = await EDR.findOneAndUpdate(
+   not = await EDR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
       { $set: { 'consultationNote.$.status': status } },
       { new: true }
@@ -348,16 +351,16 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        itemID +
-        ' has been by the consultant for Patient MRN ' +
+      itemID +
+        ' has been by the consultant for Patient MRN '+
         not.patientId.profileNo,
       'Doctor/Physician'
     );
-    const pat = await EDR.findOne({ patientId: not.patientId });
+    const pat = await EDR.findOne({patientId: not.patientId})
     globalVariable.io.emit('get_data', pat);
   }
-  if (requestType === 'IPR') {
-    not = await IPR.findOneAndUpdate(
+  if(requestType === 'IPR'){
+   not = await IPR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
       { $set: { 'consultationNote.$.status': status } },
       { new: true }
@@ -365,434 +368,468 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        itemID +
-        ' has been by the consultant for Patient MRN ' +
+      itemID +
+        ' has been by the consultant for Patient MRN '+
         not.patientId.profileNo,
       'Doctor/Physician'
     );
-    const pat = await IPR.findOne({ patientId: not.patientId });
+    const pat = await IPR.findOne({patientId: not.patientId})
     globalVariable.io.emit('get_data', pat);
   }
   res.status(200).json({ success: true });
 });
 
-exports.triage = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
+exports.triage = asyncHandler(async(req,res)=>{
+  const patient= await Patient.findOne({_id:req.params.id})
   notification(
-    'Patient',
-    'A Patient with MRN ' +
-      patient.profileNo +
-      ' has been registered with Triage Level',
-    'Doctor/Physician'
-  );
-  const pat = await Patient.find().populate('receivedBy');
-  globalVariable.io.emit('get_data', pat);
-});
+      'Patient',
+      'A Patient with MRN ' +
+        patient.profileNo +
+        ' has been registered with Triage Level',
+      'Doctor/Physician'
+    );
+    const pat = await Patient.find()
+    .populate('receivedBy')
+    globalVariable.io.emit('get_data', pat);
+  });
 
-exports.pharmacy = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
+  exports.pharmacy = asyncHandler(async(req,res)=>{
+    const patient= await Patient.findOne({_id:req.params.id})
+    const a = await EDR.findOne({ patientId: req.params.id });
+   if (a !== null) {
+    var edr = await EDR.findOne({ patientId: req.params.id })
+      .sort({
+        createdAt: 'desc',
+      });
   }
   const b = await IPR.findOne({ patientId: req.params.id });
   if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
+    var ipr = await IPR.findOne({ patientId: req.params.id })
+      .sort({
+        createdAt: 'desc',
+      });
   }
   if (a && b) {
     var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
     if (isafter) {
-      var test = edr.pharmacyRequest[edr.pharmacyRequest.length - 1];
+      var test = edr.pharmacyRequest[edr.pharmacyRequest.length-1]
       notification(
         'Pharmacy Request',
         'Pharmacy Request number ' +
           test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+          ' received for Patient MRN '+
+          patient.profileNo
+          ,
         'Pharmacist'
       );
-      const pat = await EDR.findOne({ patientId: req.params.id });
+      const pat = await EDR.findOne({patientId: req.params.id})
       globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
+      res.status(200).json({ success: true});
     } else {
-      var test = ipr.pharmacyRequest[ipr.pharmacyRequest.length - 1];
+      var test = ipr.pharmacyRequest[ipr.pharmacyRequest.length-1]
       notification(
         'Pharmacy Request',
         'Pharmacy Request number ' +
           test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+          ' received for Patient MRN '+
+          patient.profileNo
+          ,
         'Pharmacist'
       );
-      const pat = await IPR.findOne({ patientId: req.params.id });
+      const pat = await IPR.findOne({patientId: req.params.id})
       globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
+      res.status(200).json({ success: true});
     }
   } else if (a) {
-    var test = edr.pharmacyRequest[edr.pharmacyRequest.length - 1];
+    var test = edr.pharmacyRequest[edr.pharmacyRequest.length-1]
     notification(
       'Pharmacy Request',
       'Pharmacy Request number ' +
         test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+        ' received for Patient MRN '+
+        patient.profileNo
+        ,
       'Pharmacist'
     );
-    const pat = await EDR.findOne({ patientId: req.params.id });
+    const pat = await EDR.findOne({patientId: req.params.id})
     globalVariable.io.emit('get_data', pat);
     res.status(200).json({ success: true });
   } else if (b) {
-    var test = ipr.pharmacyRequest[ipr.pharmacyRequest.length - 1];
+    var test = ipr.pharmacyRequest[ipr.pharmacyRequest.length-1]
     notification(
       'Pharmacy Request',
       'Pharmacy Request number ' +
         test._id +
-        ' received for Patient MRN ' +
+        ' received for Patient MRN '+
+        patient.profileNo
+        ,
+      'Pharmacist'
+    );
+    const pat = await IPR.findOne({patientId: req.params.id})
+    globalVariable.io.emit('get_data', pat);
+    res.status(200).json({ success: true });
+  } else {
+    res.status(200).json({ success: false, data: 'User not found' });
+  }
+    });
+
+    exports.lab = asyncHandler(async(req,res)=>{
+      const patient= await Patient.findOne({_id:req.params.id})
+      const a = await EDR.findOne({ patientId: req.params.id });
+     if (a !== null) {
+      var edr = await EDR.findOne({ patientId: req.params.id })
+        .sort({
+          createdAt: 'desc',
+        });
+    }
+    const b = await IPR.findOne({ patientId: req.params.id });
+    if (b !== null) {
+      var ipr = await IPR.findOne({ patientId: req.params.id })
+        .sort({
+          createdAt: 'desc',
+        });
+    }
+    if (a && b) {
+      var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+      if (isafter) {
+        var test = edr.labRequest[edr.labRequest.length-1]
+        notification(
+          'Laboratory Request',
+          'Laboratory Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Lab Technician'
+        );
+        const pat = await EDR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true});
+      } else {
+        var test = ipr.labRequest[ipr.labRequest.length-1]
+        notification(
+          'Laboratory Request',
+          'Laboratory Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Lab Technician'
+        );
+        const pat = await IPR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true});
+      }
+    } else if (a) {
+      var test = edr.labRequest[edr.labRequest.length-1]
+      notification(
+        'Laboratory Request',
+        'Laboratory Request number ' +
+          test._id +
+          ' received for Patient MRN '+
+          patient.profileNo
+          ,
+        'Lab Technician'
+      );
+      const pat = await EDR.findOne({patientId: req.params.id})
+      globalVariable.io.emit('get_data', pat);
+      res.status(200).json({ success: true });
+    } else if (b) {
+      var test = ipr.labRequest[ipr.labRequest.length-1]
+      notification(
+        'Laboratory Request',
+        'Laboratory Request number ' +
+          test._id +
+          ' received for Patient MRN '+
+          patient.profileNo
+          ,
+        'Lab Technician'
+      );
+      const pat = await IPR.findOne({patientId: req.params.id})
+      globalVariable.io.emit('get_data', pat);
+      res.status(200).json({ success: true });
+    } else {
+      res.status(200).json({ success: false, data: 'User not found' });
+    }
+      });
+    exports.rad = asyncHandler(async(req,res)=>{
+      const patient= await Patient.findOne({_id:req.params.id})
+      const a = await EDR.findOne({ patientId: req.params.id });
+      if (a !== null) {
+      var edr = await EDR.findOne({ patientId: req.params.id })
+        .sort({
+          createdAt: 'desc',
+        });
+    }
+    const b = await IPR.findOne({ patientId: req.params.id });
+    if (b !== null) {
+      var ipr = await IPR.findOne({ patientId: req.params.id })
+        .sort({
+          createdAt: 'desc',
+        });
+    }
+    if (a && b) {
+      var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+      if (isafter) {
+        var test = edr.radiologyRequest[edr.radiologyRequest.length-1]
+        notification(
+          'Radiology Request',
+          'Radiology Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Radiology/Imaging'
+        );
+        const pat = await EDR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true});
+      } else {
+        var test = ipr.radiologyRequest[ipr.radiologyRequest.length-1]
+        notification(
+          'Radiology Request',
+          'Radiology Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Radiology/Imaging'
+        );
+        const pat = await IPR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true});
+      }
+    } else if (a) {
+      var test = edr.radiologyRequest[edr.radiologyRequest.length-1]
+      notification(
+        'Radiology Request',
+        'Radiology Request number ' +
+          test._id +
+          ' received for Patient MRN '+
+          patient.profileNo
+          ,
+        'Radiology/Imaging'
+      );
+      const pat = await EDR.findOne({patientId: req.params.id})
+      globalVariable.io.emit('get_data', pat);
+      res.status(200).json({ success: true });
+    } else if (b) {
+      var test = ipr.radiologyRequest[ipr.radiologyRequest.length-1]
+      notification(
+        'Radiology Request',
+        'Radiology Request number ' +
+          test._id +
+          ' received for Patient MRN '+
+          patient.profileNo
+          ,
+        'Radiology/Imaging'
+      );
+      const pat = await IPR.findOne({patientId: req.params.id})
+      globalVariable.io.emit('get_data', pat);
+      res.status(200).json({ success: true });
+    } else {
+      res.status(200).json({ success: false, data: 'User not found' });
+    }
+      });
+
+exports.consultation = asyncHandler(async(req,res)=>{
+        const patient= await Patient.findOne({_id:req.params.id})
+        const a = await EDR.findOne({ patientId: req.params.id });
+        if (a !== null) {
+        var edr = await EDR.findOne({ patientId: req.params.id })
+          .sort({
+            createdAt: 'desc',
+          });
+      }
+      const b = await IPR.findOne({ patientId: req.params.id });
+      if (b !== null) {
+        var ipr = await IPR.findOne({ patientId: req.params.id })
+          .sort({
+            createdAt: 'desc',
+          });
+      }
+      if (a && b) {
+        var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+        if (isafter) {
+          var test = edr.consultationNote[edr.consultationNote.length-1]
+          notification(
+            'Consultation Request',
+            'Consultation Request number ' +
+              test._id +
+              ' received for Patient MRN '+
+              patient.profileNo
+              ,
+            'Consultant/Specialist'
+          );
+          const pat = await EDR.findOne({patientId: req.params.id})
+          globalVariable.io.emit('get_data', pat);
+          res.status(200).json({ success: true});
+        } else {
+          var test = ipr.consultationNote[ipr.consultationNote.length-1]
+          notification(
+            'Consultation Request',
+            'Consultation Request number ' +
+              test._id +
+              ' received for Patient MRN '+
+              patient.profileNo
+              ,
+            'Consultant/Specialist'
+          );
+          const pat = await IPR.findOne({patientId: req.params.id})
+          globalVariable.io.emit('get_data', pat);
+          res.status(200).json({ success: true});
+        }
+      } else if (a) {
+        var test = edr.consultationNote[edr.consultationNote.length-1]
+        notification(
+          'Consultation Request',
+          'Consultation Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Consultant/Specialist'
+        );
+        const pat = await EDR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true });
+      } else if (b) {
+        var test = ipr.consultationNote[ipr.consultationNote.length-1]
+        notification(
+          'Consultation Request',
+          'Consultation Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Consultant/Specialist'
+        );
+        const pat = await IPR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true });
+      } else {
+        res.status(200).json({ success: false, data: 'User not found' });
+      }
+        });
+exports.consultation = asyncHandler(async(req,res)=>{
+        const patient= await Patient.findOne({_id:req.params.id})
+        const a = await EDR.findOne({ patientId: req.params.id });
+        if (a !== null) {
+        var edr = await EDR.findOne({ patientId: req.params.id })
+          .sort({
+            createdAt: 'desc',
+          });
+      }
+      const b = await IPR.findOne({ patientId: req.params.id });
+      if (b !== null) {
+        var ipr = await IPR.findOne({ patientId: req.params.id })
+          .sort({
+            createdAt: 'desc',
+          });
+      }
+      if (a && b) {
+        var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+        if (isafter) {
+          var test = edr.consultationNote[edr.consultationNote.length-1]
+          notification(
+            'Consultation Request',
+            'Consultation Request number ' +
+              test._id +
+              ' received for Patient MRN '+
+              patient.profileNo
+              ,
+            'Consultant/Specialist'
+          );
+          const pat = await EDR.findOne({patientId: req.params.id})
+          globalVariable.io.emit('get_data', pat);
+          res.status(200).json({ success: true});
+        } else {
+          var test = ipr.consultationNote[ipr.consultationNote.length-1]
+          notification(
+            'Consultation Request',
+            'Consultation Request number ' +
+              test._id +
+              ' received for Patient MRN '+
+              patient.profileNo
+              ,
+            'Consultant/Specialist'
+          );
+          const pat = await IPR.findOne({patientId: req.params.id})
+          globalVariable.io.emit('get_data', pat);
+          res.status(200).json({ success: true});
+        }
+      } else if (a) {
+        var test = edr.consultationNote[edr.consultationNote.length-1]
+        notification(
+          'Consultation Request',
+          'Consultation Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Consultant/Specialist'
+        );
+        const pat = await EDR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true });
+      } else if (b) {
+        var test = ipr.consultationNote[ipr.consultationNote.length-1]
+        notification(
+          'Consultation Request',
+          'Consultation Request number ' +
+            test._id +
+            ' received for Patient MRN '+
+            patient.profileNo
+            ,
+          'Consultant/Specialist'
+        );
+        const pat = await IPR.findOne({patientId: req.params.id})
+        globalVariable.io.emit('get_data', pat);
+        res.status(200).json({ success: true });
+      } else {
+        res.status(200).json({ success: false, data: 'User not found' });
+      }
+        });
+
+exports.discharge = asyncHandler(async(req,res)=>{
+  const patient= await Patient.findOne({_id:req.params.id})
+    notification(
+      'Discharge Request',
+      'Discharge Request received for Patient MRN ' +
         patient.profileNo,
       'Pharmacist'
     );
-    const pat = await IPR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else {
-    res.status(200).json({ success: false, data: 'User not found' });
-  }
-});
-
-exports.lab = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
+    const a = await EDR.findOne({ patientId: req.params.id });
+    if (a !== null) {
+    var edr = await EDR.findOne({ patientId: req.params.id })
+      .sort({
+        createdAt: 'desc',
+      });
   }
   const b = await IPR.findOne({ patientId: req.params.id });
   if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
+    var ipr = await IPR.findOne({ patientId: req.params.id })
+      .sort({
+        createdAt: 'desc',
+      });
   }
   if (a && b) {
     var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
     if (isafter) {
-      var test = edr.labRequest[edr.labRequest.length - 1];
-      notification(
-        'Laboratory Request',
-        'Laboratory Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Lab Technician'
-      );
-      const pat = await EDR.findOne({ patientId: req.params.id });
+      const pat = await EDR.findOne({patientId: req.params.id})
       globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
     } else {
-      var test = ipr.labRequest[ipr.labRequest.length - 1];
-      notification(
-        'Laboratory Request',
-        'Laboratory Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Lab Technician'
-      );
-      const pat = await IPR.findOne({ patientId: req.params.id });
+      const pat = await IPR.findOne({patientId: req.params.id})
       globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
     }
   } else if (a) {
-    var test = edr.labRequest[edr.labRequest.length - 1];
-    notification(
-      'Laboratory Request',
-      'Laboratory Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Lab Technician'
-    );
-    const pat = await EDR.findOne({ patientId: req.params.id });
+    const pat = await EDR.findOne({patientId: req.params.id})
     globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
   } else if (b) {
-    var test = ipr.labRequest[ipr.labRequest.length - 1];
-    notification(
-      'Laboratory Request',
-      'Laboratory Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Lab Technician'
-    );
-    const pat = await IPR.findOne({ patientId: req.params.id });
+    const pat = await IPR.findOne({patientId: req.params.id})
     globalVariable.io.emit('get_data', pat);
     res.status(200).json({ success: true });
   } else {
     res.status(200).json({ success: false, data: 'User not found' });
   }
-});
-exports.rad = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  const b = await IPR.findOne({ patientId: req.params.id });
-  if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  if (a && b) {
-    var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
-    if (isafter) {
-      var test = edr.radiologyRequest[edr.radiologyRequest.length - 1];
-      notification(
-        'Radiology Request',
-        'Radiology Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Radiology/Imaging'
-      );
-      const pat = await EDR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    } else {
-      var test = ipr.radiologyRequest[ipr.radiologyRequest.length - 1];
-      notification(
-        'Radiology Request',
-        'Radiology Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Radiology/Imaging'
-      );
-      const pat = await IPR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    }
-  } else if (a) {
-    var test = edr.radiologyRequest[edr.radiologyRequest.length - 1];
-    notification(
-      'Radiology Request',
-      'Radiology Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Radiology/Imaging'
-    );
-    const pat = await EDR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else if (b) {
-    var test = ipr.radiologyRequest[ipr.radiologyRequest.length - 1];
-    notification(
-      'Radiology Request',
-      'Radiology Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Radiology/Imaging'
-    );
-    const pat = await IPR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else {
-    res.status(200).json({ success: false, data: 'User not found' });
-  }
-});
-
-exports.consultation = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  const b = await IPR.findOne({ patientId: req.params.id });
-  if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  if (a && b) {
-    var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
-    if (isafter) {
-      var test = edr.consultationNote[edr.consultationNote.length - 1];
-      notification(
-        'Consultation Request',
-        'Consultation Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Consultant/Specialist'
-      );
-      const pat = await EDR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    } else {
-      var test = ipr.consultationNote[ipr.consultationNote.length - 1];
-      notification(
-        'Consultation Request',
-        'Consultation Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Consultant/Specialist'
-      );
-      const pat = await IPR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    }
-  } else if (a) {
-    var test = edr.consultationNote[edr.consultationNote.length - 1];
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Consultant/Specialist'
-    );
-    const pat = await EDR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else if (b) {
-    var test = ipr.consultationNote[ipr.consultationNote.length - 1];
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Consultant/Specialist'
-    );
-    const pat = await IPR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else {
-    res.status(200).json({ success: false, data: 'User not found' });
-  }
-});
-exports.consultation = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  const b = await IPR.findOne({ patientId: req.params.id });
-  if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  if (a && b) {
-    var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
-    if (isafter) {
-      var test = edr.consultationNote[edr.consultationNote.length - 1];
-      notification(
-        'Consultation Request',
-        'Consultation Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Consultant/Specialist'
-      );
-      const pat = await EDR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    } else {
-      var test = ipr.consultationNote[ipr.consultationNote.length - 1];
-      notification(
-        'Consultation Request',
-        'Consultation Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Consultant/Specialist'
-      );
-      const pat = await IPR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    }
-  } else if (a) {
-    var test = edr.consultationNote[edr.consultationNote.length - 1];
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Consultant/Specialist'
-    );
-    const pat = await EDR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else if (b) {
-    var test = ipr.consultationNote[ipr.consultationNote.length - 1];
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Consultant/Specialist'
-    );
-    const pat = await IPR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else {
-    res.status(200).json({ success: false, data: 'User not found' });
-  }
-});
-
-exports.discharge = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  notification(
-    'Discharge Request',
-    'Discharge Request received for Patient MRN ' + patient.profileNo,
-    'Pharmacist'
-  );
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  const b = await IPR.findOne({ patientId: req.params.id });
-  if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  if (a && b) {
-    var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
-    if (isafter) {
-      const pat = await EDR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-    } else {
-      const pat = await IPR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-    }
-  } else if (a) {
-    const pat = await EDR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-  } else if (b) {
-    const pat = await IPR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else {
-    res.status(200).json({ success: false, data: 'User not found' });
-  }
-});
+  });
