@@ -165,7 +165,7 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
     // );
     await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
-      { $set: { 'radiologyRequest.$.status': data.status } },
+      { $set: { 'radiologyRequest.$.results': req.file.path } },
       { new: true }
     );
   }

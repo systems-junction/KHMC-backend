@@ -136,6 +136,10 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
       { new: true }
     );
   } else {
+    // await OPR.findOneAndUpdate(
+    //   { 'labRequest._id': data.labRequestId, _id: data.OPRId },
+    //   data
+    // );
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
       { $set: { 'labRequest.$.status': data.status } },
@@ -159,14 +163,9 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
       { new: true }
     );
   } else {
-    // await OPR.findOneAndUpdate(
-    //   { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
-    //   data
-    // );
     await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
-      { $set: { 'radiologyRequest.$.status': data.status } },
-      { new: true }
+      data
     );
   }
   res.status(200).json({ success: true });
