@@ -21,6 +21,7 @@ exports.getPatient = asyncHandler(async (req, res) => {
       { profileNo: { $regex: req.params.keyword, $options: 'i' } },
       { firstName: { $regex: req.params.keyword, $options: 'i' } },
       { lastName: { $regex: req.params.keyword, $options: 'i' } },
+      { fullName: { $regex: req.params.keyword, $options: 'i' } },
       { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
       { SIN: { $regex: req.params.keyword, $options: 'i' } },
       { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },

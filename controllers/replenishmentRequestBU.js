@@ -36,7 +36,7 @@ exports.getReplenishmentRequestsByIdBU = asyncHandler(async (req, res) => {
 });
 
 exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
-    const { generated,generatedBy,dateGenerated,buId,comments,item,currentQty,requestedQty,orderFor,
+    const { generated,generatedBy,dateGenerated,buId,comments,item,commentNote,orderFor,
            description,patientReferenceNo, requesterName, department, orderType,orderBy, reason} = req.body;
           //  status,secondStatus
            const func = await FunctionalUnit.findOne({_id:req.body.fuId})
@@ -62,8 +62,8 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         comments,
         orderType,
         item,
-        currentQty,
-        requestedQty,
+        // currentQty,
+        // requestedQty,
         description,
         // status,
         requesterName,
@@ -71,6 +71,7 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         orderBy,
         department,
         reason,
+        commentNote,
         patientReferenceNo,
         // secondStatus,
         // secondStatus:req.body.secondStatus,
@@ -100,7 +101,7 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         {
           itemId:req.body.item[i].itemId,
           currentQty:fu2.qty,
-          requestedQty:fu2.maximumLevel-fu2.qty,
+          requestedQty:(fu2.qty - req.body.item[i].requestedQty) + fu2.maximumLevel,
           recieptUnit:item.receiptUnit,
           issueUnit:item.issueUnit,
           fuItemCost:0,
@@ -115,23 +116,25 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
 const send = await ReplenishmentRequest.find().populate('fuId').populate('itemId').populate('approvedBy');
 globalVariable.io.emit("get_data", send)   
     }}
-    // const rrS = await ReplenishmentRequest.create({
-    //   requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
-    //   generated:'System',
-    //   generatedBy:'System',
-    //   reason:'reactivated_items',
-    //   fuId:req.body.fuId,
-    //   items:items,
-    //   comments:'System generated Replenishment Request',
-    //   status: "pending",
-    //   secondStatus:"pending",
-    //   requesterName:'System',
-    //   orderType:'',
-    //   to:'Warehouse',
-    //   from:'FU',
-    //   department:'',
-    //   rrB:rrBU._id
-    // });
+    if(st2 == "Cannot be fulfilled"){
+    const rrS = await ReplenishmentRequest.create({
+      requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+      generated:'System',
+      generatedBy:'System',
+      reason:'reactivated_items',
+      fuId:req.body.fuId,
+      items:items,
+      comments:'System generated Replenishment Request',
+      status: "pending",
+      secondStatus:"pending",
+      requesterName:'System',
+      orderType:'',
+      to:'Warehouse',
+      from:'FU',
+      department:'',
+      rrB:rrBU._id
+    });
+  }
     res.status(200).json({ success: true });
 });
 
