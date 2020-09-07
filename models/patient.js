@@ -18,6 +18,9 @@ const patientSchema = new mongoose.Schema({
   lastName: {
     type: String,
   },
+  fullName:{
+    type:String
+  },
   gender: {
     type: String,
   },
