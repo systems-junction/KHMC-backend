@@ -36,7 +36,7 @@ exports.getReplenishmentRequestsByIdBU = asyncHandler(async (req, res) => {
 });
 
 exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
-    const { generated,generatedBy,dateGenerated,buId,comments,item,currentQty,requestedQty,orderFor,
+    const { generated,generatedBy,dateGenerated,buId,comments,item,commentNote,orderFor,
            description,patientReferenceNo, requesterName, department, orderType,orderBy, reason} = req.body;
           //  status,secondStatus
            const func = await FunctionalUnit.findOne({_id:req.body.fuId})
