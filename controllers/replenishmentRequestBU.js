@@ -100,7 +100,7 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         {
           itemId:req.body.item[i].itemId,
           currentQty:fu2.qty,
-          requestedQty:fu2.maximumLevel-fu2.qty,
+          requestedQty:(fu2.qty - req.body.requestedQty) + fu2.maximumLevel,
           recieptUnit:item.receiptUnit,
           issueUnit:item.issueUnit,
           fuItemCost:0,
