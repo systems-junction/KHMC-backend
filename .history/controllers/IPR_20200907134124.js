@@ -97,8 +97,7 @@ exports.getPHRById = asyncHandler(async (req, res) => {
   if ((await IPR.findOne({ 'pharmacyRequest._id': req.params._id })) !== null) {
     const ipr = await IPR.findOne({ 'pharmacyRequest._id': req.params._id })
       .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.serviceId')
-      .populate('pharmacyRequest.medicine.itemId');
+      .populate('pharmacyRequest.serviceId');
     // .select({ pharmacyRequest: 1 });
     for (let i = 0; i < ipr.pharmacyRequest.length; i++) {
       if (ipr.pharmacyRequest[i]._id == req.params._id) {
@@ -115,8 +114,7 @@ exports.getPHRById = asyncHandler(async (req, res) => {
   if ((await EDR.findOne({ 'pharmacyRequest._id': req.params._id })) !== null) {
     const edr = await EDR.findOne({ 'pharmacyRequest._id': req.params._id })
       .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.serviceId')
-      .populate('pharmacyRequest.medicine.itemId');
+      .populate('pharmacyRequest.serviceId');
     // .select({ pharmacyRequest: 1 });
     for (let i = 0; i < edr.pharmacyRequest.length; i++) {
       if (edr.pharmacyRequest[i]._id == req.params._id) {

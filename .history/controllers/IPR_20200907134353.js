@@ -115,8 +115,7 @@ exports.getPHRById = asyncHandler(async (req, res) => {
   if ((await EDR.findOne({ 'pharmacyRequest._id': req.params._id })) !== null) {
     const edr = await EDR.findOne({ 'pharmacyRequest._id': req.params._id })
       .populate('pharmacyRequest.requester')
-      .populate('pharmacyRequest.serviceId')
-      .populate('pharmacyRequest.medicine.itemId');
+      .populate('pharmacyRequest.serviceId');
     // .select({ pharmacyRequest: 1 });
     for (let i = 0; i < edr.pharmacyRequest.length; i++) {
       if (edr.pharmacyRequest[i]._id == req.params._id) {
