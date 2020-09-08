@@ -93,7 +93,7 @@ exports.updateOPR = asyncHandler(async (req, res, next) => {
   if (!opr) {
     return next(new ErrorResponse(`OPR not found with id of ${_id}`, 404));
   }
-  opr = await OPR.updateOne({ _id: _id }, req.body);
+  opr = await OPR.findOneAndUpdate({ _id: _id }, req.body,{new:true});
   res.status(200).json({ success: true, data: opr });
 });
 
