@@ -326,7 +326,7 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
     if (!edr) {
       return next(new ErrorResponse(`EDR not found with id of ${_id}`, 404));
     }
-    edr = await EDR.updateOne({ _id: _id }, req.body);
+    edr = await EDR.findOneAndUpdate({ _id: _id }, req.body,{ new: true });
     res.status(200).json({ success: true, data: edr });
   }
   if (requestType === 'IPR') {
@@ -334,7 +334,7 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
     if (!ipr) {
       return next(new ErrorResponse(`IPR not found with id of ${_id}`, 404));
     }
-    ipr = await IPR.updateOne({ _id: _id }, req.body);
+    ipr = await IPR.findOneAndUpdate({ _id: _id }, req.body,{ new: true });
     res.status(200).json({ success: true, data: ipr });
   }
 });
