@@ -739,12 +739,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.results': req.file.path } },
+        { $set: { 'labRequest.$.results': req.file.path, 'labRequest.$.sampleId':req.body.sampleId } },
         { new: true }
       );
       not = await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.status': data.status } },
+        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':req.body.sampleId  } },
         { new: true }
       ).populate('patientId');
 
@@ -765,7 +765,7 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       not = await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.status': data.status } },
+        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':req.body.sampleId  } },
         { new: true }
       ).populate('patientId');
       notification(
@@ -799,12 +799,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.results': req.file.path } },
+        { $set: { 'labRequest.$.results': req.file.path, 'labRequest.$.sampleId':req.body.sampleId  } },
         { new: true }
       );
       not = await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.status': data.status } },
+        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':req.body.sampleId  } },
         { new: true }
       );
       notification(
@@ -824,7 +824,7 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       not = await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.status': data.status } },
+        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':req.body.sampleId  } },
         { new: true }
       );
       notification(
