@@ -132,23 +132,13 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
     );
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      {
-        $set: {
-          'labRequest.$.results': req.file.path,
-          'labRequest.$.sampleId': data.sampleId,
-        },
-      },
+      { $set: { 'labRequest.$.results': req.file.path } },
       { new: true }
     );
   } else {
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      {
-        $set: {
-          'labRequest.$.status': data.status,
-          'labRequest.$.sampleId': data.sampleId,
-        },
-      },
+      { $set: { 'labRequest.$.status': data.status } },
       { new: true }
     );
   }

@@ -135,7 +135,7 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
       {
         $set: {
           'labRequest.$.results': req.file.path,
-          'labRequest.$.sampleId': data.sampleId,
+          'labRequest.$.sampleId': req.body.sampleId,
         },
       },
       { new: true }
@@ -146,7 +146,7 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
       {
         $set: {
           'labRequest.$.status': data.status,
-          'labRequest.$.sampleId': data.sampleId,
+          'labRequest.$.sampleId': req.body.sampleId,
         },
       },
       { new: true }

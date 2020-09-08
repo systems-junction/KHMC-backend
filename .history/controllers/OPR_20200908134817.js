@@ -93,7 +93,7 @@ exports.updateOPR = asyncHandler(async (req, res, next) => {
   if (!opr) {
     return next(new ErrorResponse(`OPR not found with id of ${_id}`, 404));
   }
-  opr = await OPR.findOneAndUpdate({ _id: _id }, req.body, { new: true });
+  opr = await OPR.updateOne({ _id: _id }, req.body);
   res.status(200).json({ success: true, data: opr });
 });
 
@@ -132,23 +132,13 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
     );
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      {
-        $set: {
-          'labRequest.$.results': req.file.path,
-          'labRequest.$.sampleId': data.sampleId,
-        },
-      },
+      { $set: { 'labRequest.$.results': req.file.path } },
       { new: true }
     );
   } else {
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      {
-        $set: {
-          'labRequest.$.status': data.status,
-          'labRequest.$.sampleId': data.sampleId,
-        },
-      },
+      { $set: { 'labRequest.$.status': data.status } },
       { new: true }
     );
   }
