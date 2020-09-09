@@ -215,7 +215,8 @@ exports.getEDRById = asyncHandler(async (req, res) => {
     .populate('residentNotes.doctor')
     .populate('residentNotes.doctorRef')
     .populate('dischargeRequest.dischargeMedication.requester')
-    .populate('dischargeRequest.dischargeMedication.medicine.itemId');
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .populate('triageAssessment.requester');
   res.status(200).json({ success: true, data: edr });
 });
 
