@@ -65,13 +65,8 @@ exports.addOPR = asyncHandler(async (req, res) => {
     status,
     generatedFrom,
   } = req.body;
-  var now = new Date();
-  var start = new Date(now.getFullYear(), 0, 0);
-  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-  var oneDay = 1000 * 60 * 60 * 24;
-  var day = Math.floor(diff / oneDay);
   const opr = await OPR.create({
-    requestNo: 'OPR' + day + requestNoFormat(new Date(), 'yyHHMM'),
+    requestNo: 'OPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
     patientId,
     generatedBy,
     pharmacyRequest,
@@ -137,23 +132,13 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
     );
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      {
-        $set: {
-          'labRequest.$.results': req.file.path,
-          'labRequest.$.sampleId': data.sampleId,
-        },
-      },
+      { $set: { 'labRequest.$.results': req.file.path } },
       { new: true }
     );
   } else {
     await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      {
-        $set: {
-          'labRequest.$.status': data.status,
-          'labRequest.$.sampleId': data.sampleId,
-        },
-      },
+      { $set: { 'labRequest.$.status': data.status } },
       { new: true }
     );
   }

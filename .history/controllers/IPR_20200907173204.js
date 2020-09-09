@@ -739,12 +739,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.results': req.file.path, 'labRequest.$.sampleId':data.sampleId } },
+        { $set: { 'labRequest.$.results': req.file.path } },
         { new: true }
       );
       not = await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
+        { $set: { 'labRequest.$.status': data.status } },
         { new: true }
       ).populate('patientId');
 
@@ -765,7 +765,7 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       not = await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
+        { $set: { 'labRequest.$.status': data.status } },
         { new: true }
       ).populate('patientId');
       notification(
@@ -799,12 +799,12 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.results': req.file.path, 'labRequest.$.sampleId':data.sampleId  } },
+        { $set: { 'labRequest.$.results': req.file.path } },
         { new: true }
       );
       not = await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
+        { $set: { 'labRequest.$.status': data.status } },
         { new: true }
       );
       notification(
@@ -824,7 +824,7 @@ exports.putLRById = asyncHandler(async (req, res) => {
       );
       not = await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
+        { $set: { 'labRequest.$.status': data.status } },
         { new: true }
       );
       notification(
@@ -921,13 +921,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     status,
     triageAssessment,
   } = req.body;
-  var now = new Date();
-  var start = new Date(now.getFullYear(), 0, 0);
-  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-  var oneDay = 1000 * 60 * 60 * 24;
-  var day = Math.floor(diff / oneDay);
   const ipr = await IPR.create({
-    requestNo: 'IPR' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+    requestNo: 'IPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
     patientId,
     generatedBy,
     consultationNote,

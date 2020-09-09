@@ -79,16 +79,18 @@ const OPRSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
       },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
       results: {
         type: String,
       },
-      comments: {},
+      comments: {
+        type: String,
+      },
       sampleId: {
         type: String,
+      },
+      date: {
+        type: Date,
+        default: Date.now,
       },
     },
   ],
