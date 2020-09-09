@@ -15,6 +15,9 @@ const OPRSchema = new mongoose.Schema({
 
   pharmacyRequest: [
     {
+      PRrequestNo:{
+        type:String
+    },
       date: {
         type: Date,
         default: Date.now,
@@ -59,6 +62,9 @@ const OPRSchema = new mongoose.Schema({
   ],
   labRequest: [
     {
+    LRrequestNo:{
+        type:String
+    },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'LaboratoryService',
@@ -96,6 +102,9 @@ const OPRSchema = new mongoose.Schema({
   ],
   radiologyRequest: [
     {
+      RRrequestNo:{
+        type:String
+    },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'RadiologyService',

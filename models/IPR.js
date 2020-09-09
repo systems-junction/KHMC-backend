@@ -44,6 +44,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   residentNotes: [
     {
+      residentNoteNo:{
+        type:String
+    },
       date: {
         type: Date,
         default: Date.now,
@@ -73,6 +76,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   pharmacyRequest: [
     {
+      PRrequestNo:{
+        type:String
+    },
       date: {
         type: Date,
         default: Date.now,
@@ -117,6 +123,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   labRequest: [
     {
+      LRrequestNo:{
+        type:String
+    },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'LaboratoryService',
@@ -157,6 +166,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   radiologyRequest: [
     {
+      RRrequestNo:{
+        type:String
+    },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'RadiologyService',

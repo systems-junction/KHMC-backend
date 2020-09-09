@@ -1,10 +1,4 @@
 const mongoose = require('mongoose');
-const requestNoFormat = require('dateformat');
-var now = new Date();
-var start = new Date(now.getFullYear(), 0, 0);
-var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-var oneDay = 1000 * 60 * 60 * 24;
-var day = Math.floor(diff / oneDay);
 const EDRSchema = new mongoose.Schema({
     requestNo: {
         type: String
@@ -49,6 +43,9 @@ const EDRSchema = new mongoose.Schema({
     ],
     residentNotes: [
         {
+            residentNoteNo:{
+                type:String
+            },
             date: {
                 type: Date,
                 default: Date.now,
@@ -75,6 +72,9 @@ const EDRSchema = new mongoose.Schema({
     ],
     pharmacyRequest: [
         {
+            PRrequestNo:{
+                type:String
+            },
             date: {
                 type: Date,
                 default: Date.now
@@ -120,9 +120,8 @@ const EDRSchema = new mongoose.Schema({
     ],
     labRequest: [
         {
-            requestNo:{
-                type:String,
-                default: 'LR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
+            LRrequestNo:{
+                type:String
             },
             serviceId: {
                 type: mongoose.Schema.ObjectId,
@@ -165,6 +164,9 @@ const EDRSchema = new mongoose.Schema({
     ],
     radiologyRequest: [
         {
+            RRrequestNo:{
+                type:String
+            },
             serviceId: {
                 type: mongoose.Schema.ObjectId,
                 ref: 'RadiologyService'
