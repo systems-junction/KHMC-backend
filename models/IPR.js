@@ -206,6 +206,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   nurseService: [
     {
+      NSrequestNo:{
+        type:String
+      },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'NurseService',

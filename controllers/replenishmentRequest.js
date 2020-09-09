@@ -126,7 +126,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
       'admin'
     );
   }
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, data:rrS });
 });
 
 exports.deleteReplenishmentRequest = asyncHandler(async (req, res, next) => {
