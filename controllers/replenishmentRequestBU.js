@@ -36,9 +36,14 @@ exports.getReplenishmentRequestsByIdBU = asyncHandler(async (req, res) => {
 });
 
 exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
+    var now = new Date();
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.floor(diff / oneDay);
+    var code
     const { generated,generatedBy,dateGenerated,buId,comments,item,commentNote,orderFor,
            description,patientReferenceNo, requesterName, department, orderType,orderBy, reason} = req.body;
-          //  status,secondStatus
            const func = await FunctionalUnit.findOne({_id:req.body.fuId})
            for(let i=0; i<req.body.item.length; i++)
            {
@@ -52,8 +57,15 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
                 req.body.item[i].secondStatus = "Can be fulfilled"
             }
           }
+          if(orderFor=="Medical")
+          {
+            code = "MO"
+          }
+          else{
+            code = "PO"
+          }
     const rrBU = await ReplenishmentRequestBU.create({
-        requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+        requestNo: code + day + requestNoFormat(new Date(), 'yyHHMM'),
         generated,
         generatedBy,
         dateGenerated,        
@@ -76,7 +88,13 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         // secondStatus,
         // secondStatus:req.body.secondStatus,
     });
-    notification("Professional Order", "A new Professional Order has been generated at "+rrBU.createdAt, "Committe Member")
+    if(orderFor=="Medical")
+    {
+      notification("Medication Order", "A new Medication Order has been generated at "+rrBU.createdAt, "Committe Member")
+    }
+    else{
+      notification("Professional Order", "A new Professional Order has been generated at "+rrBU.createdAt, "Committe Member")
+    }
     const send = await ReplenishmentRequestBU.find().populate('buId').populate('fuId').populate('item.itemId');
     globalVariable.io.emit("get_data", send)
     var items = [];
@@ -118,7 +136,7 @@ globalVariable.io.emit("get_data", send)
     }}
     if(st2 == "Cannot be fulfilled"){
     const rrS = await ReplenishmentRequest.create({
-      requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+      requestNo: 'RR' + day + requestNoFormat(new Date(), 'yyHHMM'),
       generated:'System',
       generatedBy:'System',
       reason:'reactivated_items',

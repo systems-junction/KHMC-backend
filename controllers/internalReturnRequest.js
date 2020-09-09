@@ -15,6 +15,7 @@ const FunctionalUnit = require('../models/functionalUnit');
 const PurchaseRequest = require('../models/purchaseRequest');
 const Item = require('../models/item');
 const ReturnedQty = require('../models/returnedQty')
+const requestNoFormat = require('dateformat');
 exports.getInternalReturnRequestsFU = asyncHandler(async (req, res) => {
     const internalRequestFU = await InternalReturnRequest.find({to:"Warehouse",from:"FU"}).populate('fuId').populate('itemId').populate('replenishmentRequestFU');
     res.status(200).json({ success: true, data: internalRequestFU });
@@ -42,8 +43,13 @@ exports.deleteInternalReturnRequests = asyncHandler(async (req, res, next) => {
 exports.addInternalReturnRequest = asyncHandler(async (req, res) => {
     const { generatedBy,dateGenerated,expiryDate,to,from,fuId,buId,itemId,currentQty,reason,returnedQty,
            reasonDetail,description,status,damageReport,replenishmentRequestBU,replenishmentRequestFU} = req.body;
-   const irr = await InternalReturnRequest.create({
-        returnRequestNo: uuidv4(),
+    var now = new Date();
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.floor(diff / oneDay);
+    const irr = await InternalReturnRequest.create({
+        returnRequestNo: 'IR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
         generatedBy,
         dateGenerated,
         expiryDate,

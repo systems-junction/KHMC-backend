@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 const { v4: uuidv4 } = require('uuid');
 const ExternalReturnRequest = require('../models/externalReturnRequest');
 const WHInventory = require('../models/warehouseInventory');
+const requestNoFormat = require('dateformat');
 // const receiveItemFU = require('../models/receiveItemFU');
 // const receiveItemBU = require('../models/receiveItemBU');
 // const RRCommented = require('../models/replenishmentRequest');
@@ -38,8 +39,13 @@ exports.deleteExternalReturnRequests = asyncHandler(async (req, res, next) => {
 exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
     const { generatedBy,generated,dateGenerated,expiryDate,itemId,currentQty,reason,
            reasonDetail,description,status,damageReport,prId} = req.body;
+    var now = new Date();
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.floor(diff / oneDay);
    const err =  await ExternalReturnRequest.create({
-        returnRequestNo: uuidv4(),
+        returnRequestNo: 'ER'+ day + requestNoFormat(new Date(), 'yyHHMM'),
         generatedBy,
         generated,
         dateGenerated,

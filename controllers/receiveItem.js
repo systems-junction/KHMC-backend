@@ -9,6 +9,7 @@ const PurchaseRequest = require('../models/purchaseRequest');
 const PurchaseOrder = require('../models/purchaseOrder');
 const Account = require('../models/account');
 const moment = require('moment');
+const requestNoFormat = require('dateformat');
 exports.getReceiveItems = asyncHandler(async (req, res) => {
     const receiveItems = await ReceiveItem.find().populate('itemId').populate('prId');
 
@@ -24,10 +25,15 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         expiryDate,unit, discount, unitDiscount, discountAmount, tax, taxAmount, finalUnitPrice, subTotal, 
         discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,materialId,vendorId,prId,status } = req.body;
         var isafter = moment(req.body.dateReceived).isAfter(req.body.expiryDate);
-            if (isafter)
+        var now = new Date();
+        var start = new Date(now.getFullYear(), 0, 0);
+        var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+        var oneDay = 1000 * 60 * 60 * 24;
+        var day = Math.floor(diff / oneDay);
+        if (isafter)
             {
                const err =  await ExternalReturnRequest.create({
-                    returnRequestNo: uuidv4(),
+                    returnRequestNo: 'ER'+ day + requestNoFormat(new Date(), 'yyHHMM'),
                     generatedBy:"System",
                     generated:"System",
                     dateGenerated:req.body.dateReceived,
@@ -72,8 +78,13 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                     dateReceived,
                     notes,prId,status
                 });
+                var now = new Date();
+                var start = new Date(now.getFullYear(), 0, 0);
+                var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+                var oneDay = 1000 * 60 * 60 * 24;
+                var day = Math.floor(diff / oneDay);
                 await ExternalReturnRequest.create({
-                    returnRequestNo: uuidv4(),
+                    returnRequestNo: 'ER'+ day + requestNoFormat(new Date(), 'yyHHMM'),
                     generatedBy:"System",
                     generated:"System",
                     dateGenerated:req.body.dateReceived,

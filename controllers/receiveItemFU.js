@@ -10,6 +10,7 @@ const ReplenishmentRequest = require('../models/replenishmentRequest');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const WHInventory = require('../models/warehouseInventory');
 const Item = require('../models/item');
+const requestNoFormat = require('dateformat');
 
 exports.getReceiveItemsFU = asyncHandler(async (req, res) => {
     const receiveItems = await ReceiveItemFU.find().populate('vendorId');
@@ -24,6 +25,11 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,replenishmentRequestId,replenishmentRequestStatus,fuId } = req.body;
         const pRequest = await WHInventory.findOne({itemId: itemId}).populate('itemId')
         const fuTest = await FUInventory.findOne({itemId: itemId,fuId:req.body.fuId})
+        var now = new Date();
+        var start = new Date(now.getFullYear(), 0, 0);
+        var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+        var oneDay = 1000 * 60 * 60 * 24;
+        var day = Math.floor(diff / oneDay);
         if(pRequest && fuTest)
         {
         await ReceiveItemFU.create({
@@ -51,6 +57,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         notes,
         replenishmentRequestId
     });}
+
     if((req.body.replenishmentRequestStatus=="Received")||(req.body.replenishmentRequestStatus=="Partially Received"))
     {
             const fu = await FUInventory.findOne({itemId: itemId, fuId:req.body.fuId})
@@ -88,7 +95,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
             {
             const j =await Item.findOne({_id:req.body.itemId}) 
               const purchaseRequest = await PurchaseRequest.create({
-                    requestNo: uuidv4(),
+                    requestNo: 'PR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
                     generated:'System',
                     generatedBy:'System',
                     committeeStatus: 'to_do',

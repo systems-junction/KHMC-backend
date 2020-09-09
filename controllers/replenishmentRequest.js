@@ -41,6 +41,11 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     department,
     secondStatus
   } = req.body;
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
   for(let i=0; i<items.length; i++){
     var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
     if (wahi.qty < req.body.items[i].requestedQty) {
@@ -56,7 +61,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
   //   req.body.secondStatus = 'Can be fulfilled';
   // }
   const rrS = await ReplenishmentRequest.create({
-    requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+    requestNo: 'RR' + day + requestNoFormat(new Date(), 'yyHHMM'),
     generated,
     generatedBy,
     dateGenerated,
@@ -86,7 +91,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
   if (req.body.secondStatus == 'Cannot be fulfilled') {
     const i = await Item.findOne({ _id: req.body.itemId });
     const purchase = await PurchaseRequest.create({
-      requestNo: uuidv4(),
+      requestNo: 'PR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
       generated: 'System',
       generatedBy: 'System',
       committeeStatus: 'to_do',

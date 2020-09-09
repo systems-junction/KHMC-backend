@@ -921,8 +921,13 @@ exports.addIPR = asyncHandler(async (req, res) => {
     status,
     triageAssessment,
   } = req.body;
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
   const ipr = await IPR.create({
-    requestNo: 'IPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+    requestNo: 'IPR' +day+ requestNoFormat(new Date(), 'yyHHMM'),
     patientId,
     generatedBy,
     consultationNote,

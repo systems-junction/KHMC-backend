@@ -28,6 +28,11 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         discountAmount2,totalPrice, invoice, dateInvoice,dateReceived, notes,replenishmentRequestId,replenishmentRequestStatus,fuId,
         replenishmentRequestItemId
      } = req.body;
+     var now = new Date();
+     var start = new Date(now.getFullYear(), 0, 0);
+     var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+     var oneDay = 1000 * 60 * 60 * 24;
+     var day = Math.floor(diff / oneDay);
     await ReceiveItemBU.create({
         itemId,
         currentQty,
@@ -92,7 +97,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         notification("Replenishment Request Generated", "New Replenishment Request Generated", "Warehouse Member")
         notification("Replenishment Request Generated", "New Replenishment Request Generated", "FU Member")
            const rrS = await ReplenishmentRequest.create({
-                requestNo: 'REPR' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+                requestNo: 'RR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
                 generated:'System',
                 generatedBy:'System',
                 reason:'reactivated_items',
@@ -124,7 +129,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
             if(st2 == "Cannot be fulfilled")
             {
           const purchase = await PurchaseRequest.create({
-              requestNo: uuidv4(),
+              requestNo: 'PR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
               generated:'System',
               generatedBy:'System',
               committeeStatus: 'to_do',
