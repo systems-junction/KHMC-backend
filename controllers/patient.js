@@ -415,7 +415,7 @@ exports.pharmacy = asyncHandler(async (req, res) => {
       notification(
         'Pharmacy Request',
         'Pharmacy Request number ' +
-          test._id +
+          test.PRrequestNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Pharmacist'
@@ -428,7 +428,7 @@ exports.pharmacy = asyncHandler(async (req, res) => {
       notification(
         'Pharmacy Request',
         'Pharmacy Request number ' +
-          test._id +
+          test.PRrequestNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Pharmacist'
@@ -442,7 +442,7 @@ exports.pharmacy = asyncHandler(async (req, res) => {
     notification(
       'Pharmacy Request',
       'Pharmacy Request number ' +
-        test._id +
+        test.PRrequestNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Pharmacist'
@@ -455,7 +455,7 @@ exports.pharmacy = asyncHandler(async (req, res) => {
     notification(
       'Pharmacy Request',
       'Pharmacy Request number ' +
-        test._id +
+        test.PRrequestNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Pharmacist'
@@ -489,7 +489,7 @@ exports.lab = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          test._id +
+          test.LRrequestNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Lab Technician'
@@ -502,7 +502,7 @@ exports.lab = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          test._id +
+          test.LRrequestNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Lab Technician'
@@ -516,7 +516,7 @@ exports.lab = asyncHandler(async (req, res) => {
     notification(
       'Laboratory Request',
       'Laboratory Request number ' +
-        test._id +
+        test.LRrequestNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Lab Technician'
@@ -529,7 +529,7 @@ exports.lab = asyncHandler(async (req, res) => {
     notification(
       'Laboratory Request',
       'Laboratory Request number ' +
-        test._id +
+        test.LRrequestNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Lab Technician'
@@ -562,7 +562,7 @@ exports.rad = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          test._id +
+          test.RRrequestNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Radiology/Imaging'
@@ -575,7 +575,7 @@ exports.rad = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          test._id +
+          test.RRrequestNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Radiology/Imaging'
@@ -589,7 +589,7 @@ exports.rad = asyncHandler(async (req, res) => {
     notification(
       'Radiology Request',
       'Radiology Request number ' +
-        test._id +
+        test.RRrequestNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Radiology/Imaging'
@@ -602,7 +602,7 @@ exports.rad = asyncHandler(async (req, res) => {
     notification(
       'Radiology Request',
       'Radiology Request number ' +
-        test._id +
+        test.RRrequestNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Radiology/Imaging'
@@ -636,7 +636,7 @@ exports.consultation = asyncHandler(async (req, res) => {
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          test._id +
+          test.consultationNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Consultant/Specialist'
@@ -649,7 +649,7 @@ exports.consultation = asyncHandler(async (req, res) => {
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          test._id +
+          test.consultationNo +
           ' received for Patient MRN ' +
           patient.profileNo,
         'Consultant/Specialist'
@@ -663,7 +663,7 @@ exports.consultation = asyncHandler(async (req, res) => {
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        test._id +
+        test.consultationNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Consultant/Specialist'
@@ -676,7 +676,7 @@ exports.consultation = asyncHandler(async (req, res) => {
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        test._id +
+        test.consultationNo +
         ' received for Patient MRN ' +
         patient.profileNo,
       'Consultant/Specialist'
@@ -688,80 +688,6 @@ exports.consultation = asyncHandler(async (req, res) => {
     res.status(200).json({ success: false, data: 'User not found' });
   }
 });
-exports.consultation = asyncHandler(async (req, res) => {
-  const patient = await Patient.findOne({ _id: req.params.id });
-  const a = await EDR.findOne({ patientId: req.params.id });
-  if (a !== null) {
-    var edr = await EDR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  const b = await IPR.findOne({ patientId: req.params.id });
-  if (b !== null) {
-    var ipr = await IPR.findOne({ patientId: req.params.id }).sort({
-      createdAt: 'desc',
-    });
-  }
-  if (a && b) {
-    var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
-    if (isafter) {
-      var test = edr.consultationNote[edr.consultationNote.length - 1];
-      notification(
-        'Consultation Request',
-        'Consultation Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Consultant/Specialist'
-      );
-      const pat = await EDR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    } else {
-      var test = ipr.consultationNote[ipr.consultationNote.length - 1];
-      notification(
-        'Consultation Request',
-        'Consultation Request number ' +
-          test._id +
-          ' received for Patient MRN ' +
-          patient.profileNo,
-        'Consultant/Specialist'
-      );
-      const pat = await IPR.findOne({ patientId: req.params.id });
-      globalVariable.io.emit('get_data', pat);
-      res.status(200).json({ success: true });
-    }
-  } else if (a) {
-    var test = edr.consultationNote[edr.consultationNote.length - 1];
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Consultant/Specialist'
-    );
-    const pat = await EDR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else if (b) {
-    var test = ipr.consultationNote[ipr.consultationNote.length - 1];
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-        test._id +
-        ' received for Patient MRN ' +
-        patient.profileNo,
-      'Consultant/Specialist'
-    );
-    const pat = await IPR.findOne({ patientId: req.params.id });
-    globalVariable.io.emit('get_data', pat);
-    res.status(200).json({ success: true });
-  } else {
-    res.status(200).json({ success: false, data: 'User not found' });
-  }
-});
-
 exports.discharge = asyncHandler(async (req, res) => {
   const patient = await Patient.findOne({ _id: req.params.id });
   notification(
