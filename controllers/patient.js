@@ -278,6 +278,7 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('residentNotes.doctorRef')
       .populate('dischargeRequest.dischargeMedication.requester')
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+      .populate('triageAssessment.requester')
       .sort({
         createdAt: 'desc',
       });
@@ -300,6 +301,7 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('dischargeRequest.dischargeMedication.requester')
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
       .populate('followUp.approvalPerson')
+      .populate('triageAssessment.requester')
       .sort({
         createdAt: 'desc',
       });
