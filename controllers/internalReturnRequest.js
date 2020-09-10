@@ -70,7 +70,7 @@ exports.addInternalReturnRequest = asyncHandler(async (req, res) => {
     notification("Return Request", "A new Return Request "+irr.returnRequestNo+" has been generated at "+irr.createdAt, "FU Internal Request Return Approval Member")
     const send = await InternalReturnRequest.find({to:"Warehouse",from:"FU"}).populate('fuId').populate('itemId').populate('replenishmentRequestFU');
     globalVariable.io.emit("get_data", send)
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, data:irr });
 });
 
 

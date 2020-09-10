@@ -469,6 +469,7 @@ exports.putRRIPRById = asyncHandler(async (req, res) => {
 
 exports.putRRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
+  var request;
   var not;
   const a = await IPR.findOne({
     'radiologyRequest._id': data.radiologyRequestId,
@@ -488,11 +489,18 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
         { new: true }
-      );
+      ).populate('patientId');
+      for(let i=0 ; i<not.radiologyRequest.length; i++)
+      {
+        if(not.radiologyRequest[i]._id==data.radiologyRequestId)
+        {
+          request=not.radiologyRequest[i].RRrequestNo
+        }
+      }
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging'
@@ -508,11 +516,18 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
         { new: true }
-      );
+      ).populate('patientId');
+      for(let i=0 ; i<not.radiologyRequest.length; i++)
+      {
+        if(not.radiologyRequest[i]._id==data.radiologyRequestId)
+        {
+          request=not.radiologyRequest[i].RRrequestNo
+        }
+      }
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging'
@@ -542,11 +557,18 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
         { new: true }
-      );
+      ).populate('patientId');
+      for(let i=0 ; i<not.radiologyRequest.length; i++)
+      {
+        if(not.radiologyRequest[i]._id==data.radiologyRequestId)
+        {
+          request=not.radiologyRequest[i].RRrequestNo
+        }
+      }
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging'
@@ -562,11 +584,18 @@ exports.putRRById = asyncHandler(async (req, res) => {
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
         { new: true }
-      );
+      ).populate('patientId');
+      for(let i=0 ; i<not.radiologyRequest.length; i++)
+      {
+        if(not.radiologyRequest[i]._id==data.radiologyRequestId)
+        {
+          request=not.radiologyRequest[i].RRrequestNo
+        }
+      }
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          data.radiologyRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging'
@@ -576,11 +605,6 @@ exports.putRRById = asyncHandler(async (req, res) => {
     }
     res.status(200).json({ success: true });
   }
-
-  // const ipr = await IPR.findOneAndUpdate({'radiologyRequest._id': req.body._id},{ $set: { 'radiologyRequest.$.status': req.body.status }},{new: true})
-  // .populate('radiologyRequest.requester')
-  // .populate('radiologyRequest.serviceId').select({radiologyRequest:1})
-  //  res.status(200).json({ success: true, data: ipr });
 });
 
 exports.getLRIPR = asyncHandler(async (req, res) => {
@@ -718,16 +742,12 @@ exports.putLRIPRById = asyncHandler(async (req, res) => {
     );
   }
   res.status(200).json({ success: true });
-
-  // const ipr = await IPR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-  // .populate('labRequest.requester')
-  // .populate('labRequest.serviceId').select({labRequest:1})
-  //  res.status(200).json({ success: true, data: ipr });
 });
 
 exports.putLRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
   var not;
+  var request;
   const a = await IPR.findOne({
     'labRequest._id': data.labRequestId,
   });
@@ -748,11 +768,17 @@ exports.putLRById = asyncHandler(async (req, res) => {
         { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
         { new: true }
       ).populate('patientId');
-
+      for(let i=0 ; i<not.labRequest.length; i++)
+      {
+        if(not.labRequest[i]._id==data.labRequestId)
+        {
+          request=not.labRequest[i].LRrequestNo
+        }
+      }
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician'
@@ -769,10 +795,17 @@ exports.putLRById = asyncHandler(async (req, res) => {
         { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
         { new: true }
       ).populate('patientId');
+      for(let i=0 ; i<not.labRequest.length; i++)
+      {
+        if(not.labRequest[i]._id==data.labRequestId)
+        {
+          request=not.labRequest[i].LRrequestNo
+        }
+      }
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician'
@@ -781,17 +814,11 @@ exports.putLRById = asyncHandler(async (req, res) => {
       globalVariable.io.emit('get_data', pat);
     }
     res.status(200).json({ success: true });
-
-    // const ipr = await IPR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-    // .populate('labRequest.requester')
-    // .populate('labRequest.serviceId').select({labRequest:1})
-    //  res.status(200).json({ success: true, data: ipr });
   }
 
   const b = await EDR.findOne({
     'labRequest._id': data.labRequestId,
   });
-
   if (b !== null) {
     if (req.file) {
       await EDR.findOneAndUpdate(
@@ -807,11 +834,18 @@ exports.putLRById = asyncHandler(async (req, res) => {
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
         { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
         { new: true }
-      );
+      ).populate('patientId');
+      for(let i=0 ; i<not.labRequest.length; i++)
+      {
+        if(not.labRequest[i]._id==data.labRequestId)
+        {
+          request=not.labRequest[i].LRrequestNo
+        }
+      }
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
+          request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician'
@@ -827,11 +861,18 @@ exports.putLRById = asyncHandler(async (req, res) => {
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
         { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
         { new: true }
-      );
+      ).populate('patientId');
+        for(let i=0 ; i<not.labRequest.length; i++)
+        {
+          if(not.labRequest[i]._id==data.labRequestId)
+          {
+            request=not.labRequest[i].LRrequestNo
+          }
+        }
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          data.labRequestId +
+        request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician'
@@ -840,10 +881,6 @@ exports.putLRById = asyncHandler(async (req, res) => {
       globalVariable.io.emit('get_data', pat);
     }
     res.status(200).json({ success: true });
-    // const edr = await EDR.findOneAndUpdate({'labRequest._id': req.body._id},{ $set: { 'labRequest.$.status': req.body.status }},{new: true})
-    // .populate('labRequest.requester')
-    // .populate('labRequest.serviceId').select({labRequest:1})
-    //  res.status(200).json({ success: true, data: edr });
   }
 });
 
