@@ -301,7 +301,7 @@ const IPRSchema = new mongoose.Schema({
   status: {
     type: String,
   },
-  triageAssessment: {
+  triageAssessment: [{
     triageLevel: {
       type: String,
     },
@@ -323,7 +323,15 @@ const IPRSchema = new mongoose.Schema({
     neurological: {
       type: String,
     },
+    requester:{
+      type: mongoose.Schema.ObjectId,
+      ref: 'staff'
   },
+    date:{
+        type: Date,
+        default: Date.now
+    }
+  }],
   followUp: [
     {
       requester: {

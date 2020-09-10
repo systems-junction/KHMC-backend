@@ -33,7 +33,7 @@ const {
     deleteEDR,
     updateEDR,
     addLabRequest
-} = require('../controllers/EDR');
+  } = require('../controllers/EDR');
 
 const router = express.Router();
 router.get('/getedr/:_id', getEDRById);
@@ -55,5 +55,4 @@ router.delete('/deleteedr/:_id', deleteEDR);
 router.put('/updateedr', updateEDR);
 router.put('/addrr', upload.single('file'), addRadiologyRequest);
 router.put('/addlr', upload.single('file'), addLabRequest)
-
 module.exports = router;

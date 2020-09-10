@@ -23,7 +23,8 @@ exports.getIPR = asyncHandler(async (req, res) => {
     .populate('nurseService.requester')
     .populate('dischargeRequest.dischargeMedication.requester')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-    .populate('followUp.approvalPerson');
+    .populate('followUp.approvalPerson')
+    .populate('triageAssessment.requester');
   res.status(200).json({ success: true, data: ipr });
 });
 exports.getPHRIPR = asyncHandler(async (req, res) => {
