@@ -217,8 +217,7 @@ const EDRSchema = new mongoose.Schema({
         },
         dischargeMedication: {
             date: {
-                type: Date,
-                default: Date.now
+                type: Date
             },
             status: {
                 type: String
