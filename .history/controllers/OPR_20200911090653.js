@@ -202,15 +202,3 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
   }
   res.status(200).json({ success: true });
 });
-
-exports.putPHROPRById = asyncHandler(async (req, res) => {
-  const ipr = await OPR.findOneAndUpdate(
-    { 'pharmacyRequest._id': req.body._id },
-    { $set: { 'pharmacyRequest.$.status': req.body.status } },
-    { new: true }
-  )
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
-    .select({ pharmacyRequest: 1 });
-  res.status(200).json({ success: true, data: ipr });
-});

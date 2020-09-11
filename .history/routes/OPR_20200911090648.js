@@ -25,7 +25,6 @@ const {
   updateOPR,
   putLROPRById,
   putRROPRById,
-  putPHROPRById,
   getRROPRById,
   getLROPRById,
   getPHROPRById,
@@ -42,7 +41,6 @@ router.delete('/deleteopr/:_id', deleteOPR);
 router.put('/updateopr', updateOPR);
 router.put('/updatelab', upload.single('file'), putLROPRById);
 router.put('/updaterad', upload.single('file'), putRROPRById);
-router.put('/updatephr', putPHROPRById);
 router.get('/getrroprbyid/:_id', getRROPRById);
 router.get('/getlroprbyid/:_id', getLROPRById);
 router.get('/getphroprbyid/:_id', getPHROPRById);
