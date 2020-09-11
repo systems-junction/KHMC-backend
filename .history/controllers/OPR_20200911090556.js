@@ -118,7 +118,7 @@ exports.getLROPRById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: lab });
 });
 
-exports.getPHROPRById = asyncHandler(async (req, res) => {
+exports.getPHRIPRById = asyncHandler(async (req, res) => {
   const ipr = await OPR.findOne({ 'pharmacyRequest._id': req.params._id })
     .populate('pharmacyRequest.requester')
     .populate('pharmacyRequest.medicine.itemId')
@@ -201,16 +201,4 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
     );
   }
   res.status(200).json({ success: true });
-});
-
-exports.putPHROPRById = asyncHandler(async (req, res) => {
-  const ipr = await OPR.findOneAndUpdate(
-    { 'pharmacyRequest._id': req.body._id },
-    { $set: { 'pharmacyRequest.$.status': req.body.status } },
-    { new: true }
-  )
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
-    .select({ pharmacyRequest: 1 });
-  res.status(200).json({ success: true, data: ipr });
 });
