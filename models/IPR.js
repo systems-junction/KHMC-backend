@@ -27,6 +27,9 @@ const IPRSchema = new mongoose.Schema({
       consultationNotes: {
         type: String,
       },
+      doctorNotes:{
+        type:String
+    },
       status: {
         type: String
       },
