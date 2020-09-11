@@ -342,12 +342,13 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateEdrIprItem = asyncHandler(async (req, res) => {
-  var { id, itemID, requestType, status } = req.body;
+  var { id, itemID, requestType, status , consultationNotes } = req.body;
   var not;
   if (requestType === 'EDR') {
-    await EDR.findOneAndUpdate(
+  await EDR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
-      req.body
+      { $set: { 'consultationNote.$.consultationNotes': consultationNotes } },
+      { new: true }
     );
     not = await EDR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
@@ -366,10 +367,12 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
     globalVariable.io.emit('get_data', pat);
   }
   if (requestType === 'IPR') {
+
     await IPR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
-      req.body
-    );
+      { $set: { 'consultationNote.$.consultationNotes': consultationNotes } },
+      { new: true }
+      );
     not = await IPR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
       { $set: { 'consultationNote.$.status': status } },
@@ -386,7 +389,7 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
     const pat = await IPR.findOne({ patientId: not.patientId });
     globalVariable.io.emit('get_data', pat);
   }
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, data : not });
 });
 
 exports.triage = asyncHandler(async (req, res) => {
