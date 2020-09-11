@@ -345,6 +345,10 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
   var { id, itemID, requestType, status } = req.body;
   var not;
   if (requestType === 'EDR') {
+    await EDR.findOneAndUpdate(
+      { 'consultationNote._id': itemID, _id: id },
+      req.body
+    );
     not = await EDR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
       { $set: { 'consultationNote.$.status': status } },
@@ -362,6 +366,10 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
     globalVariable.io.emit('get_data', pat);
   }
   if (requestType === 'IPR') {
+    await IPR.findOneAndUpdate(
+      { 'consultationNote._id': itemID, _id: id },
+      req.body
+    );
     not = await IPR.findOneAndUpdate(
       { 'consultationNote._id': itemID, _id: id },
       { $set: { 'consultationNote.$.status': status } },

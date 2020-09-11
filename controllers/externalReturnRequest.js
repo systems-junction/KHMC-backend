@@ -62,7 +62,7 @@ exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
     notification("Return Request", "A new Return Request "+err.returnRequestNo+" has been generated at "+err.createdAt+" Manually", "Warehouse Incharge")
     const send = await ExternalReturnRequest.find().populate('itemId');
     globalVariable.io.emit("get_data", send)
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, data:err });
 });
 
 
