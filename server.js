@@ -23,7 +23,7 @@ var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()
 var oneDay = 1000 * 60 * 60 * 24;
 var day = Math.floor(diff / oneDay);
 const db = require('monk')(
-  'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
+  'mongodb+srv://khmc:khmc12345@khmc.r3oxo.mongodb.net/test?retryWrites=true&w=majority'
 );
 dotenv.config({ path: './config/.env' });
 connectDB();

@@ -535,7 +535,7 @@ exports.putRRById = asyncHandler(async (req, res) => {
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
     }
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, data:not, requestNumber:request });
   }
 
   const b = await EDR.findOne({
@@ -603,7 +603,7 @@ exports.putRRById = asyncHandler(async (req, res) => {
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
     }
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, data:not, requestNumber:request });
   }
 });
 

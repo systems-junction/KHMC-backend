@@ -59,20 +59,40 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         replenishmentRequestId,
         replenishmentRequestItemId
     });
-    if(req.body.replenishmentRequestStatus=="complete")
+    if(req.body.replenishmentRequestStatus=="Received" || req.body.replenishmentRequestStatus=="Partially Received")
     { 
-        const rrId = await ReplenishmentRequestBU.findOne({_id: replenishmentRequestId})
 
+        const rrId = await ReplenishmentRequestBU.findOne({_id: replenishmentRequestId})
         for (let i=0; i<rrId.item.length; i++)
         {
-        await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId, 'item.itemId':req.body.itemId},
+        var count = 0;
+       var pror =  await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId, 'item.itemId':req.body.itemId},
         { $set: { 'item.$.status':req.body.replenishmentRequestStatus,'item.$.secondStatus':req.body.replenishmentRequestStatus }}
         ,{new:true});      
-        }
+        for(let i = 0; i<pror.item.length; i++)
+        {
+            if(pror.item[i].status=="Received"||pror.item[i].status=="Partially Received")
+            {
+                count++;
+                if(count == pror.item.length)
+                {
+                    await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId},
+                    { $set: { status:"Completed",secondStatus:"Completed" }}
+                    ,{new:true});      
+                }
+                else
+                {
+                    await ReplenishmentRequestBU.findOneAndUpdate({_id: replenishmentRequestId},
+                        { $set: { status:"Partially Completed",secondStatus:"Partially Completed" }}
+                        ,{new:true});      
+                }
+            }
+        } 
+    }       
         notification("Item Received", "Item Received against Professional Order "+rrId.requestNo, "FU Member")
         const fUnit = await FunctionalUnit.findOne({_id:req.body.fuId})
         const fu = await FUInventory.findOne({itemId: req.body.itemId,fuId:fUnit._id})   
-        var less = fu.qty-req.body.requestedQty
+        var less = fu.qty-parseInt(req.body.receivedQty)
         if (less <= -1)
         {
           less = 0;
