@@ -6,10 +6,11 @@ const PatientFHIR = require('../models/patientFHIR/patientFHIR');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
 const moment = require('moment');
+const requestNoFormat = require('dateformat');
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find().populate(
     'receivedBy'
-  ).limit(100);
+  ).sort({$natural:-1}).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientEDR = asyncHandler(async (req, res) => {
@@ -84,11 +85,16 @@ exports.addPatient = asyncHandler(async (req, res) => {
     coveredFamilyMembers,
     otherCoverageDetails,
   } = req.body.data;
+  var now = new Date();
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.floor(diff / oneDay);
   var parsed = JSON.parse(req.body.data);
   var patient;
   if (req.file) {
     patient = await Patient.create({
-      profileNo: parsed.profileNo,
+      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMM'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
@@ -131,7 +137,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     });
   } else {
     patient = await Patient.create({
-      profileNo: parsed.profileNo,
+      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMM'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,

@@ -146,12 +146,13 @@ exports.getRROPRById = asyncHandler(async (req, res) => {
 
 exports.putLROPRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
+  var opr
   if (req.file) {
-    await OPR.findOneAndUpdate(
+   opr = await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
       data
-    );
-    await OPR.findOneAndUpdate(
+    ).populate('patientId');
+    opr = await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
       {
         $set: {
@@ -160,9 +161,9 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
         },
       },
       { new: true }
-    );
+    ).populate('patientId');
   } else {
-    await OPR.findOneAndUpdate(
+   opr = await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
       {
         $set: {
@@ -171,36 +172,36 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
         },
       },
       { new: true }
-    );
+    ).populate('patientId');
   }
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, data:opr });
 });
 
 exports.putRROPRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
-  console.log('data', data);
+  var opr
   if (req.file) {
-    await OPR.findOneAndUpdate(
+    opr = await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
       data
-    );
-    await OPR.findOneAndUpdate(
+    ).populate('patientId');
+    opr =  await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
       { $set: { 'radiologyRequest.$.results': req.file.path } },
       { new: true }
-    );
+    ).populate('patientId');
   } else {
     // await OPR.findOneAndUpdate(
     //   { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
     //   data
     // );
-    await OPR.findOneAndUpdate(
+    opr = await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
       { $set: { 'radiologyRequest.$.status': data.status } },
       { new: true }
-    );
+    ).populate('patientId');
   }
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, data:opr });
 });
 
 exports.putPHROPRById = asyncHandler(async (req, res) => {
@@ -211,6 +212,7 @@ exports.putPHROPRById = asyncHandler(async (req, res) => {
   )
     .populate('pharmacyRequest.requester')
     .populate('pharmacyRequest.medicine.itemId')
-    .select({ pharmacyRequest: 1 });
+    .populate('patientId')
+    .select({ pharmacyRequest: 1, patientId:1 });
   res.status(200).json({ success: true, data: ipr });
 });
