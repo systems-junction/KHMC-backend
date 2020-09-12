@@ -7,19 +7,21 @@ const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
 const moment = require('moment');
 exports.getPatient = asyncHandler(async (req, res) => {
-  const patient = await Patient.find().populate('receivedBy');
+  const patient = await Patient.find().populate(
+    'receivedBy'
+  ).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientEDR = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ registeredIn: 'EDR' }).populate(
     'receivedBy'
-  );
+  ).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientIPR = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ registeredIn: 'IPR' }).populate(
     'receivedBy'
-  );
+  ).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientById = asyncHandler(async (req, res) => {
@@ -31,13 +33,13 @@ exports.getPatientById = asyncHandler(async (req, res) => {
 exports.getPatientBySIN = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ SIN: req.params.SIN }).populate(
     'receivedBy'
-  );
+  ).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientByMRN = asyncHandler(async (req, res) => {
   const patient = await Patient.find({
     profileNo: req.params.profileNo,
-  }).populate('receivedBy');
+  }).populate('receivedBy').limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.addPatient = asyncHandler(async (req, res) => {
@@ -175,7 +177,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
     'Registered Nurse'
   );
-  const pat = await Patient.find().populate('receivedBy');
+  const pat = await Patient.find().populate('receivedBy').limit(100);
   globalVariable.io.emit('get_data', pat);
   res.status(200).json({ success: true, data: patient });
 });
@@ -281,7 +283,8 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('triageAssessment.requester')
       .sort({
         createdAt: 'desc',
-      });
+      })
+      .limit(100);
   }
   const b = await IPR.findOne({ patientId: req.params._id });
   if (b !== null) {
@@ -304,7 +307,8 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('triageAssessment.requester')
       .sort({
         createdAt: 'desc',
-      });
+      })
+      .limit(100);
   }
   if (a && b) {
     var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);

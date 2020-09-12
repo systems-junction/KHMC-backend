@@ -26,7 +26,8 @@ exports.getPatient = asyncHandler(async (req, res) => {
       { SIN: { $regex: req.params.keyword, $options: 'i' } },
       { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
     ],
-  });
+  }).limit(100)
+  ;
   res.status(200).json({ success: true, data: patient });
 });
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
