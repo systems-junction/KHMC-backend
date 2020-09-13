@@ -21,12 +21,12 @@ exports.getItems = asyncHandler(async (req, res) => {
   const functionalUnit = await FunctionalUnit.find();
   const classes = [
     { key: 'Medical', value: 'Medical' },
-    { key: 'Non_medical', value: 'Non Medical' },
+    { key: 'Non-Medical', value: 'Non Medical' },
   ];
   const medClasses = [
     { key: 'Pharmaceutical', value: 'Pharmaceutical', parent: 'Medical' },
     {
-      key: 'Non_pharmaceutical',
+      key: 'Non Pharmaceutical',
       value: 'Non Pharmaceutical',
       parent: 'Medical',
     },
@@ -35,40 +35,40 @@ exports.getItems = asyncHandler(async (req, res) => {
     {
       key: 'medical_supplies',
       value: 'Medical Supplies & Instruments',
-      parent: 'non_pharmaceutical',
+      parent: 'Non Pharmaceutical',
     },
-    { key: 'medicine', value: 'Medicine', parent: 'pharmaceutical' },
+    { key: 'medicine', value: 'Medicine', parent: 'Pharmaceutical' },
     {
       key: 'laboratory_supplies',
       value: 'Laboratory Supplies',
-      parent: 'non_pharmaceutical',
+      parent: 'Non Pharmaceutical',
     },
     {
       key: 'radiology_medicine',
       value: 'Radiology Medicine & Supplies',
-      parent: 'pharmaceutical',
+      parent: 'Pharmaceutical',
     },
     {
       key: 'food_beverage',
       value: 'Food & Beverage',
-      parent: 'non_pharmaceutical',
+      parent: 'Non Pharmaceutical',
     },
     {
       key: 'food_supplies',
       value: 'Food Supplies',
-      parent: 'non_pharmaceutical',
+      parent: 'Non Pharmaceutical',
     },
     {
       key: 'housekeeping_supplies',
       value: 'Housekeeping Supplies',
-      parent: 'non_medical',
+      parent: 'Non-Medical',
     },
-    { key: 'maintenance', value: 'Maintenance', parent: 'non_medical' },
-    { key: 'textile', value: 'Textile', parent: 'non_medical' },
+    { key: 'maintenance', value: 'Maintenance', parent: 'Non-Medical' },
+    { key: 'textile', value: 'Textile', parent: 'Non-Medical' },
     {
       key: 'office_stationary_supplies',
       value: 'Office & Stationary Supplies',
-      parent: 'non_medical',
+      parent: 'Non-Medical',
     },
   ];
   const grandSubClasses = [
@@ -240,7 +240,7 @@ exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
       { scientificName: { $regex: req.params.keyword, $options: 'i' } },
       { itemCode: { $regex: req.params.keyword, $options: 'i' } },
     ],
-    cls: 'non_medical',
+    cls: 'Non-Medical',
   }).populate('vendorId');
   const data = {
     items,
