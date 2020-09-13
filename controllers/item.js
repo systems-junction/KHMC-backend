@@ -20,15 +20,15 @@ exports.getItems = asyncHandler(async (req, res) => {
   const vendors = await Vendor.find();
   const functionalUnit = await FunctionalUnit.find();
   const classes = [
-    { key: 'medical', value: 'Medical' },
-    { key: 'non_medical', value: 'Non Medical' },
+    { key: 'Medical', value: 'Medical' },
+    { key: 'Non_medical', value: 'Non Medical' },
   ];
   const medClasses = [
-    { key: 'pharmaceutical', value: 'Pharmaceutical', parent: 'medical' },
+    { key: 'Pharmaceutical', value: 'Pharmaceutical', parent: 'Medical' },
     {
-      key: 'non_pharmaceutical',
+      key: 'Non_pharmaceutical',
       value: 'Non Pharmaceutical',
-      parent: 'medical',
+      parent: 'Medical',
     },
   ];
   const subClasses = [
@@ -254,8 +254,8 @@ exports.getSearchedItemsP = asyncHandler(async (req, res) => {
       { scientificName: { $regex: req.params.keyword, $options: 'i' } },
       { itemCode: { $regex: req.params.keyword, $options: 'i' } },
     ],
-    cls: 'medical',
-    medClass: 'pharmaceutical',
+    cls: 'Medical',
+    medClass: 'Pharmaceutical',
   }).populate('vendorId');
   const data = {
     items,
@@ -269,8 +269,8 @@ exports.getSearchedItemsNP = asyncHandler(async (req, res) => {
       { scientificName: { $regex: req.params.keyword, $options: 'i' } },
       { itemCode: { $regex: req.params.keyword, $options: 'i' } },
     ],
-    cls: 'medical',
-    medClass: 'non_pharmaceutical',
+    cls: 'Medical',
+    medClass: 'Non Pharmaceutical',
   }).populate('vendorId');
   const data = {
     items,
