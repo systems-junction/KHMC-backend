@@ -12,8 +12,13 @@ exports.getNurseService = asyncHandler(async (req, res) => {
 
 exports.addNurseService = asyncHandler(async (req, res) => {
   const { name, description, price, status } = req.body;
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
   const nurseService = await NurseService.create({
-    serviceNo: 'NS' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+    serviceNo: 'NS' + day + requestNoFormat(new Date(), 'yyHHMM'),
     name,
     description,
     price,
