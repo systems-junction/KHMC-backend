@@ -16,7 +16,7 @@ exports.getItem = asyncHandler(async (req, res) => {
 });
 
 exports.getItems = asyncHandler(async (req, res) => {
-  const items = await Item.find().populate('vendorId');
+  const items = await Item.find().populate('vendorId').limit(100);
   const vendors = await Vendor.find();
   const functionalUnit = await FunctionalUnit.find();
   const classes = [
