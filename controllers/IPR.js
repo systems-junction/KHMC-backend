@@ -264,7 +264,7 @@ exports.putDischargeById = asyncHandler(async (req, res) => {
     )
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
       .populate('patientId')
-      .select({ dischargeRequest: 1,patientId:1 });
+      .select({ dischargeRequest: 1,patientId:1, requestNo:1 });
     res.status(200).json({ success: true, data: ipr });
   }
   const b = await EDR.findOne({ _id: req.body._id });
@@ -276,7 +276,7 @@ exports.putDischargeById = asyncHandler(async (req, res) => {
     )
       .populate('dischargeRequest.dischargeMedication.medicine.itemId')
       .populate('patientId')
-      .select({ dischargeRequest: 1, patientId:1 });
+      .select({ dischargeRequest: 1, patientId:1, requestNo:1 });
     res.status(200).json({ success: true, data: edr });
   }
 });
