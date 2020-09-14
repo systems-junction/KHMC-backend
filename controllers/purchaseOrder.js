@@ -63,7 +63,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
   const {
     generated,
     generatedBy,
-    comments,
+    commentNotes,
     purchaseRequestId,
     date,
     vendorId,
@@ -80,7 +80,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     generated,
     generatedBy,
     date,
-    comments,
+    commentNotes,
     vendorId,
     status,
     committeeStatus: 'to_do',
