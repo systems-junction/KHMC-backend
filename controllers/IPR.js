@@ -1028,3 +1028,21 @@ exports.addFollowUp = asyncHandler(async (req, res) => {
   }
   res.status(200).json({ success: true });
 });
+
+
+exports.getConsultation = asyncHandler(async (req, res) => {
+  const ipr = await IPR.find({
+    'consultationNote': { $ne: [] },
+  })
+    .populate('patientId')
+    .populate('consultationNote.requester')
+    .select({ consultationNote: 1, requestNo: 1 });
+  const edr = await EDR.find({
+    'consultationNote': { $ne: [] },
+  })
+    .populate('patientId')
+    .populate('consultationNote.requester')
+    .select({ consultationNote: 1, requestNo: 1 });
+  var data = [ipr.concat(edr)];
+  res.status(200).json({ success: true, data: data });
+});
