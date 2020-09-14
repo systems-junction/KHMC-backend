@@ -49,6 +49,31 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                 notification("Item Date Expired ", "A new Return Request "+err.returnRequestNo+" has been generated at "+err.createdAt+" by System", "Warehouse Incharge")
                 const send = await ExternalReturnRequest.find().populate('itemId');
                 globalVariable.io.emit("get_data", send)
+                await ReceiveItem.create({
+                    itemId,
+                    currentQty,
+                    requestedQty,
+                    receivedQty,
+                    bonusQty,
+                    batchNumber,
+                    lotNumber,
+                    expiryDate,
+                    unit,
+                    discount,
+                    unitDiscount,
+                    discountAmount,
+                    tax,
+                    taxAmount,
+                    finalUnitPrice,
+                    subTotal,
+                    discountAmount2,
+                    totalPrice,
+                    invoice,
+                    dateInvoice,
+                    dateReceived,
+                    notes,prId,status
+                });
+                //this should not be here i.e receive item
             }   
             if(!isafter){
                 if(req.body.receivedQty>req.body.requestedQty)
@@ -126,7 +151,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                         dateReceived,
                         notes,prId,status
                     });
-                }  
+                } 
             }    
     const prapp =  await PurchaseRequest.findOneAndUpdate({'_id': prId, 'item.itemId': itemId},{ $set: { 'item.$.status': status }},{new: true});
     var count1 = 0;
