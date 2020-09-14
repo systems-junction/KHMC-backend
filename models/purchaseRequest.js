@@ -67,6 +67,9 @@ const PurchaseRequestSchema = new mongoose.Schema({
   department: {
     type: String,
   },
+  commentNotes:{
+    type:String
+  },
   orderType: {
     type: String,
   },

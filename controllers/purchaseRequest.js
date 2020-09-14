@@ -1,6 +1,5 @@
 const notification = require('../components/notification');
 const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const WarehouseInventory = require('../models/warehouseInventory');
@@ -36,7 +35,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     generatedBy,
     status,
     item,
-    comments,
+    commentNotes,
     reason,
     vendorId,
     requesterName,
@@ -55,7 +54,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     generatedBy,
     committeeStatus: 'to_do',
     status,
-    comments,
+    commentNotes,
     reason,
     item,
     vendorId,

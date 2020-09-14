@@ -154,7 +154,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
               generatedBy:'System',
               committeeStatus: 'to_do',
               status:'to_do',
-              comments:'System',
+              commentNotes:'System',
               reason:'reactivated_items',
               item:[
                   {
