@@ -195,7 +195,7 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
 exports.getCurrentItemQuantityFU = asyncHandler(async (req, res) => {
   const fuInventory = await FUInventory.findOne(
     { itemId: req.body.itemId, fuId: req.body.fuId },
-    { qty: 1 }
+    { qty: 1, maximumLevel:1 }
   );
   res.status(200).json({ success: true, data: fuInventory });
 });

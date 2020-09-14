@@ -151,7 +151,7 @@ const send = await ReplenishmentRequest.find().populate('fuId').populate('itemId
 globalVariable.io.emit("get_data", send)   
     }}
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, data:rrBU });
 });
 
 exports.deleteReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
