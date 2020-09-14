@@ -1030,7 +1030,7 @@ exports.addFollowUp = asyncHandler(async (req, res) => {
 });
 
 
-exports.getConsultation = asyncHandler(async (req, res) => {
+exports.getConsultationOld = asyncHandler(async (req, res) => {
   const ipr = await IPR.find({
     'consultationNote': { $ne: [] },
   })
@@ -1045,4 +1045,32 @@ exports.getConsultation = asyncHandler(async (req, res) => {
     .select({ consultationNote: 1, requestNo: 1 });
   var data = [ipr.concat(edr)];
   res.status(200).json({ success: true, data: data });
+});
+exports.getConsultation = asyncHandler(async (req, res) => {
+  var array=[]
+  const ipr = await IPR.find({
+    'consultationNote': { $ne: [] },
+  })
+    .populate('consultationNote.requester')
+    .select({ consultationNote: 1 });
+    for(let i = 0; i<ipr.length; i++)
+    {
+      for(let j=0; j<ipr[i].consultationNote.length; j++)
+      {
+        array.push(ipr[i].consultationNote[j])
+      }
+    }
+  const edr = await EDR.find({
+    'consultationNote': { $ne: [] },
+  })
+    .populate('consultationNote.requester')
+    .select({ consultationNote: 1});
+    for(let i = 0; i<edr.length; i++)
+    {
+      for(let j=0; j<edr[i].consultationNote.length; j++)
+      {
+        array.push(edr[i].consultationNote[j])
+      }
+    }
+  res.status(200).json({ success: true, data: array });
 });

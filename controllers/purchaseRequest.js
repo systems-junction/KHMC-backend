@@ -175,7 +175,7 @@ exports.getPurchaseRequestVendors = asyncHandler(async (req, res) => {
 exports.getCurrentItemQuantity = asyncHandler(async (req, res) => {
   const warehouseInventory = await WarehouseInventory.findOne(
     { itemId: req.params._id },
-    { qty: 1 }
+    { qty: 1 ,maximumLevel:1}
   );
   res.status(200).json({ success: true, data: warehouseInventory });
 });
