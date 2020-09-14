@@ -167,7 +167,8 @@ exports.putPHRById = asyncHandler(async (req, res) => {
     )
       .populate('pharmacyRequest.requester')
       .populate('pharmacyRequest.medicine.itemId')
-      .select({ pharmacyRequest: 1 });
+      .populate('patientId')
+      .select({ pharmacyRequest: 1, patientId:1 });
     res.status(200).json({ success: true, data: ipr });
   }
   const b = await EDR.findOne({ 'pharmacyRequest._id': req.body._id });
@@ -179,7 +180,8 @@ exports.putPHRById = asyncHandler(async (req, res) => {
     )
       .populate('pharmacyRequest.requester')
       .populate('pharmacyRequest.medicine.itemId')
-      .select({ pharmacyRequest: 1 });
+      .populate('patientId')
+      .select({ pharmacyRequest: 1, patientId:1 });
     res.status(200).json({ success: true, data: edr });
   }
 });
