@@ -30,7 +30,7 @@ exports.getOPRFromPharmacy = asyncHandler(async (req, res) => {
     .populate('patientId')
     .populate('pharmacyRequest.requester')
     .populate('pharmacyRequest.medicine.itemId')
-    .select({ pharmacyRequest: 1, requestNo: 1, status: 1 });
+    .select({ pharmacyRequest: 1, requestNo: 1, status: 1, createdAt:1 });
   res.status(200).json({ success: true, data: opr });
 });
 
@@ -39,7 +39,7 @@ exports.getOPRFromRadiology = asyncHandler(async (req, res) => {
     .populate('patientId')
     .populate('radiologyRequest.serviceId')
     .populate('radiologyRequest.requester')
-    .select({ radiologyRequest: 1, requestNo: 1, status: 1 });
+    .select({ radiologyRequest: 1, requestNo: 1, status: 1, createdAt:1 });
   res.status(200).json({ success: true, data: opr });
 });
 
