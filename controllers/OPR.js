@@ -21,7 +21,7 @@ exports.getOPRFromLab = asyncHandler(async (req, res) => {
     .populate('patientId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
-    .select({ labRequest: 1, requestNo: 1, status: 1 });
+    .select({ labRequest: 1, requestNo: 1, status: 1, createdAt:1 });
   res.status(200).json({ success: true, data: opr });
 });
 
