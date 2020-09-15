@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const requestNoFormat = require('dateformat');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const FuInventory = require('../models/fuInventory');
@@ -28,14 +28,23 @@ exports.getFuInventoryByFU = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: data });
 });
 exports.addFuInventory = asyncHandler(async (req, res) => {
-    const { fuId, itemId, qty, maximumLevel, reorderLevel } = req.body;
+    const { fuId, itemId, qty, maximumLevel, reorderLevel, minimumLevel } = req.body;
+    var now = new Date();
+    var start = new Date(now.getFullYear(), 0, 0);
+    var diff =
+      now -
+      start +
+      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.floor(diff / oneDay);
     const fuInventory = await FuInventory.create({
-        uuid: uuidv4(),
+        uuid: "FUI" + day + requestNoFormat(new Date(), 'yyHHMM'),
         fuId,
         itemId,
         qty,
         maximumLevel,
-        reorderLevel
+        reorderLevel,
+        minimumLevel
     });
     res.status(200).json({ success: true, data: fuInventory });
 });

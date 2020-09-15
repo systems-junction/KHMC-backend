@@ -12,6 +12,9 @@ const WarehouseInventorySchema = new mongoose.Schema({
     maximumLevel:{
         type:Number
     },
+    minimumLevel:{
+        type:Number
+    },
     reorderLevel:{
         type:Number
     },

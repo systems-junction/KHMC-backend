@@ -13,14 +13,14 @@ const asyncHandler = require('../middleware/async');
     };
 
     exports.addWhInventory = (req, res, next) => {
-        const { itemId, qty, maximumLevel, reorderLevel } = req.body;
-        
+        const { itemId, qty, maximumLevel, reorderLevel, minimumLevel } = req.body;
         try{
             WhInventory.create({
                 itemId,
                 qty,
                 maximumLevel,
-                reorderLevel
+                reorderLevel,
+                minimumLevel
             }).then((response, err) => {
                 if(err) throw err;
                 res.status(200).send({ success: true, message: "Warehouse inventory added successfully"});

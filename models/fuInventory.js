@@ -24,6 +24,9 @@ const fuInventorySchema = new mongoose.Schema({
     reorderLevel:{
         type:Number
     },
+    minimumLevel:{
+        type:Number
+    },
     createdAt: {
         type: Date,
         default: Date.now
