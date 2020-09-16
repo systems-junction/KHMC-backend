@@ -43,6 +43,21 @@ exports.getPatientByMRN = asyncHandler(async (req, res) => {
   }).populate('receivedBy').sort({$natural:-1}).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
+exports.getPaitentAll = asyncHandler(async (req, res) => {
+  const patient = await Patient.find({
+    $or: [
+      { profileNo: { $regex: req.params.keyword, $options: 'i' } },
+      { firstName: { $regex: req.params.keyword, $options: 'i' } },
+      { lastName: { $regex: req.params.keyword, $options: 'i' } },
+      { fullName: { $regex: req.params.keyword, $options: 'i' } },
+      { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
+      { SIN: { $regex: req.params.keyword, $options: 'i' } },
+      { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
+    ],
+  }).sort({$natural:-1}).limit(100)
+  ;
+  res.status(200).json({ success: true, data: patient });
+});
 exports.addPatient = asyncHandler(async (req, res) => {
   const {
     profileNo,

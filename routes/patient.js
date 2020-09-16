@@ -20,6 +20,7 @@ const {
   getPatientById,
   getPatientBySIN,
   getPatientByMRN,
+  getPaitentAll,
   addPatient,
   deletePatient,
   updatePatient,
@@ -38,6 +39,7 @@ const {
 
 const router = express.Router();
 router.get('/getpatient', getPatient);
+router.get('/getpatientall/:keyword', getPaitentAll);
 router.get('/getpatientedr', getPatientEDR);
 router.get('/getpatientipr', getPatientIPR);
 router.put('/updateEdrIpr', updateEdrIpr);
