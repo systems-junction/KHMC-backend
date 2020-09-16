@@ -34,7 +34,8 @@ const {
   lab,
   rad,
   consultation,
-  discharge
+  discharge,
+  addNote
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -48,6 +49,7 @@ router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
 router.post('/addpatient', upload.single('file'), addPatient);
+router.post('/test', upload.single('file'), addNote);
 router.post('/addpatientfhir', addPatientFHIR);
 router.put('/updatepatientfhir', updatePatientFHIR);
 router.delete('/deletepatient/:_id', deletePatient);
@@ -59,4 +61,5 @@ router.get('/lab/:id', lab);
 router.get('/rad/:id', rad);
 router.get('/consultation/:id', consultation);
 router.get('/discharge/:id', discharge);
+
 module.exports = router;

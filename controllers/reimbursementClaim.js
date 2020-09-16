@@ -16,19 +16,29 @@ exports.getClaims = asyncHandler(async (req, res) => {
 });
 
 exports.getPatient = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({
-    $or: [
-      { profileNo: { $regex: req.params.keyword, $options: 'i' } },
-      { firstName: { $regex: req.params.keyword, $options: 'i' } },
-      { lastName: { $regex: req.params.keyword, $options: 'i' } },
-      { fullName: { $regex: req.params.keyword, $options: 'i' } },
-      { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
-      { SIN: { $regex: req.params.keyword, $options: 'i' } },
-      { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
-    ],
-  }).sort({$natural:-1}).limit(100)
-  ;
-  res.status(200).json({ success: true, data: patient });
+  var array=[]
+  var array2=[]
+  const ipr = await IPR.find({}).populate('patientId')
+    for(let i = 0; i<ipr.length; i++)
+    {
+        array.push(ipr[i].patientId) 
+    }
+  const edr = await EDR.find({}).populate('patientId')
+    for(let i = 0; i<edr.length; i++)
+    {
+        array.push(edr[i].patientId)
+    }
+    const unique = Array.from(new Set(array)) 
+    for(let i = 0; i<unique.length; i++)
+    {
+
+      if((unique[i].profileNo && unique[i].profileNo.startsWith(req.params.keyword))||(unique[i].firstName && unique[i].firstName.startsWith(req.params.keyword))||(unique[i].lastName && unique[i].lastName.startsWith(req.params.keyword))||(unique[i].phoneNumber && unique[i].phoneNumber.startsWith(req.params.keyword))||(unique[i].SIN && unique[i].SIN.startsWith(req.params.keyword))||(unique[i].mobileNumber && unique[i].mobileNumber.startsWith(req.params.keyword)))
+      {
+        array2.push(unique[i])
+      }
+    }
+    res.status(200).json({ success: true, data:array2 });      
+
 });
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
   var prEdr;

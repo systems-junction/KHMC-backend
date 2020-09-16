@@ -5,6 +5,7 @@ const Patient = require('../models/patient');
 const PatientFHIR = require('../models/patientFHIR/patientFHIR');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
+const file = require('../models/file');
 const moment = require('moment');
 const requestNoFormat = require('dateformat');
 exports.getPatient = asyncHandler(async (req, res) => {
@@ -762,4 +763,13 @@ exports.discharge = asyncHandler(async (req, res) => {
   } else {
     res.status(200).json({ success: false, data: 'User not found' });
   }
+});
+
+
+exports.addNote = asyncHandler(async (req, res) => {
+  var parsed = JSON.parse(req.body.data);
+   const patient = await file.create({
+      abc: req.file.path,
+    })
+  res.status(200).json({ success: true, data: patient });
 });
