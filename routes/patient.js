@@ -13,6 +13,19 @@ var storage = multer.diskStorage({
   },
 });
 var upload = multer({ storage: storage });
+const audioPath = './uploads/consultation';
+var audioStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, audioPath);
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname
+    );
+  },
+});
+var audioUpload = multer({ storage: audioStorage });
 const {
   getPatient,
   getPatientEDR,
@@ -35,7 +48,8 @@ const {
   rad,
   consultation,
   discharge,
-  addNote
+  addNote,
+  getNote
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -49,7 +63,6 @@ router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
 router.post('/addpatient', upload.single('file'), addPatient);
-router.post('/test', upload.single('file'), addNote);
 router.post('/addpatientfhir', addPatientFHIR);
 router.put('/updatepatientfhir', updatePatientFHIR);
 router.delete('/deletepatient/:_id', deletePatient);
@@ -61,5 +74,6 @@ router.get('/lab/:id', lab);
 router.get('/rad/:id', rad);
 router.get('/consultation/:id', consultation);
 router.get('/discharge/:id', discharge);
-
+router.post('/test', audioUpload.single('file'), addNote);
+router.get('/test2', getNote);
 module.exports = router;

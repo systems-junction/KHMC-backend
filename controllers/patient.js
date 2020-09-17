@@ -765,9 +765,13 @@ exports.discharge = asyncHandler(async (req, res) => {
   }
 });
 
-
-exports.addNote = asyncHandler(async (req, res) => {
-  var parsed = JSON.parse(req.body.data);
+exports.getNote = asyncHandler(async (req, res) => {  
+   const patient = await file.find()
+  res.status(200).json({ success: true, data: patient });
+});
+exports.addNote = asyncHandler(async (req, res) => { 
+  console.log(req.file) 
+  // var parsed = JSON.parse(req.body.data);
    const patient = await file.create({
       abc: req.file.path,
     })
