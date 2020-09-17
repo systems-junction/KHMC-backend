@@ -140,12 +140,12 @@ app.use('/api/reimbursementclaim', RC)
 app.use('/api/dischargerequest',dischargeRequest)
 app.use(errorHandler);
 
-// const PORT = process.env.PORT || 8080;
-// const port = 4001;
-// app.listen(
-//   PORT,
-//   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-// );
+const PORT = process.env.PORT || 8080;
+const port = 4001;
+app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+);
 const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
 io.origins('*:*');
