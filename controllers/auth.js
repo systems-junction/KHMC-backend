@@ -1,7 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/user');
-
+const Staff = require('../models/staff')
 // @desc      Register user
 // @route     POST /api/auth/register
 // @access    Public
@@ -26,7 +26,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // Check for user
   const user = await User.findOne({ email }).populate('staffTypeId');
-
+  const staff = await Staff.findOne({_id:user.staffId}).populate('functionalUnit')
   if (!user) {
     return next(new ErrorResponse('Invalid credentials', 401));
   }
@@ -37,7 +37,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!isMatch) {
     return next(new ErrorResponse('Invalid credentials', 401));
   }
-  sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res, staff);
 });
 
 // @desc      Log user out / clear cookie
@@ -68,7 +68,7 @@ exports.getMe = asyncHandler(async (req, res) => {
 });
 
 // Get token from model, create cookie and send response
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, res, staff) => {
   // Create token
   const token = user.getSignedJwtToken();
 
@@ -86,6 +86,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   const data = {
     token,
     user,
+    staff
   };
   res.status(statusCode).cookie('token', token, options).json({
     success: true,

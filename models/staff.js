@@ -52,6 +52,10 @@ const staffSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add address'],
     },
+    functionalUnit:{
+      type: mongoose.Schema.ObjectId,
+      ref: 'functionalUnit'
+    },
     systemAdminId: {
       type: mongoose.Schema.ObjectId,
       ref: 'systemAdmin',

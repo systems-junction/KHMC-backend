@@ -4,7 +4,8 @@ const {
     getFuInventoryByFU,
     addFuInventory,
     deleteFuInventory,
-    updateFuInventory
+    updateFuInventory,
+    test
 } = require('../controllers/fuInventory');
 
 const router = express.Router();
@@ -15,5 +16,5 @@ router.get('/getfuinventory/:_id', getFuInventoryByFU);
 router.post('/addfuinventory', addFuInventory);
 router.delete('/deletefuinventory/:_id', deleteFuInventory);
 router.put('/updatefuinventory', updateFuInventory);
-
+router.get('/test',test)
 module.exports = router;

@@ -5,17 +5,21 @@ const Staff = require('../models/staff');
 const StaffType = require('../models/staffType');
 const SystemAdmin = require('../models/systemAdmin');
 const User = require('../models/user');
-
+const FU = require('../models/functionalUnit')
 exports.getStaff = asyncHandler(async (req, res) => {
   const staff = await Staff.find()
     .populate('systemAdminId')
-    .populate('staffTypeId');
+    .populate('staffTypeId')
+    .populate('functionalUnit');
+
   const staffType = await StaffType.find().populate('accessLevelId');
   const systemAdmin = await SystemAdmin.find();
+  const func = await FU.find();
   const data = {
     staff,
     staffType,
     systemAdmin,
+    func
   };
   res.status(200).json({ success: true, data: data });
 });
@@ -38,6 +42,7 @@ exports.addStaff = asyncHandler(async (req, res) => {
     password,
     gender,
     dob,
+    functionalUnit,
     address,
     systemAdminId,
     status,
@@ -52,6 +57,7 @@ exports.addStaff = asyncHandler(async (req, res) => {
     contactNumber,
     identificationNumber,
     email,
+    functionalUnit,
     password,
     gender,
     dob,

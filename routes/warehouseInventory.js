@@ -5,7 +5,7 @@ const {
     deleteWhInventory,
     updateWhInventory,
     getExpiredInventory,
-    getExpiredInventoryByInput
+    getExpiredInventoryByInput,
 } = require('../controllers/warehouseInventory');
 
 const router = express.Router();
@@ -17,5 +17,4 @@ router.post('/getexpiredinventorybyinput', getExpiredInventoryByInput);
 router.post('/addwhinventory', addWhInventory);
 router.delete('/deletewhinventory', deleteWhInventory);
 router.put('/updatewhinventory', updateWhInventory);
-
 module.exports = router;

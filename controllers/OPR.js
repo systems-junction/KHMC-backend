@@ -148,14 +148,15 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
   var data = JSON.parse(req.body.data);
   var opr
   if (req.file) {
-   opr = await OPR.findOneAndUpdate(
-      { 'labRequest._id': data.labRequestId, _id: data.OPRId },
-      data
-    ).populate('patientId');
+  //  opr = await OPR.findOneAndUpdate(
+  //     { 'labRequest._id': data.labRequestId, _id: data.OPRId },
+  //     data
+  //   ).populate('patientId');
     opr = await OPR.findOneAndUpdate(
       { 'labRequest._id': data.labRequestId, _id: data.OPRId },
       {
         $set: {
+          'labRequest.$.status': data.status,
           'labRequest.$.results': req.file.path,
           'labRequest.$.sampleId': data.sampleId,
         },
@@ -174,6 +175,7 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
       { new: true }
     ).populate('patientId');
   }
+  
   res.status(200).json({ success: true, data:opr });
 });
 
@@ -187,14 +189,11 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
     ).populate('patientId');
     opr =  await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
-      { $set: { 'radiologyRequest.$.results': req.file.path } },
+      { $set: { 'radiologyRequest.$.results': req.file.path,
+      'radiologyRequest.$.status': data.status } },
       { new: true }
     ).populate('patientId');
   } else {
-    // await OPR.findOneAndUpdate(
-    //   { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
-    //   data
-    // );
     opr = await OPR.findOneAndUpdate(
       { 'radiologyRequest._id': data.radiologyRequestId, _id: data.OPRId },
       { $set: { 'radiologyRequest.$.status': data.status } },

@@ -1,13 +1,9 @@
 const mongoose = require('mongoose');
 
 const fuInventorySchema = new mongoose.Schema({
-    uuid: {
-        type: String
-    },
     fuId: {
         type: mongoose.Schema.ObjectId,
         ref: 'functionalUnit',
-        // required: [true, 'Please select Business Unit']
     },
     itemId: {
         type: mongoose.Schema.ObjectId,

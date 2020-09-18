@@ -1,20 +1,6 @@
 const WhInventory = require('../models/warehouseInventory');
 const moment = require('moment');
 const asyncHandler = require('../middleware/async');
-const item = require('../models/item')
-exports.test = asyncHandler(async(req,res)=>{
-  const test = await item.find()
-  for(let i = 0; i<test.length; i++)
-  {
-  const abc = await WhInventory.create({
-  itemId: test[i]._id,
-  qty: 1000,
-  maximumLevel:1000,
-  minimumLevel:100,
-  reorderLevel:500
-})
-}
-})
     exports.getWhInventory = (req, res, next) => {
         try {
             WhInventory.find().populate('itemId').then(function(data, err){
