@@ -23,7 +23,7 @@ updateClaims
 
 const router = express.Router();
 router.get('/getclaim', getClaims);
-router.get('/getpatient/:keyword', getPatient);
+router.get('/getpatient/:id/:keyword', getPatient);
 router.get('/getedripr/:_id', getEDRorIPR);
 router.post('/addclaim', upload.single('file'), addClaims);
 router.put('/updateclaim', upload.single('file'), updateClaims);

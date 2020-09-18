@@ -376,6 +376,10 @@ const IPRSchema = new mongoose.Schema({
     type: String,
     default: 'IPR',
   },
+  functionalUnit:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'functionalUnit',
+  },
   createdAt: {
     type: Date,
     default: Date.now,

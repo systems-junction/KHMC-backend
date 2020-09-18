@@ -18,7 +18,7 @@ exports.getClaims = asyncHandler(async (req, res) => {
 exports.getPatient = asyncHandler(async (req, res) => {
   var array=[]
   var array2=[]
-  const ipr = await IPR.find({}).populate('patientId')
+  const ipr = await IPR.find({functionalUnit:req.params.id}).populate('patientId')
     for(let i = 0; i<ipr.length; i++)
     {
         array.push(ipr[i].patientId) 

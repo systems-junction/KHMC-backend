@@ -175,7 +175,22 @@ exports.putLROPRById = asyncHandler(async (req, res) => {
       { new: true }
     ).populate('patientId');
   }
-  
+  var count =0;
+  for(let i =0 ; i < opr.labRequest.length; i++)
+  {
+    if(opr.labRequest[i].status=="completed")
+    {
+      count++
+    }
+  }
+  if(count==opr.labRequest.length)
+  {
+    await OPR.findOneAndUpdate({_id:data.OPRId},
+      {
+        $set: {
+          'status': "completed",
+        }})
+  }
   res.status(200).json({ success: true, data:opr });
 });
 
@@ -199,6 +214,22 @@ exports.putRROPRById = asyncHandler(async (req, res) => {
       { $set: { 'radiologyRequest.$.status': data.status } },
       { new: true }
     ).populate('patientId');
+  }
+  var count =0;
+  for(let i =0 ; i < opr.radiologyRequest.length; i++)
+  {
+    if(opr.radiologyRequest[i].status=="completed")
+    {
+      count++
+    }
+  }
+  if(count==opr.radiologyRequest.length)
+  {
+    await OPR.findOneAndUpdate({_id:data.OPRId},
+      {
+        $set: {
+          'status': "completed",
+        }})
   }
   res.status(200).json({ success: true, data:opr });
 });
