@@ -8,8 +8,8 @@ exports.getEDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find()
     .populate('patientId')
     .populate('consultationNote.requester')
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.requester')
+    // .populate('pharmacyRequest.medicine.itemId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')
@@ -25,8 +25,8 @@ exports.getEDR = asyncHandler(async (req, res) => {
 exports.getPHREDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find({ pharmacyRequest: { $ne: [] } })
     .populate('patientId')
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.requester')
+    // .populate('pharmacyRequest.medicine.itemId')
     .select({ pharmacyRequest: 1, requestNo: 1 });
   var data = [];
   for (let i = 0; i < edr.length; i++) {
@@ -179,8 +179,8 @@ exports.putRREDRById = asyncHandler(async (req, res) => {
 
 exports.getPHREDRById = asyncHandler(async (req, res) => {
   const edr = await EDR.findOne({ 'pharmacyRequest._id': req.params._id })
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.requester')
+    // .populate('pharmacyRequest.medicine.itemId')
     .select({ pharmacyRequest: 1 });
   for (let i = 0; i < edr.pharmacyRequest.length; i++) {
     if (edr.pharmacyRequest[i]._id == req.params._id) {
@@ -196,8 +196,8 @@ exports.putPHREDRById = asyncHandler(async (req, res) => {
     { $set: { 'pharmacyRequest.$.status': req.body.status } },
     { new: true }
   )
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.requester')
+    // .populate('pharmacyRequest.medicine.itemId')
     .select({ pharmacyRequest: 1 });
   res.status(200).json({ success: true, data: edr });
 });
@@ -206,8 +206,8 @@ exports.getEDRById = asyncHandler(async (req, res) => {
   const edr = await EDR.find({ _id: req.params._id })
     .populate('patientId')
     .populate('consultationNote.requester')
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.requester')
+    // .populate('pharmacyRequest.medicine.itemId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')

@@ -9,8 +9,9 @@ const FUInventory = require('../models/fuInventory');
 const BUInventory = require('../models/buInventory');
 const WHInventory = require('../models/warehouseInventory');
 const ReplenishmentRequest = require('../models/replenishmentRequest');
-const PurchaseRequest = require('../models/purchaseRequest');
 const Item = require('../models/item');
+const IPR = require('../models/IPR');
+const EDR = require('../models/EDR');
 const requestNoFormat = require('dateformat');
 var st;
 var st2;    
@@ -87,6 +88,47 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         patientReferenceNo,
         secondStatus:"pending",
     });
+    //Merge with RCM
+    const a = await EDR.findOne({ profileNo: patientReferenceNo });
+    if (a !== null) {
+      var edr = await EDR.findOne({ profileNo: patientReferenceNo })
+        .sort({
+          createdAt: 'desc',
+        })
+        .limit(100);
+    }
+    const b = await IPR.findOne({ profileNo: patientReferenceNo });
+    if (b !== null) {
+      var ipr = await IPR.findOne({ profileNo: patientReferenceNo })
+        .sort({
+          createdAt: 'desc',
+        })
+        .limit(100);
+    }
+    if (a && b) {
+      var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+      if (isafter) {
+        await EDR.findOneAndUpdate({ _id: edr._id },
+         { $push: { pharmacyRequest: rrBU._id } },
+          { new: true }
+        )
+      } else {
+        await IPR.findOneAndUpdate({ _id: edr._id },
+          { $push: { pharmacyRequest: rrBU._id } },
+           { new: true }
+         )
+      }
+    } else if (a) {
+      await EDR.findOneAndUpdate({ _id: edr._id },
+        { $push: { pharmacyRequest: rrBU._id } },
+         { new: true }
+       )
+    } else if (b) {
+      await IPR.findOneAndUpdate({ _id: edr._id },
+        { $push: { pharmacyRequest: rrBU._id } },
+         { new: true }
+       )
+    }
     if(orderFor=="Medical")
     {
       notification("Medication Order", "A new Medication Order has been generated at "+rrBU.createdAt, "Committe Member")
@@ -197,33 +239,3 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
     );
     res.status(200).json({ success: true, data: buInventory });
   });
-
-
-//here2
-//   if(st2 == "Cannot be fulfilled")
-//   {
-// var item2={
-// itemId:req.body.itemId,
-// currQty:wh.qty,
-// reqQty:wh.maximumLevel - (fui.maximumLevel-fui.qty),
-// comments:'System',
-// name:item.name,
-// description:item.description,
-// itemCode:item.itemCode
-// }
-// await PurchaseRequest.create({
-//     requestNo: uuidv4(),
-//     generated:'System',
-//     generatedBy:'System',
-//     committeeStatus: 'to_do',
-//     status:'to_do',
-//     comments:'System',
-//     reason:'reactivated_items',
-//     item:item2,
-//     vendorId:item.vendorId,
-//     requesterName:'System',
-//     department:'',
-//     orderType:'',
-//     rr:rrS._id
-//   });
-//   }
