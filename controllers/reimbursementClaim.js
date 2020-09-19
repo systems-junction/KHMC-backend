@@ -31,7 +31,7 @@ exports.getPatient = asyncHandler(async (req, res) => {
     const unique = Array.from(new Set(array)) 
     for(let i = 0; i<unique.length; i++)
     {
-      var abc = unique[i].firstName+" "+unique[i].lastName
+       var abc = unique[i].firstName+" "+unique[i].lastName
       if(
       (unique[i].profileNo && unique[i].profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
       (unique[i].firstName && unique[i].firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||

@@ -126,6 +126,9 @@ const patientSchema = new mongoose.Schema({
   otherCoverageDetails:{
     type:String
   },
+  QR:{
+    type:String
+  },
   createdAt: {
     type: Date,
     default: Date.now,

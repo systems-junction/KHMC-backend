@@ -26,6 +26,10 @@ const PurchaseOrderSchema = new mongoose.Schema({
   commentNotes: {
     type: String,
   },
+  approvedBy:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff',
+  },
   vendorId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Vendor',

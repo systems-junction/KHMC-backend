@@ -26,7 +26,34 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // Check for user
   const user = await User.findOne({ email }).populate('staffTypeId');
+  var data
+  if(email=="superadmin@khmc.com")
+  {
+    data={
+      _id:user._id,
+    name:user.name,
+    email:user.email,
+    password:user.password,
+    staffTypeId:user.staffTypeId,
+    staffId:user.staffId,
+    createdAt:user.createdAt,
+    updatedAt:user.updatedAt
+    }
+  }
+  else{
   const staff = await Staff.findOne({_id:user.staffId}).populate('functionalUnit')
+  data={
+    _id:user._id,
+    name:user.name,
+    email:user.email,
+    password:user.password,
+    staffTypeId:user.staffTypeId,
+    staffId:user.staffId,
+    functionalUnit:staff.functionalUnit,
+    createdAt:user.createdAt,
+    updatedAt:user.updatedAt
+  }
+}
   if (!user) {
     return next(new ErrorResponse('Invalid credentials', 401));
   }
@@ -37,7 +64,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!isMatch) {
     return next(new ErrorResponse('Invalid credentials', 401));
   }
-  sendTokenResponse(user, 200, res, staff);
+  sendTokenResponse(user, 200, res, data);
 });
 
 // @desc      Log user out / clear cookie
@@ -68,9 +95,9 @@ exports.getMe = asyncHandler(async (req, res) => {
 });
 
 // Get token from model, create cookie and send response
-const sendTokenResponse = (user, statusCode, res, staff) => {
+const sendTokenResponse = (userOld, statusCode, res, user) => {
   // Create token
-  const token = user.getSignedJwtToken();
+  const token = userOld.getSignedJwtToken();
 
   const options = {
     expires: new Date(
@@ -85,8 +112,7 @@ const sendTokenResponse = (user, statusCode, res, staff) => {
 
   const data = {
     token,
-    user,
-    staff
+    user
   };
   res.status(statusCode).cookie('token', token, options).json({
     success: true,

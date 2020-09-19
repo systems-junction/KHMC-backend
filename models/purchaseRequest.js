@@ -76,6 +76,10 @@ const PurchaseRequestSchema = new mongoose.Schema({
   generated: {
     type: String,
   },
+  approvedBy:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff',
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -28,7 +28,8 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please select Staff type']
   },
   staffId:{
-    type: mongoose.Schema.ObjectId
+    type: mongoose.Schema.ObjectId,
+    ref: 'staff'
   },
   resetPasswordExpire: Date,
   createdAt: {

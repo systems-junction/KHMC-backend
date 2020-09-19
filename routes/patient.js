@@ -49,7 +49,8 @@ const {
   consultation,
   discharge,
   addNote,
-  getNote
+  getNote,
+  qrGenerator
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -76,4 +77,5 @@ router.get('/consultation/:id', consultation);
 router.get('/discharge/:id', discharge);
 router.post('/test', audioUpload.single('file'), addNote);
 router.get('/test2', getNote);
+router.get('/getqrofpatient/:id',qrGenerator)
 module.exports = router;

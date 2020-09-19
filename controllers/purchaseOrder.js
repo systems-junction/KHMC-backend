@@ -16,13 +16,14 @@ var transporter = nodemailer.createTransport({
   },
 });
 exports.getPurchaseOrder = asyncHandler(async (req, res) => {
-  const purchaseOrder = await PurchaseOrder.find().populate('vendorId');
+  const purchaseOrder = await PurchaseOrder.find().populate('vendorId').populate('approvedBy');
   // .populate('purchaseRequestId');
   res.status(200).json({ success: true, data: purchaseOrder });
 });
 exports.getPurchaseOrders = asyncHandler(async (req, res) => {
   const purchaseOrder = await PurchaseOrder.find()
     .populate('vendorId')
+    .populate('approvedBy')
     .populate({
       path:'purchaseRequestId',
       populate:[

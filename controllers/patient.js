@@ -8,6 +8,9 @@ const EDR = require('../models/EDR');
 const file = require('../models/file');
 const moment = require('moment');
 const requestNoFormat = require('dateformat');
+var QRCode = require('qrcode');
+var base64ToImage = require('base64-to-image');
+const { urlencoded } = require('body-parser');
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find().populate(
     'receivedBy'
@@ -160,7 +163,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
   var patient;
   if (req.file) {
     patient = await Patient.create({
-      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMM'),
+      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
@@ -203,7 +206,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     });
   } else {
     patient = await Patient.create({
-      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMM'),
+      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
@@ -249,10 +252,25 @@ exports.addPatient = asyncHandler(async (req, res) => {
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
     'Registered Nurse'
   );
+  QRCode.toDataURL(JSON.stringify(patient), function (err, url) {
+    var base64Str = url;
+    var path ='./uploads/';
+    var pathFormed = base64ToImage(base64Str,path); 
+    Patient.findOneAndUpdate(
+      { _id: patient._id },
+      { $set: { QR: "/uploads/"+pathFormed.fileName } },
+    ).then((docs) => {
+    });
+  })
   const pat = await Patient.find().populate('receivedBy').sort({$natural:-1}).limit(100);
   globalVariable.io.emit('get_data', pat);
   res.status(200).json({ success: true, data: patient });
 });
+exports.qrGenerator=asyncHandler(async(req,res)=>{
+  const pat = await Patient.findOne({_id:req.params.id})
+  var returnValue = pat.QR;
+  res.json({success:true, data:returnValue})
+})
 exports.addPatientFHIR = asyncHandler(async (req, res) => {
   const {
     name,

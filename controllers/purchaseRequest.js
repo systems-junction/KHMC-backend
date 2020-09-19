@@ -11,6 +11,7 @@ exports.getPurchaseRequests = asyncHandler(async (req, res) => {
   const purchaseRequest = await PurchaseRequest.find()
     .populate('item.itemId')
     .populate('vendorId')
+    .populate('approvedBy')
     .populate({
       path: 'item.itemId',
       populate: [
@@ -42,6 +43,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     department,
     orderType,
     generated,
+    approvedBy
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
@@ -61,6 +63,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     requesterName,
     department,
     orderType,
+    approvedBy
   });
   notification(
     'Purchase Request',
