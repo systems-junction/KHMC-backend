@@ -12,6 +12,7 @@ const ReplenishmentRequest = require('../models/replenishmentRequest');
 const Item = require('../models/item');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
+const moment = require('moment');
 const requestNoFormat = require('dateformat');
 var st;
 var st2;    
@@ -44,7 +45,7 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
     var day = Math.floor(diff / oneDay);
     var code
     const { generated,generatedBy,dateGenerated,buId,comments,item,commentNote,orderFor,
-           description,patientReferenceNo, requesterName, department, orderType,orderBy, reason} = req.body;
+           description,patientReferenceNo, requesterName, department, orderType,orderBy, reason, pId} = req.body;
            const func = await FunctionalUnit.findOne({_id:req.body.fuId})
            for(let i=0; i<req.body.item.length; i++)
            {
@@ -86,20 +87,21 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         reason,
         commentNote,
         patientReferenceNo,
+        pId,
         secondStatus:"pending",
     });
     //Merge with RCM
-    const a = await EDR.findOne({ profileNo: patientReferenceNo });
+    const a = await EDR.findOne({ patientId: pId });
     if (a !== null) {
-      var edr = await EDR.findOne({ profileNo: patientReferenceNo })
+      var edr = await EDR.findOne({ patientId: pId })
         .sort({
           createdAt: 'desc',
         })
         .limit(100);
     }
-    const b = await IPR.findOne({ profileNo: patientReferenceNo });
+    const b = await IPR.findOne({ patientId: pId });
     if (b !== null) {
-      var ipr = await IPR.findOne({ profileNo: patientReferenceNo })
+      var ipr = await IPR.findOne({ patientId: pId })
         .sort({
           createdAt: 'desc',
         })
@@ -108,26 +110,31 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
     if (a && b) {
       var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
       if (isafter) {
-        await EDR.findOneAndUpdate({ _id: edr._id },
+        console.log("here")
+        const test = await EDR.findOneAndUpdate({ _id: edr._id },
          { $push: { pharmacyRequest: rrBU._id } },
           { new: true }
         )
+        console.log(test)
       } else {
-        await IPR.findOneAndUpdate({ _id: edr._id },
+        const test= await IPR.findOneAndUpdate({ _id: edr._id },
           { $push: { pharmacyRequest: rrBU._id } },
            { new: true }
          )
+         console.log(test)
       }
     } else if (a) {
-      await EDR.findOneAndUpdate({ _id: edr._id },
+     const test = await EDR.findOneAndUpdate({ _id: edr._id },
         { $push: { pharmacyRequest: rrBU._id } },
          { new: true }
        )
+       console.log(test)
     } else if (b) {
-      await IPR.findOneAndUpdate({ _id: edr._id },
+     const test = await IPR.findOneAndUpdate({ _id: edr._id },
         { $push: { pharmacyRequest: rrBU._id } },
          { new: true }
        )
+       console.log(test)
     }
     if(orderFor=="Medical")
     {
