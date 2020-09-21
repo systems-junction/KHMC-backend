@@ -892,8 +892,11 @@ exports.getIPRById = asyncHandler(async (req, res) => {
   const ipr = await IPR.find({ _id: req.params._id })
     .populate('patientId')
     .populate('consultationNote.requester')
-    // .populate('pharmacyRequest.requester')
-    // .populate('pharmacyRequest.medicine.itemId')
+    .populate({
+      path : 'pharmacyRequest',
+      populate: [{
+         path : 'item.itemId'}]
+    })
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')
@@ -916,8 +919,11 @@ exports.getIPREDRById = asyncHandler(async (req, res) => {
     const ipr = await IPR.find({ _id: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
-      // .populate('pharmacyRequest.requester')
-      // .populate('pharmacyRequest.medicine.itemId')
+      .populate({
+        path : 'pharmacyRequest',
+        populate: [{
+           path : 'item.itemId'}]
+      })
       .populate('labRequest.requester')
       .populate('labRequest.serviceId')
       .populate('radiologyRequest.serviceId')
@@ -936,8 +942,11 @@ exports.getIPREDRById = asyncHandler(async (req, res) => {
     const edr = await EDR.find({ _id: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
-      // .populate('pharmacyRequest.requester')
-      // .populate('pharmacyRequest.medicine.itemId')
+      .populate({
+        path : 'pharmacyRequest',
+        populate: [{
+           path : 'item.itemId'}]
+      })
       .populate('labRequest.requester')
       .populate('labRequest.serviceId')
       .populate('radiologyRequest.serviceId')
