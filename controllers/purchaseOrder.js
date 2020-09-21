@@ -84,7 +84,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     commentNotes,
     vendorId,
     status,
-    committeeStatus: 'to_do',
+    committeeStatus: 'pending',
   });
   notification(
     'Purchase Order',
