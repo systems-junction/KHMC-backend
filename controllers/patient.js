@@ -443,48 +443,104 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateEdrIprItem = asyncHandler(async (req, res) => {
-  
-  var { id, itemID, requestType, status , consultationNotes } = req.body;
+  var parsed = JSON.parse(req.body.data);
   var not;
-  if (requestType === 'EDR') {
+  if (req.file) {
+    if (parsed.requestType === 'EDR') {
+      await EDR.findOneAndUpdate(
+          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+          { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
+          { new: true }
+        );
+        await EDR.findOneAndUpdate(
+          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+          { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+          { new: true }
+        )
+        not = await EDR.findOneAndUpdate(
+          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+          { $set: { 'consultationNote.$.status': parsed.status } },
+          { new: true }
+        ).populate('patientId');
+        notification(
+          'Consultation Request',
+          'Consultation Request number ' +
+          parsed.consultationNo +
+            ' received for Patient MRN ' +
+            not.patientId.profileNo,
+          'Doctor/Physician'
+        );
+        const pat = await EDR.findOne({ patientId: not.patientId });
+        globalVariable.io.emit('get_data', pat);
+      }
+      if (parsed.requestType === 'IPR') {
+        await IPR.findOneAndUpdate(
+          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+          { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
+          { new: true }
+          );
+          await IPR.findOneAndUpdate(
+            { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+            { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+            { new: true }
+          )
+        not = await IPR.findOneAndUpdate(
+          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+          { $set: { 'consultationNote.$.status': parsed.status } },
+          { new: true }
+        ).populate('patientId');
+        notification(
+          'Consultation Request',
+          'Consultation Request number ' +
+          parsed.consultationNo +
+            ' received for Patient MRN ' +
+            not.patientId.profileNo,
+          'Doctor/Physician'
+        );
+        const pat = await IPR.findOne({ patientId: not.patientId });
+        globalVariable.io.emit('get_data', pat);
+      }
+      res.status(200).json({ success: true, data : not }); 
+  }
+  else{
+  if (parsed.requestType === 'EDR') {
   await EDR.findOneAndUpdate(
-      { 'consultationNote._id': itemID, _id: id },
-      { $set: { 'consultationNote.$.consultationNotes': consultationNotes } },
+      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+      { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
       { new: true }
     );
     not = await EDR.findOneAndUpdate(
-      { 'consultationNote._id': itemID, _id: id },
-      { $set: { 'consultationNote.$.status': status } },
+      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+      { $set: { 'consultationNote.$.status': parsed.status } },
       { new: true }
-    );
+    ).populate('patientId');
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        itemID +
-        ' has been by the consultant for Patient MRN ' +
+      parsed.consultationNo +
+        ' received for Patient MRN ' +
         not.patientId.profileNo,
       'Doctor/Physician'
     );
     const pat = await EDR.findOne({ patientId: not.patientId });
     globalVariable.io.emit('get_data', pat);
   }
-  if (requestType === 'IPR') {
-
+  if (parsed.requestType === 'IPR') {
     await IPR.findOneAndUpdate(
-      { 'consultationNote._id': itemID, _id: id },
-      { $set: { 'consultationNote.$.consultationNotes': consultationNotes } },
+      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+      { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
       { new: true }
       );
     not = await IPR.findOneAndUpdate(
-      { 'consultationNote._id': itemID, _id: id },
-      { $set: { 'consultationNote.$.status': status } },
+      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+      { $set: { 'consultationNote.$.status': parsed.status } },
       { new: true }
-    );
+    ).populate('patientId');
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        itemID +
-        ' has been by the consultant for Patient MRN ' +
+      parsed.consultationNo +
+        ' received for Patient MRN ' +
         not.patientId.profileNo,
       'Doctor/Physician'
     );
@@ -492,6 +548,7 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
     globalVariable.io.emit('get_data', pat);
   }
   res.status(200).json({ success: true, data : not });
+}
 });
 
 exports.triage = asyncHandler(async (req, res) => {
