@@ -94,8 +94,8 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
       requestNo: 'PR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
       generated: 'System',
       generatedBy: 'System',
-      committeeStatus: 'to_do',
-      status: 'to_do',
+      committeeStatus: 'pending',
+      status: 'pending',
       commentNotes: 'System',
       reason: 'System',
       item:[

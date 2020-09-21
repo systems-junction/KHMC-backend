@@ -54,7 +54,7 @@ exports.addPurchaseRequest = asyncHandler(async (req, res) => {
     requestNo: 'PR' + day + requestNoFormat(new Date(), 'yyHHMM'),
     generated,
     generatedBy,
-    committeeStatus: 'to_do',
+    committeeStatus: 'pending',
     status,
     commentNotes,
     reason,

@@ -11,8 +11,11 @@ exports.getEDRandIPR = asyncHandler(async (req, res) => {
   const edr = await EDR.find()
     .populate('patientId')
     .populate('consultationNote.requester')
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    .populate({
+      path : 'pharmacyRequest',
+      populate: [{
+         path : 'item.itemId'}]
+    })
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')
@@ -24,8 +27,11 @@ exports.getEDRandIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find()
     .populate('patientId')
     .populate('consultationNote.requester')
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
+    .populate({
+      path : 'pharmacyRequest',
+      populate: [{
+         path : 'item.itemId'}]
+    })
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')

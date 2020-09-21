@@ -68,7 +68,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     {},
     { sort: { createdAt: -1 } }
   )
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.medicine.itemId')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId');
@@ -92,7 +92,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     {},
     { sort: { createdAt: -1 } }
   )
-    .populate('pharmacyRequest.medicine.itemId')
+    // .populate('pharmacyRequest.medicine.itemId')
     .populate('labRequest.serviceId')
     .populate('radiologyRequest.serviceId')
     .populate('nurseService.serviceId')
