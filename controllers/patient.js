@@ -360,7 +360,11 @@ exports.searchPatient = asyncHandler(async (req, res) => {
     var edr = await EDR.findOne({ patientId: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
-      .populate('pharmacyRequest')
+      .populate({
+        path : 'pharmacyRequest',
+        populate: [{
+           path : 'item.itemId'}]
+      })
       .populate('pharmacyRequest.item.itemId')
       .populate('labRequest.requester')
       .populate('labRequest.serviceId')
@@ -381,8 +385,11 @@ exports.searchPatient = asyncHandler(async (req, res) => {
     var ipr = await IPR.findOne({ patientId: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
-      .populate('pharmacyRequest')
-      .populate('pharmacyRequest.item.itemId')
+      .populate({
+        path : 'pharmacyRequest',
+        populate: [{
+           path : 'item.itemId'}]
+      })
       .populate('labRequest.requester')
       .populate('labRequest.serviceId')
       .populate('radiologyRequest.serviceId')
@@ -436,6 +443,7 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateEdrIprItem = asyncHandler(async (req, res) => {
+  
   var { id, itemID, requestType, status , consultationNotes } = req.body;
   var not;
   if (requestType === 'EDR') {
