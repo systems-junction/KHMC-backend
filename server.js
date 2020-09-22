@@ -13,19 +13,13 @@ const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 var nodemailer = require('nodemailer');
-const requestNoFormat = require('dateformat');
-var now = new Date();
-var start = new Date(now.getFullYear(), 0, 0);
-var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-var oneDay = 1000 * 60 * 60 * 24;
-var day = Math.floor(diff / oneDay);
- const db = require('monk')(
-  'mongodb+srv://khmc:khmc12345@khmc.r3oxo.mongodb.net/stagingdb?retryWrites=true&w=majority'
- );
+// const db = require('monk')(
+//   'mongodb+srv://khmc-staging:khmc-staging@khmc-staging.rvomo.mongodb.net/staging?retryWrites=true&w=majority'
+// );
 
-//const db = require('monk')(
-//  'mongodb+srv://khmc:khmc12345@khmc.r3oxo.mongodb.net/test?retryWrites=true&w=majority'
-//);
+const db = require('monk')(
+  'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
+);
 dotenv.config({ path: './config/.env' });
 connectDB();
 var transporter = nodemailer.createTransport({
@@ -180,7 +174,7 @@ cron.schedule('*/10 * * * * *', () => {
             abc.push(u._id);
           });
           pOrder.insert({
-            purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+            purchaseOrderNo: uuidv4(),
             purchaseRequestId: abc,
             generated: 'System',
             generatedBy: 'System',
@@ -218,23 +212,18 @@ cron.schedule('*/10 * * * * *', () => {
                 'admin'
               );
               const vendorEmail = data.vendorId.contactEmail;
-              var prArray = data.purchaseRequestId.reduce(function (a, b) {
-                return (
-                  b
-                );        
-            }, '');
-            var content = prArray.item.reduce(function (a, b) {
+              var content = data.purchaseRequestId.reduce(function (a, b) {
                 return (
                   a +
                   '<tr><td>' +
-                  b.itemId.itemCode +
+                  b.item.itemId.itemCode +
                   '</a></td><td>' +
-                  b.itemId.name +
+                  b.item.itemId.name +
                   '</td><td>' +
-                  b.reqQty +
+                  b.item.reqQty +
                   '</td></tr>'
-                );        
-            }, '');
+                );
+              }, '');
               var mailOptions = {
                 from: 'abdulhannan.itsolution@gmail.com',
                 to: vendorEmail,
