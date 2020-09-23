@@ -29,6 +29,9 @@ const EDRSchema = new mongoose.Schema({
             doctorNotes:{
                 type:String
             },
+            audioNotes:{
+                type:String
+            },
             status: {
                 type: String
             },
@@ -65,6 +68,9 @@ const EDRSchema = new mongoose.Schema({
             },
             section: {
                 type: String,
+            },
+            audioNotes:{
+                type:String
             },
             code: [
                 {

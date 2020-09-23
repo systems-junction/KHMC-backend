@@ -12,21 +12,24 @@ var QRCode = require('qrcode');
 var base64ToImage = require('base64-to-image');
 const { urlencoded } = require('body-parser');
 exports.getPatient = asyncHandler(async (req, res) => {
-  const patient = await Patient.find().populate(
-    'receivedBy'
-  ).sort({$natural:-1}).limit(100);
+  const patient = await Patient.find()
+    .populate('receivedBy')
+    .sort({ $natural: -1 })
+    .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientEDR = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({ registeredIn: 'EDR' }).populate(
-    'receivedBy'
-  ).sort({$natural:-1}).limit(100);
+  const patient = await Patient.find({ registeredIn: 'EDR' })
+    .populate('receivedBy')
+    .sort({ $natural: -1 })
+    .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientIPR = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({ registeredIn: 'IPR' }).populate(
-    'receivedBy'
-  ).sort({$natural:-1}).limit(100);
+  const patient = await Patient.find({ registeredIn: 'IPR' })
+    .populate('receivedBy')
+    .sort({ $natural: -1 })
+    .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientById = asyncHandler(async (req, res) => {
@@ -36,15 +39,19 @@ exports.getPatientById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientBySIN = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({ SIN: req.params.SIN }).populate(
-    'receivedBy'
-  ).sort({$natural:-1}).limit(100);
+  const patient = await Patient.find({ SIN: req.params.SIN })
+    .populate('receivedBy')
+    .sort({ $natural: -1 })
+    .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientByMRN = asyncHandler(async (req, res) => {
   const patient = await Patient.find({
     profileNo: req.params.profileNo,
-  }).populate('receivedBy').sort({$natural:-1}).limit(100);
+  })
+    .populate('receivedBy')
+    .sort({ $natural: -1 })
+    .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPaitentAll = asyncHandler(async (req, res) => {
@@ -60,56 +67,63 @@ exports.getPaitentAll = asyncHandler(async (req, res) => {
   //   ],
   // }).sort({$natural:-1}).limit(100);
   const patient = await Patient.aggregate([
-  {$project: { "name" : { $concat : [ "$firstName", " ", "$lastName" ] },
-  profileNo:1,
-  SIN:1,
-  firstName:1,
-  lastName:1,
-  city:1,
-  country:1,
-  address:1,
-  dob:1,
-  age:1,
-  gender:1,
-  title:1,
-  nationality:1,
-  height:1,
-  weight:1,
-  bloodGroup:1,
-  phoneNumber:1,
-  mobileNumber:1,
-  email:1,
-  otherDetails:1,
-  paymentMethod:1,
-  depositAmount:1,
-  amountReceived:1,
-  bankName:1,
-  depositorName:1,
-  depositSlip:1,
-  insuranceNo:1,
-  insuranceVendor:1,
-  coverageDetails:1,
-  coverageTerms:1,
-  payment:1,
-  registeredIn:1,
-  emergencyName:1,
-  emergencyContactNo:1,
-  emergencyRelation:1,
-  coveredFamilyMembers:1,
-  otherCoverageDetails:1,
-  createdAt: 1,
-  updatedAt:1 }},
-    {$match: {
-      $or:[
-        {"name": {$regex:  req.params.keyword, $options: 'i'}},
-        {"firstName": {$regex:  req.params.keyword, $options: 'i'}},
-        {"lastName": {$regex:  req.params.keyword, $options: 'i'}},
-        {"profileNo": {$regex:  req.params.keyword, $options: 'i'}},
-        {"SIN": {$regex:  req.params.keyword, $options: 'i'}},
-        {"phoneNumber": {$regex:  req.params.keyword, $options: 'i'}},
-        {"mobileNumber": {$regex:  req.params.keyword, $options: 'i'}},
-      ]
-  }}]).limit(100)
+    {
+      $project: {
+        name: { $concat: ['$firstName', ' ', '$lastName'] },
+        profileNo: 1,
+        SIN: 1,
+        firstName: 1,
+        lastName: 1,
+        city: 1,
+        country: 1,
+        address: 1,
+        dob: 1,
+        age: 1,
+        gender: 1,
+        title: 1,
+        nationality: 1,
+        height: 1,
+        weight: 1,
+        bloodGroup: 1,
+        phoneNumber: 1,
+        mobileNumber: 1,
+        email: 1,
+        otherDetails: 1,
+        paymentMethod: 1,
+        depositAmount: 1,
+        amountReceived: 1,
+        bankName: 1,
+        depositorName: 1,
+        depositSlip: 1,
+        insuranceNo: 1,
+        insuranceVendor: 1,
+        coverageDetails: 1,
+        coverageTerms: 1,
+        payment: 1,
+        registeredIn: 1,
+        emergencyName: 1,
+        emergencyContactNo: 1,
+        emergencyRelation: 1,
+        coveredFamilyMembers: 1,
+        otherCoverageDetails: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { name: { $regex: req.params.keyword, $options: 'i' } },
+          { firstName: { $regex: req.params.keyword, $options: 'i' } },
+          { lastName: { $regex: req.params.keyword, $options: 'i' } },
+          { profileNo: { $regex: req.params.keyword, $options: 'i' } },
+          { SIN: { $regex: req.params.keyword, $options: 'i' } },
+          { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
+          { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
+        ],
+      },
+    },
+  ]).limit(100);
   res.status(200).json({ success: true, data: patient });
 });
 exports.addPatient = asyncHandler(async (req, res) => {
@@ -155,20 +169,23 @@ exports.addPatient = asyncHandler(async (req, res) => {
     otherCoverageDetails,
   } = req.body.data;
   var now = new Date();
-    var start = new Date(now.getFullYear(), 0, 0);
-    var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-    var oneDay = 1000 * 60 * 60 * 24;
-    var day = Math.floor(diff / oneDay);
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
   var parsed = JSON.parse(req.body.data);
   var patient;
   if (req.file) {
     patient = await Patient.create({
-      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      profileNo: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
       lastName: parsed.lastName,
-      fullName:parsed.firstName+" "+parsed.lastName,
+      fullName: parsed.firstName + ' ' + parsed.lastName,
       gender: parsed.gender,
       nationality: parsed.nationality,
       dob: parsed.dob,
@@ -206,12 +223,12 @@ exports.addPatient = asyncHandler(async (req, res) => {
     });
   } else {
     patient = await Patient.create({
-      profileNo: "khmc" + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      profileNo: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
       lastName: parsed.lastName,
-      fullName:parsed.firstName+" "+parsed.lastName,
+      fullName: parsed.firstName + ' ' + parsed.lastName,
       gender: parsed.gender,
       nationality: parsed.nationality,
       dob: parsed.dob,
@@ -254,23 +271,25 @@ exports.addPatient = asyncHandler(async (req, res) => {
   );
   QRCode.toDataURL(JSON.stringify(patient), function (err, url) {
     var base64Str = url;
-    var path ='./uploads/';
-    var pathFormed = base64ToImage(base64Str,path); 
+    var path = './uploads/';
+    var pathFormed = base64ToImage(base64Str, path);
     Patient.findOneAndUpdate(
       { _id: patient._id },
-      { $set: { QR: "/uploads/"+pathFormed.fileName } },
-    ).then((docs) => {
-    });
-  })
-  const pat = await Patient.find().populate('receivedBy').sort({$natural:-1}).limit(100);
+      { $set: { QR: '/uploads/' + pathFormed.fileName } }
+    ).then((docs) => {});
+  });
+  const pat = await Patient.find()
+    .populate('receivedBy')
+    .sort({ $natural: -1 })
+    .limit(100);
   globalVariable.io.emit('get_data', pat);
   res.status(200).json({ success: true, data: patient });
 });
-exports.qrGenerator=asyncHandler(async(req,res)=>{
-  const pat = await Patient.findOne({_id:req.params.id})
+exports.qrGenerator = asyncHandler(async (req, res) => {
+  const pat = await Patient.findOne({ _id: req.params.id });
   var returnValue = pat.QR;
-  res.json({success:true, data:returnValue})
-})
+  res.json({ success: true, data: returnValue });
+});
 exports.addPatientFHIR = asyncHandler(async (req, res) => {
   const {
     name,
@@ -361,9 +380,12 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('patientId')
       .populate('consultationNote.requester')
       .populate({
-        path : 'pharmacyRequest',
-        populate: [{
-           path : 'item.itemId'}]
+        path: 'pharmacyRequest',
+        populate: [
+          {
+            path: 'item.itemId',
+          },
+        ],
       })
       .populate('pharmacyRequest.item.itemId')
       .populate('labRequest.requester')
@@ -386,9 +408,12 @@ exports.searchPatient = asyncHandler(async (req, res) => {
       .populate('patientId')
       .populate('consultationNote.requester')
       .populate({
-        path : 'pharmacyRequest',
-        populate: [{
-           path : 'item.itemId'}]
+        path: 'pharmacyRequest',
+        populate: [
+          {
+            path: 'item.itemId',
+          },
+        ],
       })
       .populate('labRequest.requester')
       .populate('labRequest.serviceId')
@@ -429,7 +454,9 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
     if (!edr) {
       return next(new ErrorResponse(`EDR not found with id of ${_id}`, 404));
     }
-    edr = await EDR.findOneAndUpdate({ _id: _id }, req.body,{ new: true }).populate('patientId');
+    edr = await EDR.findOneAndUpdate({ _id: _id }, req.body, {
+      new: true,
+    }).populate('patientId');
     res.status(200).json({ success: true, data: edr });
   }
   if (requestType === 'IPR') {
@@ -437,7 +464,9 @@ exports.updateEdrIpr = asyncHandler(async (req, res, next) => {
     if (!ipr) {
       return next(new ErrorResponse(`IPR not found with id of ${_id}`, 404));
     }
-    ipr = await IPR.findOneAndUpdate({ _id: _id }, req.body,{ new: true }).populate('patientId');
+    ipr = await IPR.findOneAndUpdate({ _id: _id }, req.body, {
+      new: true,
+    }).populate('patientId');
     res.status(200).json({ success: true, data: ipr });
   }
 });
@@ -448,107 +477,122 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
   if (req.file) {
     if (parsed.requestType === 'EDR') {
       await EDR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
-          { new: true }
-        );
-        await EDR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $set: { 'consultationNote.$.audioNotes': req.file.path } },
-          { new: true }
-        )
-        not = await EDR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $set: { 'consultationNote.$.status': parsed.status } },
-          { new: true }
-        ).populate('patientId');
-        notification(
-          'Consultation Request',
-          'Consultation Request number ' +
-          parsed.consultationNo +
-            ' received for Patient MRN ' +
-            not.patientId.profileNo,
-          'Doctor/Physician'
-        );
-        const pat = await EDR.findOne({ patientId: not.patientId });
-        globalVariable.io.emit('get_data', pat);
-      }
-      if (parsed.requestType === 'IPR') {
-        await IPR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
-          { new: true }
-          );
-          await IPR.findOneAndUpdate(
-            { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-            { $set: { 'consultationNote.$.audioNotes': req.file.path } },
-            { new: true }
-          )
-        not = await IPR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $set: { 'consultationNote.$.status': parsed.status } },
-          { new: true }
-        ).populate('patientId');
-        notification(
-          'Consultation Request',
-          'Consultation Request number ' +
-          parsed.consultationNo +
-            ' received for Patient MRN ' +
-            not.patientId.profileNo,
-          'Doctor/Physician'
-        );
-        const pat = await IPR.findOne({ patientId: not.patientId });
-        globalVariable.io.emit('get_data', pat);
-      }
-      res.status(200).json({ success: true, data : not }); 
-  }
-  else{
-  if (parsed.requestType === 'EDR') {
-  await EDR.findOneAndUpdate(
-      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-      { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
-      { new: true }
-    );
-    not = await EDR.findOneAndUpdate(
-      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-      { $set: { 'consultationNote.$.status': parsed.status } },
-      { new: true }
-    ).populate('patientId');
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-      parsed.consultationNo +
-        ' received for Patient MRN ' +
-        not.patientId.profileNo,
-      'Doctor/Physician'
-    );
-    const pat = await EDR.findOne({ patientId: not.patientId });
-    globalVariable.io.emit('get_data', pat);
-  }
-  if (parsed.requestType === 'IPR') {
-    await IPR.findOneAndUpdate(
-      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-      { $set: { 'consultationNote.$.consultationNotes': parsed.consultationNotes } },
-      { new: true }
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        {
+          $set: {
+            'consultationNote.$.consultationNotes': parsed.consultationNotes,
+          },
+        },
+        { new: true }
       );
-    not = await IPR.findOneAndUpdate(
-      { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-      { $set: { 'consultationNote.$.status': parsed.status } },
-      { new: true }
-    ).populate('patientId');
-    notification(
-      'Consultation Request',
-      'Consultation Request number ' +
-      parsed.consultationNo +
-        ' received for Patient MRN ' +
-        not.patientId.profileNo,
-      'Doctor/Physician'
-    );
-    const pat = await IPR.findOne({ patientId: not.patientId });
-    globalVariable.io.emit('get_data', pat);
+      await EDR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+        { new: true }
+      );
+      not = await EDR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.status': parsed.status } },
+        { new: true }
+      ).populate('patientId');
+      notification(
+        'Consultation Request',
+        'Consultation Request number ' +
+          parsed.consultationNo +
+          ' received for Patient MRN ' +
+          not.patientId.profileNo,
+        'Doctor/Physician'
+      );
+      const pat = await EDR.findOne({ patientId: not.patientId });
+      globalVariable.io.emit('get_data', pat);
+    }
+    if (parsed.requestType === 'IPR') {
+      await IPR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        {
+          $set: {
+            'consultationNote.$.consultationNotes': parsed.consultationNotes,
+          },
+        },
+        { new: true }
+      );
+      await IPR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+        { new: true }
+      );
+      not = await IPR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.status': parsed.status } },
+        { new: true }
+      ).populate('patientId');
+      notification(
+        'Consultation Request',
+        'Consultation Request number ' +
+          parsed.consultationNo +
+          ' received for Patient MRN ' +
+          not.patientId.profileNo,
+        'Doctor/Physician'
+      );
+      const pat = await IPR.findOne({ patientId: not.patientId });
+      globalVariable.io.emit('get_data', pat);
+    }
+    res.status(200).json({ success: true, data: not });
+  } else {
+    if (parsed.requestType === 'EDR') {
+      await EDR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        {
+          $set: {
+            'consultationNote.$.consultationNotes': parsed.consultationNotes,
+          },
+        },
+        { new: true }
+      );
+      not = await EDR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.status': parsed.status } },
+        { new: true }
+      ).populate('patientId');
+      notification(
+        'Consultation Request',
+        'Consultation Request number ' +
+          parsed.consultationNo +
+          ' received for Patient MRN ' +
+          not.patientId.profileNo,
+        'Doctor/Physician'
+      );
+      const pat = await EDR.findOne({ patientId: not.patientId });
+      globalVariable.io.emit('get_data', pat);
+    }
+    if (parsed.requestType === 'IPR') {
+      await IPR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        {
+          $set: {
+            'consultationNote.$.consultationNotes': parsed.consultationNotes,
+          },
+        },
+        { new: true }
+      );
+      not = await IPR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.status': parsed.status } },
+        { new: true }
+      ).populate('patientId');
+      notification(
+        'Consultation Request',
+        'Consultation Request number ' +
+          parsed.consultationNo +
+          ' received for Patient MRN ' +
+          not.patientId.profileNo,
+        'Doctor/Physician'
+      );
+      const pat = await IPR.findOne({ patientId: not.patientId });
+      globalVariable.io.emit('get_data', pat);
+    }
+    res.status(200).json({ success: true, data: not });
   }
-  res.status(200).json({ success: true, data : not });
-}
 });
 
 exports.triage = asyncHandler(async (req, res) => {
@@ -898,15 +942,15 @@ exports.discharge = asyncHandler(async (req, res) => {
   }
 });
 
-exports.getNote = asyncHandler(async (req, res) => {  
-   const patient = await file.find()
+exports.getNote = asyncHandler(async (req, res) => {
+  const patient = await file.find();
   res.status(200).json({ success: true, data: patient });
 });
-exports.addNote = asyncHandler(async (req, res) => { 
-  console.log(req.file) 
+exports.addNote = asyncHandler(async (req, res) => {
+  console.log(req.file);
   // var parsed = JSON.parse(req.body.data);
-   const patient = await file.create({
-      abc: req.file.path,
-    })
+  const patient = await file.create({
+    abc: req.file.path,
+  });
   res.status(200).json({ success: true, data: patient });
 });

@@ -27,17 +27,20 @@ const IPRSchema = new mongoose.Schema({
       consultationNotes: {
         type: String,
       },
-      doctorNotes:{
-        type:String
-    },
+      doctorNotes: {
+        type: String,
+      },
+      audioNotes: {
+        type: String,
+      },
       status: {
-        type: String
+        type: String,
       },
       speciality: {
-        type: String
+        type: String,
       },
       specialist: {
-        type: String
+        type: String,
       },
       requester: {
         type: mongoose.Schema.ObjectId,
@@ -47,9 +50,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   residentNotes: [
     {
-      residentNoteNo:{
-        type:String
-    },
+      residentNoteNo: {
+        type: String,
+      },
       date: {
         type: Date,
         default: Date.now,
@@ -67,70 +70,73 @@ const IPRSchema = new mongoose.Schema({
       status: {
         type: String,
       },
+      audioNotes: {
+        type: String,
+      },
       section: {
         type: String,
       },
       code: [
         {
           type: String,
-        }
-      ]
+        },
+      ],
     },
   ],
   pharmacyRequest: [
     {
-      type:mongoose.Schema.ObjectId,
-      ref:'ReplenishmentRequestBU'
-    //   PRrequestNo:{
-    //     type:String
-    // },
-    //   date: {
-    //     type: Date,
-    //     default: Date.now,
-    //   },
-    //   status: {
-    //     type: String,
-    //   },
-    //   requester: {
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: 'staff',
-    //   },
-    //   medicine: [
-    //     {
-    //       itemId: {
-    //         type: mongoose.Schema.ObjectId,
-    //         ref: 'Item',
-    //       },
-    //       priority: {
-    //         type: String,
-    //       },
-    //       schedule: {
-    //         type: String,
-    //       },
-    //       dosage: {
-    //         type: Number,
-    //       },
-    //       frequency: {
-    //         type: Number,
-    //       },
-    //       duration: {
-    //         type: Number,
-    //       },
-    //       requestedQty: {
-    //         type: Number,
-    //       },
-    //       medicineName: {
-    //         type: String,
-    //       },
-    //     },
-    //   ],
+      type: mongoose.Schema.ObjectId,
+      ref: 'ReplenishmentRequestBU',
+      //   PRrequestNo:{
+      //     type:String
+      // },
+      //   date: {
+      //     type: Date,
+      //     default: Date.now,
+      //   },
+      //   status: {
+      //     type: String,
+      //   },
+      //   requester: {
+      //     type: mongoose.Schema.ObjectId,
+      //     ref: 'staff',
+      //   },
+      //   medicine: [
+      //     {
+      //       itemId: {
+      //         type: mongoose.Schema.ObjectId,
+      //         ref: 'Item',
+      //       },
+      //       priority: {
+      //         type: String,
+      //       },
+      //       schedule: {
+      //         type: String,
+      //       },
+      //       dosage: {
+      //         type: Number,
+      //       },
+      //       frequency: {
+      //         type: Number,
+      //       },
+      //       duration: {
+      //         type: Number,
+      //       },
+      //       requestedQty: {
+      //         type: Number,
+      //       },
+      //       medicineName: {
+      //         type: String,
+      //       },
+      //     },
+      //   ],
     },
   ],
   labRequest: [
     {
-      LRrequestNo:{
-        type:String
-    },
+      LRrequestNo: {
+        type: String,
+      },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'LaboratoryService',
@@ -171,9 +177,9 @@ const IPRSchema = new mongoose.Schema({
   ],
   radiologyRequest: [
     {
-      RRrequestNo:{
-        type:String
-    },
+      RRrequestNo: {
+        type: String,
+      },
       serviceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'RadiologyService',
@@ -211,8 +217,8 @@ const IPRSchema = new mongoose.Schema({
   ],
   nurseService: [
     {
-      NSrequestNo:{
-        type:String
+      NSrequestNo: {
+        type: String,
       },
       serviceId: {
         type: mongoose.Schema.ObjectId,
@@ -251,7 +257,7 @@ const IPRSchema = new mongoose.Schema({
     },
     dischargeMedication: {
       date: {
-        type: Date
+        type: Date,
       },
       status: {
         type: String,
@@ -305,37 +311,39 @@ const IPRSchema = new mongoose.Schema({
   status: {
     type: String,
   },
-  triageAssessment: [{
-    triageLevel: {
-      type: String,
-    },
-    generalAppearance: {
-      type: String,
-    },
-    headNeck: {
-      type: String,
-    },
-    respiratory: {
-      type: String,
-    },
-    cardiac: {
-      type: String,
-    },
-    abdomen: {
-      type: String,
-    },
-    neurological: {
-      type: String,
-    },
-    requester:{
-      type: mongoose.Schema.ObjectId,
-      ref: 'staff'
-  },
-    date:{
+  triageAssessment: [
+    {
+      triageLevel: {
+        type: String,
+      },
+      generalAppearance: {
+        type: String,
+      },
+      headNeck: {
+        type: String,
+      },
+      respiratory: {
+        type: String,
+      },
+      cardiac: {
+        type: String,
+      },
+      abdomen: {
+        type: String,
+      },
+      neurological: {
+        type: String,
+      },
+      requester: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'staff',
+      },
+      date: {
         type: Date,
-        default: Date.now
-    }
-  }],
+        default: Date.now,
+      },
+    },
+  ],
   followUp: [
     {
       requester: {
@@ -378,7 +386,7 @@ const IPRSchema = new mongoose.Schema({
     type: String,
     default: 'IPR',
   },
-  functionalUnit:{
+  functionalUnit: {
     type: mongoose.Schema.ObjectId,
     ref: 'functionalUnit',
   },
