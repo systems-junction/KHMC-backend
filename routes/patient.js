@@ -50,7 +50,7 @@ const {
   discharge,
   addNote,
   getNote,
-  qrGenerator
+  qrGenerator,
 } = require('../controllers/patient');
 
 const router = express.Router();
@@ -59,7 +59,7 @@ router.get('/getpatientall/:keyword', getPaitentAll);
 router.get('/getpatientedr', getPatientEDR);
 router.get('/getpatientipr', getPatientIPR);
 router.put('/updateEdrIpr', updateEdrIpr);
-router.put('/updateEdrIprItem', updateEdrIprItem);
+router.put('/updateEdrIprItem', audioUpload.single('file'), updateEdrIprItem);
 router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
@@ -77,5 +77,5 @@ router.get('/consultation/:id', consultation);
 router.get('/discharge/:id', discharge);
 router.post('/test', audioUpload.single('file'), addNote);
 router.get('/test2', getNote);
-router.get('/getqrofpatient/:id',qrGenerator)
+router.get('/getqrofpatient/:id', qrGenerator);
 module.exports = router;
