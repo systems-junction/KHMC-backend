@@ -4,6 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const BusinessUnit = require('../models/businessUnit');
 const BusinessUnitLogs = require('../models/businessUnitLogs');
+const FunctionalUnit = require('../models/functionalUnit');
 const Staff = require('../models/staff');
 
 exports.getBusinessUnit = asyncHandler(async (req, res) => {
@@ -40,7 +41,7 @@ exports.getBusinessUnitLogs = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: buLogs });
 });
 exports.getHead = asyncHandler(async (req, res) => {
-  const head = await BusinessUnit.find({buHead: req.params._id});
+  const head = await FunctionalUnit.find({_id: req.params._id}).populate('buId');
   res.status(200).json({ success: true, data: head });
 });
 
