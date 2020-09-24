@@ -313,6 +313,30 @@ const IPRSchema = new mongoose.Schema({
   },
   triageAssessment: [
     {
+      triageRequestNo:{
+        type:String
+    },
+    heartRate:{
+        type:String
+    },
+    bloodPressure:{
+        type:String
+    },
+    respiratoryRate:{
+        type:String
+    },
+    temperature:{
+        type:String
+    },
+    FSBS:{
+        type:String
+    },
+    painScale:{
+        type:String
+    },
+    pulseOX:{
+        type:String
+    },
       triageLevel: {
         type: String,
       },

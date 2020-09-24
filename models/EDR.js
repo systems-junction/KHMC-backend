@@ -83,50 +83,6 @@ const EDRSchema = new mongoose.Schema({
         {            
                 type:mongoose.Schema.ObjectId,
                 ref:'ReplenishmentRequestBU'
-            // PRrequestNo:{
-            //     type:String
-            // },
-            // date: {
-            //     type: Date,
-            //     default: Date.now
-            // },
-            // status: {
-            //     type: String
-            // },
-            // requester: {
-            //     type: mongoose.Schema.ObjectId,
-            //     ref: 'staff'
-            // },
-            // medicine: [
-            //     {
-            //         itemId: {
-            //             type: mongoose.Schema.ObjectId,
-            //             ref: 'Item'
-            //         },
-            //         priority: {
-            //             type: String
-            //         },
-            //         schedule: {
-            //             type: String
-            //         },
-            //         dosage: {
-            //             type: Number
-            //         },
-            //         frequency: {
-            //             type: Number
-            //         },
-            //         duration: {
-            //             type: Number
-            //         },
-            //         requestedQty: {
-            //             type: Number
-            //         },
-            //         medicineName:
-            //         {
-            //             type: String
-            //         }
-            //     }
-            // ]
         }
     ],
     labRequest: [
@@ -281,6 +237,30 @@ const EDRSchema = new mongoose.Schema({
         type: String
     },
     triageAssessment: [{
+        triageRequestNo:{
+            type:String
+        },
+        heartRate:{
+            type:String
+        },
+        bloodPressure:{
+            type:String
+        },
+        respiratoryRate:{
+            type:String
+        },
+        temperature:{
+            type:String
+        },
+        FSBS:{
+            type:String
+        },
+        painScale:{
+            type:String
+        },
+        pulseOX:{
+            type:String
+        },
         triageLevel: {
             type: String
         },
