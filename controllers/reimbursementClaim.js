@@ -17,7 +17,7 @@ exports.getClaims = asyncHandler(async (req, res) => {
 
 exports.getPatient = asyncHandler(async (req, res) => {
   var array=[]
-  var array2=[]
+  var secondArray=[]
   const ipr = await IPR.find({functionalUnit:req.params.id}).populate('patientId')
     for(let i = 0; i<ipr.length; i++)
     {
@@ -42,10 +42,21 @@ exports.getPatient = asyncHandler(async (req, res) => {
       (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
       )
       {
-        array2.push(unique[i])
+        secondArray.push(unique[i])
       }
     }
-    res.status(200).json({ success: true, data:array2 });      
+    var uniqueArray = (function(secondArray){
+      var m = {}, uniqueArray = []
+      for (var i=0; i<secondArray.length; i++) {
+        var v = secondArray[i];
+        if (!m[v]) {
+          uniqueArray.push(v);
+          m[v]=true;
+        }
+      }
+      return uniqueArray;
+    })(secondArray);
+    res.status(200).json({ success: true, data:uniqueArray });      
 
 });
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
