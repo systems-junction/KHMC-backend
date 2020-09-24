@@ -117,7 +117,7 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
         )
         console.log(test)
       } else {
-        const test= await IPR.findOneAndUpdate({ _id: edr._id },
+        const test= await IPR.findOneAndUpdate({ _id: ipr._id },
           { $push: { pharmacyRequest: rrBU._id } },
            { new: true }
          )
@@ -130,7 +130,7 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
        )
        console.log(test)
     } else if (b) {
-     const test = await IPR.findOneAndUpdate({ _id: edr._id },
+     const test = await IPR.findOneAndUpdate({ _id: ipr._id },
         { $push: { pharmacyRequest: rrBU._id } },
          { new: true }
        )
