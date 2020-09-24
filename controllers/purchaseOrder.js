@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const moment = require('moment');
 const notification = require('../components/notification');
 var nodemailer = require('nodemailer');
 const ErrorResponse = require('../utils/errorResponse');
@@ -85,6 +85,8 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     vendorId,
     status,
     committeeStatus: 'pending',
+    createdAt: moment().toDate(),
+    updatedAt: moment().toDate(),
   });
   notification(
     'Purchase Order',
@@ -130,11 +132,10 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
       'Purchase Order',
       'Purchase Order ' +
         req.body.purchaseOrderNo +
-        ' has been approved by Accounts at' +
-        req.body.updatedAt,
+        ' has been approved by Accounts',
       'admin'
     );
-    req.body.status = 'pending_reception';
+    req.body.status = 'pending_receipt';
     req.body.sentAt = Date.now();
     // Sending Email to Vendor
 
@@ -187,13 +188,13 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
   purchaseOrder = await PurchaseOrder.findOneAndUpdate({ _id: _id }, req.body, {
     new: true,
   });
-  if (purchaseOrder.status === 'pending_reception') {
+  if (purchaseOrder.status === 'pending_receipt') {
     const { prId } = req.body;
     await MaterialRecieving.create({
       prId,
       poId: purchaseOrder._id,
       vendorId: purchaseOrder.vendorId,
-      status: 'pending_reception',
+      status: 'pending_receipt',
     });
   }
   res.status(200).json({ success: true, data: purchaseOrder });

@@ -24,7 +24,7 @@ exports.getMaterialReceivings = asyncHandler(async (req, res) => {
     const vendors = await Vendor.find();
     const purchaseRequests = await PurchaseRequest.find();
     const purchaseOrders = await PurchaseOrder.find();
-    const statues = [{key:'to_do', value:'To Do'},{key:'in_progress', value:'In Progress'},{key:'approved', value:'Approved'} ]
+    const statues = [{key:'in_progress', value:'In Progress'},{key:'approved', value:'Approved'} ]
     const data = {
         materialReceivings,
         vendors,

@@ -24,11 +24,6 @@ exports.addLaboratoryService = asyncHandler(async (req, res) => {
     price,
     status,
   });
-  //   notification("Purchase Order", "A new Purchase Order "+purchaseOrder.purchaseOrderNo +" has been generated at "+purchaseOrder.createdAt, "admin")
-  //   const po = await PurchaseOrder.find()
-  //   .populate('vendorId')
-  //   .populate('purchaseRequestId');
-  //   globalVariable.io.emit("get_data", po)
   res.status(200).json({ success: true, data: laboratoryService });
 });
 

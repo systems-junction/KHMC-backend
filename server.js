@@ -7,16 +7,20 @@ const bodyparser = require('body-parser');
 const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
 const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 var nodemailer = require('nodemailer');
+const requestNoFormat = require('dateformat');
 //  const db = require('monk')(
 //   'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/stagingdb?retryWrites=true&w=majority'
 //  );
-
+var now = new Date();
+var start = new Date(now.getFullYear(), 0, 0);
+var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+var oneDay = 1000 * 60 * 60 * 24;
+var day = Math.floor(diff / oneDay);
 const db = require('monk')(
  'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
 );
@@ -174,13 +178,13 @@ cron.schedule('*/10 * * * * *', () => {
             abc.push(u._id);
           });
           pOrder.insert({
-            purchaseOrderNo: uuidv4(),
+            purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
             purchaseRequestId: abc,
             generated: 'System',
             generatedBy: 'System',
             date: moment().toDate(),
             vendorId: c[0].vendorId,
-            status: 'pending_reception',
+            status: 'pending_receipt',
             committeeStatus: 'approved',
             sentAt: moment().toDate(),
             createdAt: moment().toDate(),
@@ -248,7 +252,7 @@ cron.schedule('*/10 * * * * *', () => {
                 prId: work,
                 poId: data._id,
                 vendorId: data.vendorId._id,
-                status: 'pending_reception',
+                status: 'pending_receipt',
               }).then(function (data, err) {});
             });
           temp = temp.filter(

@@ -19,7 +19,6 @@ exports.getPurchaseRequests = asyncHandler(async (req, res) => {
       ],
     })
   const status = [
-    { key: 'to_do', value: 'To do' },
     { key: 'in_progress', value: 'In Progress' },
     { key: 'on_hold', value: 'On hold' },
     { key: 'modified', value: 'Modified' },
@@ -110,10 +109,9 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
     req.body.status = 'in_progress';
     notification(
       'Purchase Request',
-      'A new Purchase Request ' +
+      'Purchase Request ' +
         req.body.requestNo +
-        ' has been generated at ' +
-        req.body.updatedAt,
+        ' status has been updated ',
       'admin'
     );
     const pr = await PurchaseRequest.find()
