@@ -29,9 +29,9 @@ const EDRSchema = new mongoose.Schema({
             doctorNotes:{
                 type:String
             },
-            audioNotes:{
+            audioNotes:[{
                 type:String
-            },
+            }],
             status: {
                 type: String
             },

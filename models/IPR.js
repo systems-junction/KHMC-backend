@@ -30,9 +30,9 @@ const IPRSchema = new mongoose.Schema({
       doctorNotes: {
         type: String,
       },
-      audioNotes: {
+      audioNotes: [{
         type: String,
-      },
+      }],
       status: {
         type: String,
       },
