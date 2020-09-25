@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const EDRSchema = new mongoose.Schema({
     requestNo: {
-        type: String
+        type: String,
     },
     patientId: {
         type: mongoose.Schema.ObjectId,
@@ -13,41 +13,41 @@ const EDRSchema = new mongoose.Schema({
     },
     consultationNote: [{
         consultationNo: {
-            type: String
+            type: String,
         },
         date: {
             type: Date,
-            default: Date.now
+            default: Date.now,
         },
         description: {
-            type: String
+            type: String,
         },
         consultationNotes: {
-            type: String
+            type: String,
         },
         doctorNotes: {
-            type: String
+            type: String,
         },
         audioNotes: {
-            type: String
+            type: String,
         },
         status: {
-            type: String
+            type: String,
         },
         speciality: {
-            type: String
+            type: String,
         },
         specialist: {
-            type: String
+            type: String,
         },
         requester: {
             type: mongoose.Schema.ObjectId,
-            ref: 'staff'
-        }
-    }],
+            ref: 'staff',
+        },
+    }, ],
     residentNotes: [{
         residentNoteNo: {
-            type: String
+            type: String,
         },
         date: {
             type: Date,
@@ -61,51 +61,51 @@ const EDRSchema = new mongoose.Schema({
             ref: 'staff',
         },
         note: {
-            type: String
+            type: String,
         },
         section: {
             type: String,
         },
         audioNotes: {
-            type: String
+            type: String,
         },
         code: [{
             type: String,
-        }]
+        }, ],
     }, ],
     pharmacyRequest: [{
         type: mongoose.Schema.ObjectId,
-        ref: 'ReplenishmentRequestBU'
-    }],
+        ref: 'ReplenishmentRequestBU',
+    }, ],
     labRequest: [{
         LRrequestNo: {
-            type: String
+            type: String,
         },
         serviceId: {
             type: mongoose.Schema.ObjectId,
-            ref: 'LaboratoryService'
+            ref: 'LaboratoryService',
         },
         requesterName: {
-            type: String
+            type: String,
         },
         serviceCode: {
-            type: String
+            type: String,
         },
         serviceName: {
-            type: String
+            type: String,
         },
         status: {
-            type: String
+            type: String,
         },
         requester: {
             type: mongoose.Schema.ObjectId,
-            ref: 'staff'
+            ref: 'staff',
         },
         results: {
-            type: String
+            type: String,
         },
         sampleId: {
-            type: String
+            type: String,
         },
         comments: {
             type: String,
@@ -115,35 +115,35 @@ const EDRSchema = new mongoose.Schema({
         },
         date: {
             type: Date,
-            default: Date.now
-        }
-    }],
+            default: Date.now,
+        },
+    }, ],
     radiologyRequest: [{
         RRrequestNo: {
-            type: String
+            type: String,
         },
         serviceId: {
             type: mongoose.Schema.ObjectId,
-            ref: 'RadiologyService'
+            ref: 'RadiologyService',
         },
         serviceCode: {
-            type: String
+            type: String,
         },
         status: {
-            type: String
+            type: String,
         },
         requesterName: {
-            type: String
+            type: String,
         },
         serviceName: {
-            type: String
+            type: String,
         },
         requester: {
             type: mongoose.Schema.ObjectId,
-            ref: 'staff'
+            ref: 'staff',
         },
         results: {
-            type: String
+            type: String,
         },
         comments: {
             type: String,
@@ -153,78 +153,78 @@ const EDRSchema = new mongoose.Schema({
         },
         date: {
             type: Date,
-            default: Date.now
-        }
-    }],
+            default: Date.now,
+        },
+    }, ],
     dischargeRequest: {
         dischargeSummary: {
             dischargeNotes: {
-                type: String
+                type: String,
             },
             otherNotes: {
-                type: String
-            }
+                type: String,
+            },
         },
         dischargeMedication: {
             date: {
-                type: Date
+                type: Date,
             },
             status: {
-                type: String
+                type: String,
             },
             requester: {
                 type: mongoose.Schema.ObjectId,
-                ref: 'staff'
+                ref: 'staff',
             },
             medicine: [{
                 itemId: {
                     type: mongoose.Schema.ObjectId,
-                    ref: 'Item'
+                    ref: 'Item',
                 },
                 priority: {
-                    type: String
+                    type: String,
                 },
                 schedule: {
-                    type: String
+                    type: String,
                 },
                 dosage: {
-                    type: Number
+                    type: Number,
                 },
                 frequency: {
-                    type: Number
+                    type: Number,
                 },
                 duration: {
-                    type: Number
+                    type: Number,
                 },
                 requestedQty: {
-                    type: Number
+                    type: Number,
                 },
                 medicineName: {
-                    type: String
+                    type: String,
                 },
                 unitPrice: {
-                    type: Number
+                    type: Number,
                 },
                 totalPrice: {
-                    type: Number
-                }
-            }]
+                    type: Number,
+                },
+            }, ],
         },
         status: {
             type: String,
-            default: 'pending'
-        }
+            default: 'pending',
+        },
     },
     inPatientRequest: {},
     status: {
-        type: String
+        type: String,
     },
     triageAssessment: [{
         triageRequestNo: {
-            type: String
+            type: String,
         },
         heartRate: {
-            type: String
+            type: String,
         },
         bloodPressureSys: {
             type: String
@@ -233,61 +233,61 @@ const EDRSchema = new mongoose.Schema({
             type: String
         },
         respiratoryRate: {
-            type: String
+            type: String,
         },
         temperature: {
-            type: String
+            type: String,
         },
         FSBS: {
-            type: String
+            type: String,
         },
         painScale: {
-            type: String
+            type: String,
         },
         pulseOX: {
-            type: String
+            type: String,
         },
         triageLevel: {
-            type: String
+            type: String,
         },
         generalAppearance: {
-            type: String
+            type: String,
         },
         headNeck: {
-            type: String
+            type: String,
         },
         respiratory: {
-            type: String
+            type: String,
         },
         cardiac: {
-            type: String
+            type: String,
         },
         abdomen: {
-            type: String
+            type: String,
         },
         neurological: {
-            type: String
+            type: String,
         },
         requester: {
             type: mongoose.Schema.ObjectId,
-            ref: 'staff'
+            ref: 'staff',
         },
         date: {
             type: Date,
-            default: Date.now
-        }
-    }],
+            default: Date.now,
+        },
+    }, ],
     requestType: {
         type: String,
-        default: 'EDR'
+        default: 'EDR',
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
     updatedAt: {
         type: Date,
-        default: Date.now
-    }
+        default: Date.now,
+    },
 });
 module.exports = mongoose.model('EDR', EDRSchema);
