@@ -11,165 +11,151 @@ const EDRSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'staff',
     },
-    consultationNote: [
-        {
-            consultationNo: {
-                type: String
-            },
-            date: {
-                type: Date,
-                default: Date.now
-            },
-            description: {
-                type: String
-            },
-            consultationNotes: {
-                type: String
-            },
-            doctorNotes:{
-                type:String
-            },
-            audioNotes:{
-                type:String
-            },
-            status: {
-                type: String
-            },
-            speciality: {
-                type: String
-            },
-            specialist: {
-                type: String
-            },
-            requester: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'staff'
-            }
-        }
-    ],
-    residentNotes: [
-        {
-            residentNoteNo:{
-                type:String
-            },
-            date: {
-                type: Date,
-                default: Date.now,
-            },
-            description: {
-                type: String,
-            },
-            doctor: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'staff',
-            },
-            note: {
-                type: String
-            },
-            section: {
-                type: String,
-            },
-            audioNotes:{
-                type:String
-            },
-            code: [
-                {
-                    type: String,
-                }
-            ]
+    consultationNote: [{
+        consultationNo: {
+            type: String
         },
-    ],
-    pharmacyRequest: [
-        {            
-                type:mongoose.Schema.ObjectId,
-                ref:'ReplenishmentRequestBU'
+        date: {
+            type: Date,
+            default: Date.now
+        },
+        description: {
+            type: String
+        },
+        consultationNotes: {
+            type: String
+        },
+        doctorNotes: {
+            type: String
+        },
+        audioNotes: {
+            type: String
+        },
+        status: {
+            type: String
+        },
+        speciality: {
+            type: String
+        },
+        specialist: {
+            type: String
+        },
+        requester: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff'
         }
-    ],
-    labRequest: [
-        {
-            LRrequestNo:{
-                type:String
-            },
-            serviceId: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'LaboratoryService'
-            },
-            requesterName:
-            {
-                type: String
-            },
-            serviceCode: {
-                type: String
-            },
-            serviceName: {
-                type: String
-            },
-            status: {
-                type: String
-            },
-            requester: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'staff'
-            },
-            results: {
-                type: String
-            },
-            sampleId: {
-                type: String
-            },
-            comments: {
-                type: String,
-            },
-            serviceType: {
-                type: String,
-            },
-            date: {
-                type: Date,
-                default: Date.now
-            }
+    }],
+    residentNotes: [{
+        residentNoteNo: {
+            type: String
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        },
+        description: {
+            type: String,
+        },
+        doctor: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
+        },
+        note: {
+            type: String
+        },
+        section: {
+            type: String,
+        },
+        audioNotes: {
+            type: String
+        },
+        code: [{
+            type: String,
+        }]
+    }, ],
+    pharmacyRequest: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'ReplenishmentRequestBU'
+    }],
+    labRequest: [{
+        LRrequestNo: {
+            type: String
+        },
+        serviceId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'LaboratoryService'
+        },
+        requesterName: {
+            type: String
+        },
+        serviceCode: {
+            type: String
+        },
+        serviceName: {
+            type: String
+        },
+        status: {
+            type: String
+        },
+        requester: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff'
+        },
+        results: {
+            type: String
+        },
+        sampleId: {
+            type: String
+        },
+        comments: {
+            type: String,
+        },
+        serviceType: {
+            type: String,
+        },
+        date: {
+            type: Date,
+            default: Date.now
         }
-    ],
-    radiologyRequest: [
-        {
-            RRrequestNo:{
-                type:String
-            },
-            serviceId: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'RadiologyService'
-            },
-            serviceCode: {
-                type: String
-            },
-            status: {
-                type: String
-            },
-            requesterName:
-            {
-                type: String
-            },
-            serviceName: {
-                type: String
-            },
-            requester: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'staff'
-            },
-            results: {
-                type: String
-            },
-            comments: {
-                type: String,
-            },
-            serviceType: {
-                type: String,
-            },
-            date: {
-                type: Date,
-                default: Date.now
-            }
+    }],
+    radiologyRequest: [{
+        RRrequestNo: {
+            type: String
+        },
+        serviceId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'RadiologyService'
+        },
+        serviceCode: {
+            type: String
+        },
+        status: {
+            type: String
+        },
+        requesterName: {
+            type: String
+        },
+        serviceName: {
+            type: String
+        },
+        requester: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff'
+        },
+        results: {
+            type: String
+        },
+        comments: {
+            type: String,
+        },
+        serviceType: {
+            type: String,
+        },
+        date: {
+            type: Date,
+            default: Date.now
         }
-    ],
+    }],
     dischargeRequest: {
         dischargeSummary: {
             dischargeNotes: {
@@ -190,42 +176,39 @@ const EDRSchema = new mongoose.Schema({
                 type: mongoose.Schema.ObjectId,
                 ref: 'staff'
             },
-            medicine: [
-                {
-                    itemId: {
-                        type: mongoose.Schema.ObjectId,
-                        ref: 'Item'
-                    },
-                    priority: {
-                        type: String
-                    },
-                    schedule: {
-                        type: String
-                    },
-                    dosage: {
-                        type: Number
-                    },
-                    frequency: {
-                        type: Number
-                    },
-                    duration: {
-                        type: Number
-                    },
-                    requestedQty: {
-                        type: Number
-                    },
-                    medicineName:
-                    {
-                        type: String
-                    },
-                    unitPrice: {
-                        type: Number
-                    },
-                    totalPrice: {
-                        type: Number
-                    }
+            medicine: [{
+                itemId: {
+                    type: mongoose.Schema.ObjectId,
+                    ref: 'Item'
+                },
+                priority: {
+                    type: String
+                },
+                schedule: {
+                    type: String
+                },
+                dosage: {
+                    type: Number
+                },
+                frequency: {
+                    type: Number
+                },
+                duration: {
+                    type: Number
+                },
+                requestedQty: {
+                    type: Number
+                },
+                medicineName: {
+                    type: String
+                },
+                unitPrice: {
+                    type: Number
+                },
+                totalPrice: {
+                    type: Number
                 }
-            ]
+            }]
         },
         status: {
             type: String,
@@ -237,29 +220,32 @@ const EDRSchema = new mongoose.Schema({
         type: String
     },
     triageAssessment: [{
-        triageRequestNo:{
-            type:String
+        triageRequestNo: {
+            type: String
         },
-        heartRate:{
-            type:String
+        heartRate: {
+            type: String
         },
-        bloodPressure:{
-            type:String
+        bloodPressureSys: {
+            type: String
         },
-        respiratoryRate:{
-            type:String
+        bloodPressureDia: {
+            type: String
         },
-        temperature:{
-            type:String
+        respiratoryRate: {
+            type: String
         },
-        FSBS:{
-            type:String
+        temperature: {
+            type: String
         },
-        painScale:{
-            type:String
+        FSBS: {
+            type: String
         },
-        pulseOX:{
-            type:String
+        painScale: {
+            type: String
+        },
+        pulseOX: {
+            type: String
         },
         triageLevel: {
             type: String
@@ -282,11 +268,11 @@ const EDRSchema = new mongoose.Schema({
         neurological: {
             type: String
         },
-        requester:{
+        requester: {
             type: mongoose.Schema.ObjectId,
             ref: 'staff'
         },
-        date:{
+        date: {
             type: Date,
             default: Date.now
         }
