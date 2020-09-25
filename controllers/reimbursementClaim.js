@@ -60,9 +60,9 @@ exports.getPatient = asyncHandler(async (req, res) => {
 
 });
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
-  // const rc = await RC.findOne({patient:req.params._id},
-  //   {},
-  //   { sort: { createdAt: -1 } })
+  const rc = await RC.findOne({patient:req.params._id},
+    {},
+    { sort: { createdAt: -1 } })
     const a = await EDR.findOne({ patientId: req.params._id });
     if (a !== null) {
       var edr = await EDR.findOne({ patientId: req.params._id })
@@ -124,14 +124,14 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     if (a && b) {
       var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
       if (isafter) {
-        res.status(200).json({ success: true, data: edr });
+        res.status(200).json({ success: true, data: edr, rc:rc });
       } else {
-        res.status(200).json({ success: true, data: ipr });
+        res.status(200).json({ success: true, data: ipr, rc:rc });
       }
     } else if (a) {
-      res.status(200).json({ success: true, data: edr });
+      res.status(200).json({ success: true, data: edr, rc:rc });
     } else if (b) {
-      res.status(200).json({ success: true, data: ipr });
+      res.status(200).json({ success: true, data: ipr, rc:rc });
     } else {
       res.status(200).json({ success: false, data: 'User not found' });
     }
