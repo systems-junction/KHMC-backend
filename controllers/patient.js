@@ -485,14 +485,12 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
         },
         { new: true }
       );
-      for(let i=0; i<req.file.length; i++)
-      {
-        await EDR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $push: { 'consultationNote.$.audioNotes': req.file[i].path } },
-          { new: true }
-        );
-      }
+
+      await EDR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+        { new: true }
+      );
 
       not = await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
@@ -520,14 +518,13 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
         },
         { new: true }
       );
-      for(let i=0; i<req.file.length; i++)
-      {
-        await IPR.findOneAndUpdate(
-          { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-          { $push: { 'consultationNote.$.audioNotes': req.file[i].path } },
-          { new: true }
-        );
-      }
+
+      await IPR.findOneAndUpdate(
+        { 'consultationNote._id': parsed.itemID, _id: parsed.id },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+        { new: true }
+      );
+
       not = await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
         { $set: { 'consultationNote.$.status': parsed.status } },

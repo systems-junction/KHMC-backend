@@ -59,7 +59,7 @@ router.get('/getpatientall/:keyword', getPaitentAll);
 router.get('/getpatientedr', getPatientEDR);
 router.get('/getpatientipr', getPatientIPR);
 router.put('/updateEdrIpr', updateEdrIpr);
-router.put('/updateEdrIprItem', audioUpload.array('file',2), updateEdrIprItem);
+router.put('/updateEdrIprItem', audioUpload.single('file'), updateEdrIprItem);
 router.get('/getpatientbyprofileno/:profileNo', getPatientByMRN);
 router.get('/getpatientbysin/:SIN', getPatientBySIN);
 router.get('/getpatient/:id', getPatientById);
