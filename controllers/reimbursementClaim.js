@@ -6,7 +6,7 @@ const IPR = require('../models/IPR');
 const RC = require('../models/reimbursementClaim');
 const Patient = require('../models/patient');
 const requestNoFormat = require('dateformat');
-
+const moment = require('moment');
 exports.getClaims = asyncHandler(async (req, res) => {
   const rc = await RC.find()
     .populate('generatedBy')
@@ -60,87 +60,81 @@ exports.getPatient = asyncHandler(async (req, res) => {
 
 });
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
-  var prEdr;
-  var lrEdr;
-  var rrEdr;
-  var dischargeEdr;
-  var prIpr;
-  var lrIpr;
-  var rrIpr;
-  var nsIpr;
-  var dischargeIpr;
-  var dateEdr;
-  var dateIpr;
-  const rc = await RC.findOne({patient:req.params._id},
-    {},
-    { sort: { createdAt: -1 } })
-  const edr = await EDR.findOne(
-    { patientId: req.params._id },
-    {},
-    { sort: { createdAt: -1 } }
-  )
-    // .populate('pharmacyRequest.medicine.itemId')
-    .populate('labRequest.serviceId')
-    .populate('radiologyRequest.serviceId')
-    .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-  if (edr) {
-    dateEdr = edr.createdAt;
-    if (edr.pharmacyRequest) {
-      prEdr = edr.pharmacyRequest;
+  // const rc = await RC.findOne({patient:req.params._id},
+  //   {},
+  //   { sort: { createdAt: -1 } })
+    const a = await EDR.findOne({ patientId: req.params._id });
+    if (a !== null) {
+      var edr = await EDR.findOne({ patientId: req.params._id })
+        .populate('patientId')
+        .populate('consultationNote.requester')
+        .populate({
+          path: 'pharmacyRequest',
+          populate: [
+            {
+              path: 'item.itemId',
+            },
+          ],
+        })
+        .populate('pharmacyRequest.item.itemId')
+        .populate('labRequest.requester')
+        .populate('labRequest.serviceId')
+        .populate('radiologyRequest.serviceId')
+        .populate('radiologyRequest.requester')
+        .populate('residentNotes.doctor')
+        .populate('residentNotes.doctorRef')
+        .populate('dischargeRequest.dischargeMedication.requester')
+        .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+        .populate('triageAssessment.requester')
+        .sort({
+          createdAt: 'desc',
+        })
+        .limit(100);
     }
-    if (edr.labRequest) {
-      lrEdr = edr.labRequest;
+    const b = await IPR.findOne({ patientId: req.params._id });
+    if (b !== null) {
+      var ipr = await IPR.findOne({ patientId: req.params._id })
+        .populate('patientId')
+        .populate('consultationNote.requester')
+        .populate({
+          path: 'pharmacyRequest',
+          populate: [
+            {
+              path: 'item.itemId',
+            },
+          ],
+        })
+        .populate('labRequest.requester')
+        .populate('labRequest.serviceId')
+        .populate('radiologyRequest.serviceId')
+        .populate('radiologyRequest.requester')
+        .populate('residentNotes.doctor')
+        .populate('residentNotes.doctorRef')
+        .populate('nurseService.serviceId')
+        .populate('nurseService.requester')
+        .populate('dischargeRequest.dischargeMedication.requester')
+        .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+        .populate('followUp.approvalPerson')
+        .populate('triageAssessment.requester')
+        .sort({
+          createdAt: 'desc',
+        })
+        .limit(100);
     }
-    if (edr.radiologyRequest) {
-      rrEdr = edr.radiologyRequest;
+    if (a && b) {
+      var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
+      if (isafter) {
+        res.status(200).json({ success: true, data: edr });
+      } else {
+        res.status(200).json({ success: true, data: ipr });
+      }
+    } else if (a) {
+      res.status(200).json({ success: true, data: edr });
+    } else if (b) {
+      res.status(200).json({ success: true, data: ipr });
+    } else {
+      res.status(200).json({ success: false, data: 'User not found' });
     }
-    if (edr.dischargeRequest.dischargeMedication.medicine) {
-      dischargeEdr = edr.dischargeRequest.dischargeMedication.medicine;
-    }
-  }
-  const ipr = await IPR.findOne(
-    { patientId: req.params._id },
-    {},
-    { sort: { createdAt: -1 } }
-  )
-    // .populate('pharmacyRequest.medicine.itemId')
-    .populate('labRequest.serviceId')
-    .populate('radiologyRequest.serviceId')
-    .populate('nurseService.serviceId')
-    .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-  if (ipr) {
-    dateIpr = ipr.createdAt;
-    if (ipr.pharmacyRequest) {
-      prIpr = ipr.pharmacyRequest;
-    }
-    if (ipr.labRequest) {
-      lrIpr = ipr.labRequest;
-    }
-    if (ipr.radiologyRequest) {
-      rrIpr = ipr.radiologyRequest;
-    }
-    if (ipr.nurseService) {
-      nsIpr = ipr.nurseService;
-    }
-    if (ipr.dischargeRequest.dischargeMedication.medicine) {
-      dischargeIpr = ipr.dischargeRequest.dischargeMedication.medicine;
-    }
-  }
-  const data = {
-    prEdr,
-    lrEdr,
-    rrEdr,
-    dischargeEdr,
-    dateEdr,
-    prIpr,
-    lrIpr,
-    rrIpr,
-    nsIpr,
-    dischargeIpr,
-    dateIpr,
-    rc
-  };
-  res.status(200).json({ success: true, data: data });
 });
 
 exports.addClaims = asyncHandler(async (req, res) => {
