@@ -42,18 +42,18 @@ exports.getEDRandIPR = asyncHandler(async (req, res) => {
     .populate('nurseService.requester')
     .populate('dischargeRequest.dischargeMedication.requester')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-  const opr = await OPR.find()
-    .populate('patientId')
-    .populate('pharmacyRequest.requester')
-    .populate('pharmacyRequest.medicine.itemId')
-    .populate('labRequest.requester')
-    .populate('labRequest.serviceId')
-    .populate('radiologyRequest.serviceId')
-    .populate('radiologyRequest.requester');
+  // const opr = await OPR.find()
+  //   .populate('patientId')
+  //   .populate('pharmacyRequest.requester')
+  //   .populate('pharmacyRequest.medicine.itemId')
+  //   .populate('labRequest.requester')
+  //   .populate('labRequest.serviceId')
+  //   .populate('radiologyRequest.serviceId')
+  //   .populate('radiologyRequest.requester');
   const data = {
     edr,
     ipr,
-    opr,
+    // opr,
   };
   res.status(200).json({ success: true, data: data });
 });
@@ -62,7 +62,7 @@ exports.addPAR = asyncHandler(async (req, res) => {
   const {
     edrId,
     iprId,
-    oprId,
+    // oprId,
     generatedBy,
     patient,
     pharId,
@@ -82,7 +82,7 @@ exports.addPAR = asyncHandler(async (req, res) => {
     requestNo: 'PA' + requestNoFormat(new Date(), 'mmddyyHHmm'),
     edrId,
     iprId,
-    oprId,
+    // oprId,
     generatedBy,
     patient,
     pharId,

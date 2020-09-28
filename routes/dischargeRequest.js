@@ -20,5 +20,6 @@ const {
 
 const router = express.Router();
 router.get('/getedrdischarge', getEDRdischarge);
-router.post('/adddischarge', upload.single('file'), addDischargeRequest);
+router.post('/adddischarge', addDischargeRequest);
+// router.post('/adddischarge', upload.single('file'), addDischargeRequest);
 module.exports = router;

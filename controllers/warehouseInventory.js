@@ -3,7 +3,7 @@ const moment = require('moment');
 const asyncHandler = require('../middleware/async');
     exports.getWhInventory = (req, res, next) => {
         try {
-            WhInventory.find().populate('itemId').then(function(data, err){
+            WhInventory.find().populate('itemId').limit(100).then(function(data, err){
                 if(err) throw err;
                 res.status(200).send({success:true, data: data , message: "Warehouse inventory fetched successfully" });
             })
@@ -83,7 +83,7 @@ const asyncHandler = require('../middleware/async');
                 'itemId.expiration':{$lte:todayDate},
               },
             },
-          ]);
+          ]).limit(100);
             res.status(200).json({ success: true, data: whinventoryDate });
     });
     exports.getExpiredInventoryByInput = asyncHandler(async (req, res) => {

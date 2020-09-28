@@ -18,12 +18,12 @@ exports.getClaims = asyncHandler(async (req, res) => {
 exports.getPatient = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id}).populate('patientId')
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" }}).populate('patientId')
     for(let i = 0; i<ipr.length; i++)
     {
         array.push(ipr[i].patientId) 
     }
-  const edr = await EDR.find({}).populate('patientId')
+  const edr = await EDR.find({ status: { $ne: "Discharged" }}).populate('patientId')
     for(let i = 0; i<edr.length; i++)
     {
         array.push(edr[i].patientId)
@@ -59,13 +59,59 @@ exports.getPatient = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data:uniqueArray });      
 
 });
+
+exports.getPatientDischarged = asyncHandler(async (req, res) => {
+  var array=[]
+  var secondArray=[]
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: "Discharged" }).populate('patientId')
+    for(let i = 0; i<ipr.length; i++)
+    {
+        array.push(ipr[i].patientId) 
+    }
+  const edr = await EDR.find({ status: "Discharged" }).populate('patientId')
+    for(let i = 0; i<edr.length; i++)
+    {
+        array.push(edr[i].patientId)
+    }
+    const unique = Array.from(new Set(array)) 
+    for(let i = 0; i<unique.length; i++)
+    {
+       var fullName = unique[i].firstName+" "+unique[i].lastName
+       if(
+      (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
+      (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        secondArray.push(unique[i])
+      }
+    }
+    var uniqueArray = (function(secondArray){
+      var m = {}, uniqueArray = []
+      for (var i=0; i<secondArray.length; i++) {
+        var v = secondArray[i];
+        if (!m[v]) {
+          uniqueArray.push(v);
+          m[v]=true;
+        }
+      }
+      return uniqueArray;
+    })(secondArray);
+    res.status(200).json({ success: true, data:uniqueArray });      
+
+});
+
 exports.getEDRorIPR = asyncHandler(async (req, res) => {
   const rc = await RC.findOne({patient:req.params._id},
     {},
     { sort: { createdAt: -1 } })
-    const a = await EDR.findOne({ patientId: req.params._id });
+    const a = await EDR.findOne({ patientId: req.params._id});
     if (a !== null) {
-      var edr = await EDR.findOne({ patientId: req.params._id })
+      var edr = await EDR.findOne({ patientId: req.params._id})
         .populate('patientId')
         .populate('consultationNote.requester')
         .populate({
@@ -93,7 +139,7 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
     }
     const b = await IPR.findOne({ patientId: req.params._id });
     if (b !== null) {
-      var ipr = await IPR.findOne({ patientId: req.params._id })
+      var ipr = await IPR.findOne({ patientId: req.params._id})
         .populate('patientId')
         .populate('consultationNote.requester')
         .populate({

@@ -124,29 +124,6 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
     { _id: _id },
     req.body
   );
-
-  // if (req.body.status == 'pending_recieving') {
-  //   let purchaseOrder = await PurchaseOrder.findOne({
-  //     status: 'pending_recieving',
-  //     vendorId: req.body.vendorId,
-  //   });
-  //   if (purchaseOrder) {
-  //     await PurchaseOrder.updateOne(
-  //       { _id: purchaseOrder._id },
-  //       { $push: { purchaseRequestId: purchaseRequest._id } }
-  //     );
-  //   } else {
-  //     const { generatedBy, date, vendorId, status } = req.body;
-  //     await PurchaseOrder.create({
-  //       purchaseOrderNo: uuidv4(),
-  //       purchaseRequestId: purchaseRequest._id,
-  //       date,
-  //       generatedBy,
-  //       vendorId,
-  //       status,
-  //     });
-  //   }
-  // }
   res.status(200).json({ success: true, data: PurchaseRequest });
 });
 

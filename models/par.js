@@ -12,10 +12,10 @@ const parSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'IPR',
       },
-      oprId:{
-        type: mongoose.Schema.ObjectId,
-        ref: 'OPR',
-      },
+      // oprId:{
+      //   type: mongoose.Schema.ObjectId,
+      //   ref: 'OPR',
+      // },
       generatedBy:{
         type: mongoose.Schema.ObjectId,
         ref: 'staff',

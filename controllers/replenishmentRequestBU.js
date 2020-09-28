@@ -2,7 +2,6 @@
 const notification = require ('../components/notification')
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { v4: uuidv4 } = require('uuid');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const FunctionalUnit = require('../models/functionalUnit');
 const FUInventory = require('../models/fuInventory');
@@ -110,31 +109,26 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
     if (a && b) {
       var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
       if (isafter) {
-        console.log("here")
         const test = await EDR.findOneAndUpdate({ _id: edr._id },
          { $push: { pharmacyRequest: rrBU._id } },
           { new: true }
         )
-        console.log(test)
       } else {
         const test= await IPR.findOneAndUpdate({ _id: ipr._id },
           { $push: { pharmacyRequest: rrBU._id } },
            { new: true }
          )
-         console.log(test)
       }
     } else if (a) {
      const test = await EDR.findOneAndUpdate({ _id: edr._id },
         { $push: { pharmacyRequest: rrBU._id } },
          { new: true }
        )
-       console.log(test)
     } else if (b) {
      const test = await IPR.findOneAndUpdate({ _id: ipr._id },
         { $push: { pharmacyRequest: rrBU._id } },
          { new: true }
        )
-       console.log(test)
     }
     if(orderFor=="Medical")
     {

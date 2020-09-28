@@ -2,18 +2,11 @@
 const notification = require('../components/notification')
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { v4: uuidv4 } = require('uuid');
 const InternalReturnRequest = require('../models/internalReturnRequest');
 const receiveItemFU = require('../models/receiveItemFU');
-const receiveItemBU = require('../models/receiveItemBU');
 const ReplenishmentRequest = require('../models/replenishmentRequest');
-const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const WHInventory = require('../models/warehouseInventory');
 const FUInventory = require('../models/fuInventory');
-const BUInventory = require('../models/buInventory');
-const FunctionalUnit = require('../models/functionalUnit');
-const PurchaseRequest = require('../models/purchaseRequest');
-const Item = require('../models/item');
 const ReturnedQty = require('../models/returnedQty')
 const requestNoFormat = require('dateformat');
 exports.getInternalReturnRequestsFU = asyncHandler(async (req, res) => {
@@ -95,7 +88,6 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
          const fu = await FUInventory.findOne({itemId: req.body.itemId, fuId:req.body.fuId})
          const wh = await WHInventory.findOne({itemId: req.body.itemId})
          await FUInventory.findOneAndUpdate({itemId: req.body.itemId,fuId:req.body.fuId}, { $set: { qty: fu.qty-req.body.returnedQty }},{new:true})
-        //  await WHInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: wh.qty+receive.receivedQty }},{new:true})
          await ReplenishmentRequest.findOneAndUpdate({_id:req.body.replenishmentRequestFU,'items.itemId':req.body.itemId},{ $set: { 'items.$.secondStatus': "Returned", 'items.$.status':"Returned"}})
          await ReturnedQty.create({
             fuiId:fu._id,
@@ -104,15 +96,6 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
             returnedQty:req.body.returnedQty,
          })
          }
-        // if((req.body.to=="FU")&&(req.body.from=="BU"))
-        // {
-        //  const receive = await receiveItemBU.findOne({replenishmentRequestId:req.body.replenishmentRequestFU})
-        //  const bu = await BUInventory.findOne({itemId: req.body.itemId})
-        //  const fu = await FUInventory.findOne({itemId: req.body.itemId})
-        //  await BUInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: bu.qty-receive.receivedQty }},{new:true})
-        //  await FUInventory.findOneAndUpdate({itemId: req.body.itemId}, { $set: { qty: fu.qty+receive.receivedQty }},{new:true})
-        //  await ReplenishmentRequestBU.findOneAndUpdate({_id:req.body.replenishmentRequestBU},{ $set: { status: "Returned because of Issue", secondStatus:"Returned because of Issue"}})
-        // }
     }
     internalReturn = await InternalReturnRequest.findOneAndUpdate({_id: _id}, req.body,{new:true});
     res.status(200).json({ success: true, data: internalReturn });

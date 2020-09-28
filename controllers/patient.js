@@ -370,7 +370,6 @@ exports.updatePatientFHIR = asyncHandler(async (req, res, next) => {
   patientfhir = await PatientFHIR.findOneAndUpdate({ _id: _id }, req.body, {
     new: true,
   });
-  console.log('patientfhir', patientfhir);
   res.status(200).json({ success: true, data: patientfhir });
 });
 exports.searchPatient = asyncHandler(async (req, res) => {
@@ -951,7 +950,6 @@ exports.getNote = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.addNote = asyncHandler(async (req, res) => {
-  console.log(req.file);
   // var parsed = JSON.parse(req.body.data);
   const patient = await file.create({
     abc: req.file.path,

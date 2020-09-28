@@ -80,6 +80,7 @@ const ECR = require('./routes/ECR');
 const OPR = require('./routes/OPR');
 const PAR = require('./routes/par');
 const RC = require('./routes/reimbursementClaim');
+const patientClearance = require('./routes/patientClearance');
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -137,6 +138,7 @@ app.use('/api/opr', OPR);
 app.use('/api/par', PAR);
 app.use('/api/reimbursementclaim', RC)
 app.use('/api/dischargerequest',dischargeRequest)
+app.use('/api/patientclearance',patientClearance)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;

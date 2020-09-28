@@ -30,45 +30,61 @@ exports.getEDRdischarge = asyncHandler(async (req, res) => {
 });
 
 exports.addDischargeRequest = asyncHandler(async (req, res) => {
-    var parsed = JSON.parse(req.body.data);
-    var dr;
-    if (req.file) {
-      dr = await DR.create({
-        edrId: parsed.edrId,
-        iprId: parsed.iprId,
-        generatedFor: parsed.generatedFor,
-        paymentMethod: parsed.paymentMethod,
-        depositAmount: parsed.depositAmount,
-        amountReceived: parsed.amountReceived,
-        totalAmount: parsed.totalAmount,
-        bankName: parsed.bankName,
-        depositorName: parsed.depositorName,
-        depositSlip: req.file.path,
-        receivedBy:parsed.receivedBy
-      });
-    } else {
-      dr = await DR.create({
-        edrId: parsed.edrId,
-        iprId: parsed.iprId,
-        generatedFor: parsed.generatedFor,
-        paymentMethod: parsed.paymentMethod,
-        depositAmount: parsed.depositAmount,
-        amountReceived: parsed.amountReceived,
-        totalAmount: parsed.totalAmount,
-        bankName: parsed.bankName,
-        depositorName: parsed.depositorName,
-        receivedBy:parsed.receivedBy
-      });
-    }
-    if(dr && parsed.edrId)
+    // var parsed = JSON.parse(req.body.data);
+    // var dr;
+        const dr = await DR.create({
+        edrId: req.body.edrId,
+        iprId: req.body.iprId,
+        generatedFor: req.body.generatedFor,
+        paymentMethod: req.body.paymentMethod,
+        depositAmount: req.body.depositAmount,
+        amountReceived: req.body.amountReceived,
+        totalAmount: req.body.totalAmount,
+        bankName: req.body.bankName,
+        depositorName: req.body.depositorName,
+        receivedBy:req.body.receivedBy
+              });
+              // console.log(dr)
+    // if (req.file) {
+    //   dr = await DR.create({
+    //     edrId: parsed.edrId,
+    //     iprId: parsed.iprId,
+    //     generatedFor: parsed.generatedFor,
+    //     paymentMethod: parsed.paymentMethod,
+    //     depositAmount: parsed.depositAmount,
+    //     amountReceived: parsed.amountReceived,
+    //     totalAmount: parsed.totalAmount,
+    //     bankName: parsed.bankName,
+    //     depositorName: parsed.depositorName,
+    //     depositSlip: req.file.path,
+    //     receivedBy:parsed.receivedBy
+    //   });
+    // } else {
+    //   dr = await DR.create({
+    //     edrId: parsed.edrId,
+    //     iprId: parsed.iprId,
+    //     generatedFor: parsed.generatedFor,
+    //     paymentMethod: parsed.paymentMethod,
+    //     depositAmount: parsed.depositAmount,
+    //     amountReceived: parsed.amountReceived,
+    //     totalAmount: parsed.totalAmount,
+    //     bankName: parsed.bankName,
+    //     depositorName: parsed.depositorName,
+    //     receivedBy:parsed.receivedBy
+    //   });
+    // }
+    if(dr && req.body.edrId)
     {
       // await EDR.findOneAndUpdate({ _id: parsed.edrId},{ $set: { 'dischargeRequest.status': 'Complete' } })
-      await EDR.findOneAndUpdate({ _id: parsed.edrId},{ $set: { 'status': 'Discharged' } })
+      // await EDR.findOneAndUpdate({ _id: parsed.edrId},{ $set: { 'status': 'Discharged' } })
+            await EDR.findOneAndUpdate({ _id: req.body.edrId},{ $set: { 'status': 'Discharged' } })
     }
-    if (dr && parsed.iprId)
+    if (dr && req.body.iprId)
     {
+
       // await IPR.findOneAndUpdate({ _id: parsed.iprId},{ $set: { 'dischargeRequest.status': 'Complete' } })
-      await IPR.findOneAndUpdate({ _id: parsed.iprId},{ $set: { 'status': 'Discharged' } })
+      // await IPR.findOneAndUpdate({ _id: parsed.iprId},{ $set: { 'status': 'Discharged' } })
+      await IPR.findOneAndUpdate({ _id: req.body.iprId},{ $set: { 'status': 'Discharged' } })
     }
     res.status(200).json({ success: true, data: dr });
   });
