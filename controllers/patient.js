@@ -269,7 +269,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
     'Registered Nurse'
   );
-  QRCode.toDataURL(JSON.stringify(patient), function (err, url) {
+  QRCode.toDataURL(JSON.stringify(patient.profileNo), function (err, url) {
     var base64Str = url;
     var path = './uploads/';
     var pathFormed = base64ToImage(base64Str, path);
