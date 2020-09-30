@@ -199,7 +199,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     var arr=[];
     for(let i=0; i<req.files.length;i++)
     {
-        arr.push(req.files[i].path);
+      arr.push(req.files[i].path);
     }
     rc = await RC.create({
       requestNo: 'IRI' + requestNoFormat(new Date(), 'mmddyyHHmm'),
