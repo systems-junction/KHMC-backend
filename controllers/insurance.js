@@ -3,7 +3,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Insurance = require('../models/insurance');
 const IV = require('../models/insuranceVendors');
-
+const IT = require('../models/insuranceItems')
 exports.getInsurance = asyncHandler(async (req, res) => {
   const insurance = await Insurance.find();
   res.status(200).json({ success: true, data: insurance });
@@ -81,7 +81,8 @@ exports.addInsuranceVendor = asyncHandler(async (req, res) => {
   subCompanies,
   exceptions,
   agreedPricePolicy,
-  paymentTerms
+  paymentTerms,
+  insuranceCodes
   } = req.body;
   const insurance = await IV.create({
   name,
@@ -99,7 +100,53 @@ exports.addInsuranceVendor = asyncHandler(async (req, res) => {
   subCompanies,
   exceptions,
   agreedPricePolicy,
-  paymentTerms
+  paymentTerms,
+  insuranceCodes
+});
+  res.status(200).json({ success: true, data: insurance });
+});
+// exports.pushVendors = asyncHandler(async (req, res, next) => {
+//   for(let i = 0; i<100; i++)
+//   {
+//   await IV.updateOne({ _id: req.params.id },
+//   {$push:{insuranceCodes:"AFT"+00+[i]}}
+//   );
+//  }
+//   res.status(200).json({ success: true });
+// });
+exports.verify = asyncHandler(async (req, res, next) => {
+  const verify = await IV.findOne({ insuranceCodes: req.params.id });
+  if(verify)
+  {
+    data={
+      vendor:verify.name,
+      coverageDetail:"fullPayment"
+    }
+    res.status(200).json({ success: true , data:data });
+  }
+  else{
+    res.status(200).json({ success: false , data:"resource not found" });
+  }
+
+});
+
+
+exports.addInsuranceItem = asyncHandler(async (req, res) => {
+  const { 
+    providerId,
+    itemId,
+    laboratoryServiceId,
+    radiologyServiceId,
+    price,
+    details
+  } = req.body;
+  const insurance = await IT.create({
+    providerId,
+    itemId,
+    laboratoryServiceId,
+    radiologyServiceId,
+    price,
+    details
 });
   res.status(200).json({ success: true, data: insurance });
 });

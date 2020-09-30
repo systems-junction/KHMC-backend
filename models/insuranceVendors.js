@@ -55,7 +55,9 @@ const insuranceVendorsSchema = new mongoose.Schema({
     paymentTerms: {
         type: String
     },
-
+    insuranceCodes:[{
+        type:String
+    }],
     createdAt: {
         type: Date,
         default: Date.now

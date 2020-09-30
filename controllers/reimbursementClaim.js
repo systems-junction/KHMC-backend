@@ -196,6 +196,11 @@ exports.addClaims = asyncHandler(async (req, res) => {
   var parsed = JSON.parse(req.body.data);
   var rc;
   if (req.file) {
+    var arr=[];
+    for(let i=0; i<req.file.length;i++)
+    {
+        arr.push(req.file[i].path);
+    }
     rc = await RC.create({
       requestNo: 'IRI' + requestNoFormat(new Date(), 'mmddyyHHmm'),
       generatedBy: parsed.generatedBy,
@@ -203,7 +208,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
       insurer: parsed.insurer,
       treatmentDetail: parsed.treatmentDetail,
       responseCode: parsed.responseCode,
-      document: req.file.path,
+      document: arr,
       status: parsed.status,
     });
   } else {
