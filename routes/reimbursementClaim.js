@@ -27,7 +27,7 @@ router.get('/getclaim', getClaims);
 router.get('/getpatient/:id/:keyword', getPatient);
 router.get('/getpatientdischarge/:id/:keyword', getPatientDischarged);
 router.get('/getedripr/:_id', getEDRorIPR);
-router.post('/addclaim', upload.array('file',2), addClaims);
+router.post('/addclaim', upload.array('file'), addClaims);
 router.put('/updateclaim', upload.single('file'), updateClaims);
 
 module.exports = router;
