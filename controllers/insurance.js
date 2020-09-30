@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Insurance = require('../models/insurance');
+const IV = require('../models/insuranceVendors');
 
 exports.getInsurance = asyncHandler(async (req, res) => {
   const insurance = await Insurance.find();
@@ -60,5 +61,45 @@ exports.updateInsurance = asyncHandler(async (req, res, next) => {
     );
   }
   insurance = await Insurance.updateOne({ _id: _id }, req.body);
+  res.status(200).json({ success: true, data: insurance });
+});
+
+exports.addInsuranceVendor = asyncHandler(async (req, res) => {
+  const { 
+  name,
+  poBox,
+  zipCode,
+  telephone1,
+  telephone2,
+  address,
+  faxNo,
+  email,
+  country,
+  city,
+  taxNo,
+  contractualDiscount,
+  subCompanies,
+  exceptions,
+  agreedPricePolicy,
+  paymentTerms
+  } = req.body;
+  const insurance = await IV.create({
+  name,
+  poBox,
+  zipCode,
+  telephone1,
+  telephone2,
+  address,
+  faxNo,
+  email,
+  country,
+  city,
+  taxNo,
+  contractualDiscount,
+  subCompanies,
+  exceptions,
+  agreedPricePolicy,
+  paymentTerms
+});
   res.status(200).json({ success: true, data: insurance });
 });

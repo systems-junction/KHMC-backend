@@ -1,39 +1,61 @@
 const mongoose = require('mongoose');
 
 const insuranceVendorsSchema = new mongoose.Schema({
-    uuid: {
-        type: String
-    },
     name: {
         type: String
+    },
+    poBox:{
+        type:String
+    },
+    zipCode:{
+        type:String
+    },
+    telephone1:{
+        type:String
+    },
+    telephone2:{
+        type:String
     },
     address: {
         type: String
     },
+    faxNo: {
+        type: String
+    },
     email: {
         type: String,
-        required: [true, 'Please add an email'],
-        unique: true,
-        match: [
-        /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/,
-        'Please add a valid email'
-        ]
+        // required: [true, 'Please add an email'],
+        // unique: true,
+        // match: [
+        // /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/,
+        // 'Please add a valid email'
+        // ]
     },
-    fax: {
+    country:{
+        type:String
+    },
+    city:{
+        type:String
+    },
+    taxNo:{
+        type:String
+    },
+    contractualDiscount:{
+        type:String
+    },
+    subCompanies:[{
+        type:String
+    }],
+    exceptions:{
+        type:String
+    },
+    agreedPricePolicy: {
         type: String
     },
-    phone: {
+    paymentTerms: {
         type: String
     },
-    contactPerson: {
-        type: String
-    },
-    prefix: {
-        type: String
-    },
-    details: {
-        type: String
-    },
+
     createdAt: {
         type: Date,
         default: Date.now
