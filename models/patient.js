@@ -76,7 +76,7 @@ const patientSchema = new mongoose.Schema({
     type: Number,
   },
   amountReceived: {
-    type: String,
+    type: Number,
   },
   bankName: {
     type: String,
