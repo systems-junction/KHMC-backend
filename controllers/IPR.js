@@ -974,7 +974,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     status,
     triageAssessment,
     functionalUnit,
-    verified
+    verified,
+    insurerId
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
@@ -996,7 +997,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     status,
     triageAssessment,
     functionalUnit,
-    verified
+    verified,
+    insurerId
   });
   res.status(200).json({ success: true, data: ipr });
 });
