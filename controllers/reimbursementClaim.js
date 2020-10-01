@@ -214,7 +214,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
           {
             for(let k=0; k<insurance.length; k++)
             {
-              if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == JSON.parse(JSON.stringify(insurance[k].itemId)))
+              if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
               {
                 insured.push(insurance[k])
               }
@@ -225,7 +225,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
         {
             for(let j=0; j<insurance.length; j++)
             {
-              if(JSON.parse(JSON.stringify(ipr.labRequest[i].serviceId._id)) == JSON.parse(JSON.stringify(insurance[j].laboratoryServiceId)))
+              if(JSON.parse(JSON.stringify(ipr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId)
               {
                 insured.push(insurance[j])
               }
@@ -235,7 +235,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
         {
             for(let j=0; j<insurance.length; j++)
             {
-              if(JSON.parse(JSON.stringify(ipr.radiologyRequest[i].serviceId._id)) == JSON.parse(JSON.stringify(insurance[j].radiologyServiceId)))
+              if(JSON.parse(JSON.stringify(ipr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
               {
                 insured.push(insurance[j])
               }
@@ -252,7 +252,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
           {
             for(let k=0; k<insurance.length; k++)
             {
-              if(JSON.parse(JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)) == JSON.parse(JSON.stringify(insurance[k].itemId)))
+              if(JSON.parse(JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
               {
                 insured.push(insurance[k])
               }
@@ -263,7 +263,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
         {
             for(let j=0; j<insurance.length; j++)
             {
-              if(JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) == JSON.parse(JSON.stringify(insurance[j].laboratoryServiceId)))
+              if(JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) == nsurance[j].laboratoryServiceId)
               {
                 insured.push(insurance[j])
               }
@@ -273,7 +273,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
         {
             for(let j=0; j<insurance.length; j++)
             {
-              if(JSON.parse(JSON.stringify(edr.radiologyRequest[i].serviceId._id)) == JSON.parse(JSON.stringify(insurance[j].radiologyServiceId)))
+              if(JSON.parse(JSON.stringify(edr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
               {
                 insured.push(insurance[j])
               }
@@ -289,7 +289,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
         {
           for(let k=0; k<insurance.length; k++)
           {
-            if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == JSON.parse(JSON.stringify(insurance[k].itemId)))
+            if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
             {
               insured.push(insurance[k])
             }
@@ -300,7 +300,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
       {
           for(let j=0; j<insurance.length; j++)
           {
-            if(JSON.parse(JSON.stringify(ipr.labRequest[i].serviceId._id)) == JSON.parse(JSON.stringify(insurance[j].laboratoryServiceId)))
+            if(JSON.parse(JSON.stringify(ipr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId)
             {
               insured.push(insurance[j])
             }
@@ -310,7 +310,7 @@ exports. getEDRorIPR = asyncHandler(async (req, res) => {
       {
           for(let j=0; j<insurance.length; j++)
           {
-            if(JSON.parse(JSON.stringify(ipr.radiologyRequest[i].serviceId._id)) == JSON.parse(JSON.stringify(insurance[j].radiologyServiceId)))
+            if(JSON.parse(JSON.stringify(ipr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
             {
               insured.push(insurance[j])
             }
