@@ -281,6 +281,9 @@ const EDRSchema = new mongoose.Schema({
         type: String,
         default: 'EDR',
     },
+    verified:{
+        type:Boolean
+    },
     createdAt: {
         type: Date,
         default: Date.now,

@@ -232,6 +232,7 @@ exports.addEDR = asyncHandler(async (req, res) => {
     dischargeRequest,
     status,
     triageAssessment,
+    verified
   } = req.body;
     var now = new Date();
     var start = new Date(now.getFullYear(), 0, 0);
@@ -250,6 +251,7 @@ exports.addEDR = asyncHandler(async (req, res) => {
     dischargeRequest,
     status,
     triageAssessment,
+    verified
   });
   res.status(200).json({ success: true, data: edr });
 });

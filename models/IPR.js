@@ -397,6 +397,9 @@ const IPRSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'functionalUnit',
     },
+    verified:{
+        type:Boolean
+    },
     createdAt: {
         type: Date,
         default: Date.now,
