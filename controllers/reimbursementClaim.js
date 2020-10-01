@@ -4,7 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 const EDR = require('../models/EDR');
 const IPR = require('../models/IPR');
 const RC = require('../models/reimbursementClaim');
-const Patient = require('../models/patient');
+const IT = require('../models/insuranceItems');
+// const Patient = require('../models/patient');
 const requestNoFormat = require('dateformat');
 const moment = require('moment');
 exports.getClaims = asyncHandler(async (req, res) => {
@@ -105,7 +106,7 @@ exports.getPatientDischarged = asyncHandler(async (req, res) => {
 
 });
 
-exports.getEDRorIPR = asyncHandler(async (req, res) => {
+exports. getEDRorIPR = asyncHandler(async (req, res) => {
   const rc = await RC.findOne({patient:req.params._id},
     {},
     { sort: { createdAt: -1 } })
@@ -135,7 +136,6 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
         .sort({
           createdAt: 'desc',
         })
-        .limit(100);
     }
     const b = await IPR.findOne({ patientId: req.params._id });
     if (b !== null) {
@@ -165,18 +165,36 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
         .sort({
           createdAt: 'desc',
         })
-        .limit(100);
     }
     if (a && b) {
       var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
       if (isafter) {
+        const insurance = await IT.find({providerId:edr.insurerId})
         res.status(200).json({ success: true, data: edr, rc:rc });
       } else {
-        res.status(200).json({ success: true, data: ipr, rc:rc });
+        const insurance = await IT.find({providerId:ipr.insurerId})
+        var count = 0;
+        var insured = [];
+        for(let i=0; i<ipr.pharmacyRequest.length;i++)
+        {
+          for(let j=0; j<ipr.pharmacyRequest[i].item.length; j++)
+          {
+            for(let k=0; k<insurance.length; k++)
+            {
+              if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == JSON.parse(JSON.stringify(insurance[k].itemId)))
+              {
+                insured.push(insurance[k])
+              }
+            }
+          }
+        }
+        res.status(200).json({ success: true, data: ipr, rc:rc,insured:insured });
       }
     } else if (a) {
+      const insurance = await IT.find({providerId:edr.insurerId})
       res.status(200).json({ success: true, data: edr, rc:rc });
     } else if (b) {
+      const insurance = await IT.find({providerId:ipr.insurerId})
       res.status(200).json({ success: true, data: ipr, rc:rc });
     } else {
       res.status(200).json({ success: false, data: 'User not found' });
