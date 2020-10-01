@@ -106,7 +106,7 @@ exports.getPatientDischarged = asyncHandler(async (req, res) => {
 
 });
 
-exports. getEDRorIPR = asyncHandler(async (req, res) => {
+exports.getEDRorIPR = asyncHandler(async (req, res) => {
   const rc = await RC.findOne({patient:req.params._id},
     {},
     { sort: { createdAt: -1 } })
