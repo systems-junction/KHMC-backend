@@ -22,6 +22,37 @@ exports.getEDR = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: edr });
 });
 
+exports.getEDRPatient = asyncHandler(async (req, res) => {
+  const edr = await EDR.find()
+    .populate('patientId')
+    .select({ patientId:1, requestNo: 1 });
+    res.status(200).json({ success: true, data: edr });
+});
+
+exports.getEDRKeyword = asyncHandler(async (req, res) => {
+  var arr=[]
+  const edr = await EDR.find().populate('patientId').select({ patientId:1, requestNo: 1 });
+    for(let i = 0; i<edr.length; i++)
+    {
+       var fullName = edr[i].patientId.firstName+" "+edr[i].patientId.lastName
+       if(
+      (edr[i].patientId.profileNo && edr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.firstName && edr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.lastName && edr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.phoneNumber && edr[i].patientId.phoneNumber.match(req.params.keyword))||
+      (edr[i].patientId.SIN && edr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.mobileNumber && edr[i].patientId.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(edr[i])
+      }
+    }
+  
+    res.status(200).json({ success: true, data:arr });      
+
+});
+
 exports.getPHREDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find({ pharmacyRequest: { $ne: [] } })
     .populate('patientId')
