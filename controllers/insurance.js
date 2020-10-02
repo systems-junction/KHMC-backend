@@ -120,7 +120,8 @@ exports.verify = asyncHandler(async (req, res, next) => {
   {
     data={
       vendor:verify.name,
-      coverageDetail:"fullPayment"
+      coverageDetail:"fullPayment",
+      insurerId:verify._id
     }
     res.status(200).json({ success: true , data:data });
   }

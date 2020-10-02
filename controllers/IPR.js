@@ -27,6 +27,38 @@ exports.getIPR = asyncHandler(async (req, res) => {
     .populate('triageAssessment.requester');
   res.status(200).json({ success: true, data: ipr });
 });
+
+exports.getIPRPatient = asyncHandler(async (req, res) => {
+  const ipr = await IPR.find()
+    .populate('patientId')
+    .select({ patientId:1, requestNo: 1 });
+    res.status(200).json({ success: true, data: ipr });
+});
+
+exports.getIPRKeyword = asyncHandler(async (req, res) => {
+  var arr=[]
+  const ipr = await IPR.find().populate('patientId').select({ patientId:1, requestNo: 1 });
+    for(let i = 0; i<ipr.length; i++)
+    {
+       var fullName = ipr[i].patientId.firstName+" "+ipr[i].patientId.lastName
+       if(
+      (ipr[i].patientId.profileNo && ipr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.firstName && ipr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.lastName && ipr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.phoneNumber && ipr[i].patientId.phoneNumber.match(req.params.keyword))||
+      (ipr[i].patientId.SIN && ipr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.mobileNumber && ipr[i].patientId.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(ipr[i])
+      }
+    }
+  
+    res.status(200).json({ success: true, data:arr });      
+
+});
+
 exports.getPHRIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find({ pharmacyRequest: { $ne: [] } })
     .populate('patientId')
@@ -974,7 +1006,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     status,
     triageAssessment,
     functionalUnit,
-    verified
+    verified,
+    insurerId
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
@@ -996,7 +1029,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     status,
     triageAssessment,
     functionalUnit,
-    verified
+    verified,
+    insurerId
   });
   res.status(200).json({ success: true, data: ipr });
 });

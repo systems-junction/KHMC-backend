@@ -32,10 +32,14 @@ const {
     addRadiologyRequest,
     deleteEDR,
     updateEDR,
-    addLabRequest
+    addLabRequest,
+    getEDRPatient,
+    getEDRKeyword
   } = require('../controllers/EDR');
 
 const router = express.Router();
+router.get('/getedrpatient', getEDRPatient);
+router.get('/getedrpatient/:keyword', getEDRKeyword);
 router.get('/getedr/:_id', getEDRById);
 router.get('/getedr', getEDR);
 router.get('/getdischargeedr', getDischargeEDR);
