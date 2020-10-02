@@ -204,7 +204,18 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
               }
             }
         }
-        res.status(200).json({ success: true, data: edr, rc:rc, insured:insured });
+        var uniqueArray = (function(insured){
+          var m = {}, uniqueArray = []
+          for (var i=0; i<insured.length; i++) {
+            var v = insured[i];
+            if (!m[v]) {
+              uniqueArray.push(v);
+              m[v]=true;
+            }
+          }
+          return uniqueArray;
+        })(insured);
+        res.status(200).json({ success: true, data: edr, rc:rc, insured:uniqueArray });
       } else {
         const insurance = await IT.find({providerId:ipr.insurerId})
         var insured = [];
@@ -241,7 +252,18 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
               }
             }
         }
-        res.status(200).json({ success: true, data: ipr, rc:rc,insured:insured });
+        var uniqueArray = (function(insured){
+          var m = {}, uniqueArray = []
+          for (var i=0; i<insured.length; i++) {
+            var v = insured[i];
+            if (!m[v]) {
+              uniqueArray.push(v);
+              m[v]=true;
+            }
+          }
+          return uniqueArray;
+        })(insured);
+        res.status(200).json({ success: true, data: ipr, rc:rc, insured:uniqueArray });
       }
     } else if (a) {
       const insurance = await IT.find({providerId:edr.insurerId})
@@ -279,7 +301,18 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
               }
             }
         }
-        res.status(200).json({ success: true, data: edr, rc:rc, insured:insured });
+        var uniqueArray = (function(insured){
+          var m = {}, uniqueArray = []
+          for (var i=0; i<insured.length; i++) {
+            var v = insured[i];
+            if (!m[v]) {
+              uniqueArray.push(v);
+              m[v]=true;
+            }
+          }
+          return uniqueArray;
+        })(insured);
+        res.status(200).json({ success: true, data: edr, rc:rc, insured:uniqueArray });
     } else if (b) {
       const insurance = await IT.find({providerId:ipr.insurerId})
       var insured = [];
@@ -316,7 +349,18 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
             }
           }
       }
-      res.status(200).json({ success: true, data: ipr, rc:rc ,insured:insured });
+      var uniqueArray = (function(insured){
+        var m = {}, uniqueArray = []
+        for (var i=0; i<insured.length; i++) {
+          var v = insured[i];
+          if (!m[v]) {
+            uniqueArray.push(v);
+            m[v]=true;
+          }
+        }
+        return uniqueArray;
+      })(insured);
+      res.status(200).json({ success: true, data: ipr, rc:rc, insured:uniqueArray });
     } else {
       res.status(200).json({ success: false, data: 'User not found' });
     }
