@@ -106,6 +106,7 @@ exports.getPaitentAll = asyncHandler(async (req, res) => {
         emergencyRelation: 1,
         coveredFamilyMembers: 1,
         otherCoverageDetails: 1,
+        QR:1,
         createdAt: 1,
         updatedAt: 1,
       },
