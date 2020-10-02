@@ -340,6 +340,23 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Patient not found with id of ${_id}`, 404));
   }
   if (req.file) {
+    patientQR = await Patient.findOne({ _id: _id });
+
+    if (!patientQR.QR) {
+      QRCode.toDataURL(JSON.stringify(patientQR.profileNo), function (
+        err,
+        url
+      ) {
+        var base64Str = url;
+        var path = './uploads/';
+        var pathFormed = base64ToImage(base64Str, path);
+        Patient.findOneAndUpdate(
+          { _id: patientQR._id },
+          { $set: { QR: '/uploads/' + pathFormed.fileName } }
+        ).then((docs) => {});
+      });
+    }
+
     patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
@@ -351,6 +368,23 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       { new: true }
     );
   } else {
+    patientQR = await Patient.findOne({ _id: _id });
+
+    if (!patientQR.QR) {
+      QRCode.toDataURL(JSON.stringify(patientQR.profileNo), function (
+        err,
+        url
+      ) {
+        var base64Str = url;
+        var path = './uploads/';
+        var pathFormed = base64ToImage(base64Str, path);
+        Patient.findOneAndUpdate(
+          { _id: patientQR._id },
+          { $set: { QR: '/uploads/' + pathFormed.fileName } }
+        ).then((docs) => {});
+      });
+    }
+
     patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
