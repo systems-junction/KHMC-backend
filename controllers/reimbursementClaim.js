@@ -419,10 +419,15 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Reimbursement Claim not found with id of ${_id}`, 404)
     );
   }
-  if (req.file) {
+  if (req.files) {
+    var arr=[];
+    for(let i=0; i<req.files.length;i++)
+    {
+      arr.push(req.files[i].path);
+    }
     rc = await RC.updateOne(
       { _id: _id },
-      { $set: { document: req.file.path } },
+      { $set: { document: arr } },
       JSON.parse(req.body.data)
     );
   } else {
