@@ -34,15 +34,8 @@ exports.getPatientHistoryPre = asyncHandler(async (req, res) => {
   .select({requestNo:1, createdAt:1,generatedBy:1 ,status:1,requestType:1,patientId:1 })
   const ipr = await IPR.find({patientId:patient._id})
   .populate('patientId')
-  .populate({
-    path: 'generatedBy',
-    populate: [
-      {
-        path: 'functionalUnit',
-      },
-    ],
-  })
-  .select({requestNo:1, createdAt:1,generatedBy:1 ,status:1 ,requestType:1, patientId:1})
+  .populate('functionalUnit')
+  .select({requestNo:1, createdAt:1,functionalUnit:1 ,status:1 ,requestType:1, patientId:1})
 
   const opr = await OPR.find({patientId:patient._id})
   .populate('patientId')
