@@ -377,15 +377,16 @@ exports.getRRPatient = asyncHandler(async (req, res) => {
     }
   }
   var data = [data1.concat(data2)];
-  res.status(200).json({ success: true, data: data });
+  var dataF= data[0]
+  res.status(200).json({ success: true, data: dataF });
 });
 
-exports.getRRPatientById = asyncHandler(async (req, res) => {
-  const edr = await EDR.find()
+exports.getRRPatientKeyword = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({ radiologyRequest: { $ne: [] } })
     .populate('patientId')
     .populate('radiologyRequest.requester')
     .populate('radiologyRequest.serviceId')
-    .select({ radiologyRequest: 1, requestNo: 1 });
+    .select({ radiologyRequest: 1, requestNo: 1 , patineId:1 });
   var data1 = [];
   for (let i = 0; i < edr.length; i++) {
     let rr = edr[i].radiologyRequest;
@@ -400,11 +401,11 @@ exports.getRRPatientById = asyncHandler(async (req, res) => {
       data1.push(obj);
     }
   }
-  const ipr = await IPR.find()
+  const ipr = await IPR.find({ radiologyRequest: { $ne: [] } })
     .populate('patientId')
     .populate('radiologyRequest.requester')
     .populate('radiologyRequest.serviceId')
-    .select({ radiologyRequest: 1, requestNo: 1 });
+    .select({ radiologyRequest: 1, requestNo: 1 ,patientId:1 });
   var data2 = [];
   for (let i = 0; i < ipr.length; i++) {
     let rr = ipr[i].radiologyRequest;
@@ -419,7 +420,70 @@ exports.getRRPatientById = asyncHandler(async (req, res) => {
       data2.push(obj);
     }
   }
-  var data = [data1.concat(data2)];
+  var dataF =[data1.concat(data2)] 
+  var data = dataF[0];
+  var arr=[];
+
+  for(let i = 0; i<data.length; i++)
+  {
+     var fullName = data[i].patientData.firstName+" "+data[i].patientData.lastName
+     if(
+    (data[i].patientData.profileNo && data[i].patientData.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.firstName && data[i].patientData.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.lastName && data[i].patientData.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.phoneNumber && data[i].patientData.phoneNumber.match(req.params.keyword))||
+    (data[i].patientData.SIN && data[i].patientData.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.mobileNumber && data[i].patientData.mobileNumber.match(req.params.keyword))||
+    (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+    )
+    {
+      arr.push(data[i])
+    }
+  }
+  res.status(200).json({ success: true, data: arr });
+
+});
+
+exports.getRRPatientById = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({ radiologyRequest: { $ne: [] } })
+    .populate('patientId')
+    .populate('radiologyRequest.requester')
+    .populate('radiologyRequest.serviceId')
+    .select({ radiologyRequest: 1, requestNo: 1 ,patientId:1 });
+  var data1 = [];
+  for (let i = 0; i < edr.length; i++) {
+    let rr = edr[i].radiologyRequest;
+    for (let j = 0; j < rr.length; j++) {
+      let temp = JSON.parse(JSON.stringify(rr[j]));
+      var obj = {
+        ...temp,
+        edipId: edr[i],
+        requestNo: edr[i].requestNo,
+        patientData: edr[i].patientId,
+      };
+      data1.push(obj);
+    }
+  }
+  const ipr = await IPR.find({ radiologyRequest: { $ne: [] } })
+    .populate('patientId')
+    .populate('radiologyRequest.requester')
+    .populate('radiologyRequest.serviceId')
+    .select({ radiologyRequest: 1, requestNo: 1 ,patientId:1 });
+  var data2 = [];
+  for (let i = 0; i < ipr.length; i++) {
+    let rr = ipr[i].radiologyRequest;
+    for (let j = 0; j < rr.length; j++) {
+      let temp = JSON.parse(JSON.stringify(rr[j]));
+      var obj = {
+        ...temp,
+        edipId: ipr[i],
+        requestNo: ipr[i].requestNo,
+        patientData: ipr[i].patientId,
+      };
+      data2.push(obj);
+    }
+  }
+  var data =[data1.concat(data2)] 
   res.status(200).json({ success: true, data: data });
 });
 
@@ -667,11 +731,11 @@ exports.getLRIPR = asyncHandler(async (req, res) => {
 });
 
 exports.getLRPatient = asyncHandler(async (req, res) => {
-  const edr = await EDR.find()
+  const edr = await EDR.find({ labRequest: { $ne: [] } })
     .populate('patientId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
-    .select({ labRequest: 1, requestNo: 1 });
+    .select({ labRequest: 1, requestNo: 1, patientId:1 });
   var data1 = [];
   for (let i = 0; i < edr.length; i++) {
     let lr = edr[i].labRequest;
@@ -686,11 +750,11 @@ exports.getLRPatient = asyncHandler(async (req, res) => {
       data1.push(obj);
     }
   }
-  const ipr = await IPR.find()
+  const ipr = await IPR.find({ labRequest: { $ne: [] } })
     .populate('patientId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
-    .select({ labRequest: 1, requestNo: 1 });
+    .select({ labRequest: 1, requestNo: 1 , patientId:1});
   var data2 = [];
   for (let i = 0; i < ipr.length; i++) {
     let lr = ipr[i].labRequest;
@@ -706,7 +770,70 @@ exports.getLRPatient = asyncHandler(async (req, res) => {
     }
   }
   var data = [data1.concat(data2)];
-  res.status(200).json({ success: true, data: data });
+    var dataF = data[0]
+  res.status(200).json({ success: true, data: dataF });
+});
+
+exports.getLRPatientKeyword = asyncHandler(async (req, res) => {
+  const edr = await EDR.find({ labRequest: { $ne: [] } })
+    .populate('patientId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .select({ labRequest: 1, requestNo: 1, patientId:1 });
+  var data1 = [];
+  for (let i = 0; i < edr.length; i++) {
+    let lr = edr[i].labRequest;
+    for (let j = 0; j < lr.length; j++) {
+      let temp = JSON.parse(JSON.stringify(lr[j]));
+      var obj = {
+        ...temp,
+        edipId: edr[i],
+        requestNo: edr[i].requestNo,
+        patientData: edr[i].patientId,
+      };
+      data1.push(obj);
+    }
+  }
+  const ipr = await IPR.find({ labRequest: { $ne: [] } })
+    .populate('patientId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .select({ labRequest: 1, requestNo: 1, patientId:1 });
+  var data2 = [];
+  for (let i = 0; i < ipr.length; i++) {
+    let lr = ipr[i].labRequest;
+    for (let j = 0; j < lr.length; j++) {
+      let temp = JSON.parse(JSON.stringify(lr[j]));
+      var obj = {
+        ...temp,
+        edipId: ipr[i],
+        requestNo: ipr[i].requestNo,
+        patientData: ipr[i].patientId,
+      };
+      data2.push(obj);
+    }
+  }
+  var dataF=[data1.concat(data2)];
+  var data = dataF[0]
+  var arr=[];
+
+  for(let i = 0; i<data.length; i++)
+  {
+     var fullName = data[i].patientData.firstName+" "+data[i].patientData.lastName
+     if(
+    (data[i].patientData.profileNo && data[i].patientData.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.firstName && data[i].patientData.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.lastName && data[i].patientData.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.phoneNumber && data[i].patientData.phoneNumber.match(req.params.keyword))||
+    (data[i].patientData.SIN && data[i].patientData.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.mobileNumber && data[i].patientData.mobileNumber.match(req.params.keyword))||
+    (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+    )
+    {
+      arr.push(data[i])
+    }
+  }
+  res.status(200).json({ success: true, data: arr });
 });
 
 exports.getLRById = asyncHandler(async (req, res) => {

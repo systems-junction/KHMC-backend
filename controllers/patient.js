@@ -5,6 +5,7 @@ const Patient = require('../models/patient');
 const PatientFHIR = require('../models/patientFHIR/patientFHIR');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
+const OPR = require('../models/OPR');
 const file = require('../models/file');
 const moment = require('moment');
 const requestNoFormat = require('dateformat');
@@ -17,6 +18,68 @@ exports.getPatient = asyncHandler(async (req, res) => {
     .sort({ $natural: -1 })
     .limit(100);
   res.status(200).json({ success: true, data: patient });
+});
+exports.getPatientHistory = asyncHandler(async (req, res) => {
+  const patient = await Patient.findOne({_id:req.params.id})
+  const edr = await EDR.find({patientId:patient._id})
+  .populate('patientId')
+  .populate('consultationNote.requester')
+  .populate({
+    path: 'pharmacyRequest',
+    populate: [
+      {
+        path: 'item.itemId',
+      },
+    ],
+  })
+  .populate('pharmacyRequest.item.itemId')
+  .populate('labRequest.requester')
+  .populate('labRequest.serviceId')
+  .populate('radiologyRequest.serviceId')
+  .populate('radiologyRequest.requester')
+  .populate('residentNotes.doctor')
+  .populate('residentNotes.doctorRef')
+  .populate('dischargeRequest.dischargeMedication.requester')
+  .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+  .populate('triageAssessment.requester')
+  const ipr = await IPR.find({patientId:patient._id})
+  .populate('patientId')
+  .populate('consultationNote.requester')
+  .populate({
+    path: 'pharmacyRequest',
+    populate: [
+      {
+        path: 'item.itemId',
+      },
+    ],
+  })
+  .populate('labRequest.requester')
+  .populate('labRequest.serviceId')
+  .populate('radiologyRequest.serviceId')
+  .populate('radiologyRequest.requester')
+  .populate('residentNotes.doctor')
+  .populate('residentNotes.doctorRef')
+  .populate('nurseService.serviceId')
+  .populate('nurseService.requester')
+  .populate('dischargeRequest.dischargeMedication.requester')
+  .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+  .populate('followUp.approvalPerson')
+  .populate('triageAssessment.requester')
+  const opr = await OPR.find({patientId:patient._id})
+  .populate('patientId')
+  .populate('pharmacyRequest.requester')
+  .populate('pharmacyRequest.medicine.itemId')
+  .populate('labRequest.requester')
+  .populate('labRequest.serviceId')
+  .populate('radiologyRequest.serviceId')
+  .populate('radiologyRequest.requester');
+
+  var dataConcatArrayEDRIPR = [edr.concat(ipr)]
+  var dataConcatEDRIPR = dataConcatArrayEDRIPR[0]
+  var dataConcatArrayOPR = [dataConcatEDRIPR.concat(opr)]
+  var data= dataConcatArrayOPR[0]
+
+  res.status(200).json({ success: true, data:data });
 });
 exports.getPatientEDR = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ registeredIn: 'EDR' })
