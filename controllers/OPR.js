@@ -25,6 +25,32 @@ exports.getOPRFromLab = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: opr });
 });
 
+exports.getOPRFromLabKeyword = asyncHandler(async (req, res) => {
+  var arr=[]
+  const opr = await OPR.find({ generatedFrom: 'labRequest' })
+    .populate('patientId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .select({ labRequest: 1, requestNo: 1, status: 1, createdAt:1 });
+    for(let i = 0; i<opr.length; i++)
+    {
+       var fullName = opr[i].patientId.firstName+" "+opr[i].patientId.lastName
+       if(
+      (opr[i].patientId.profileNo && opr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.firstName && opr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.lastName && opr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.phoneNumber && opr[i].patientId.phoneNumber.match(req.params.keyword))||
+      (opr[i].patientId.SIN && opr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.mobileNumber && opr[i].patientId.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(opr[i])
+      }
+    }
+    res.status(200).json({ success: true, data:arr }); 
+});
+
 exports.getOPRFromPharmacy = asyncHandler(async (req, res) => {
   const opr = await OPR.find({ generatedFrom: 'pharmacyRequest' })
     .populate('patientId')
@@ -34,6 +60,32 @@ exports.getOPRFromPharmacy = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: opr });
 });
 
+exports.getOPRFromPharmacyKeyword = asyncHandler(async (req, res) => {
+  var arr=[]
+  const opr = await OPR.find({ generatedFrom: 'pharmacyRequest' })
+    .populate('patientId')
+    .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest.medicine.itemId')
+    .select({ pharmacyRequest: 1, requestNo: 1, status: 1, createdAt:1 });
+    for(let i = 0; i<opr.length; i++)
+    {
+       var fullName = opr[i].patientId.firstName+" "+opr[i].patientId.lastName
+       if(
+      (opr[i].patientId.profileNo && opr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.firstName && opr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.lastName && opr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.phoneNumber && opr[i].patientId.phoneNumber.match(req.params.keyword))||
+      (opr[i].patientId.SIN && opr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.mobileNumber && opr[i].patientId.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(opr[i])
+      }
+    }
+    res.status(200).json({ success: true, data:arr }); 
+});
+
 exports.getOPRFromRadiology = asyncHandler(async (req, res) => {
   const opr = await OPR.find({ generatedFrom: 'radiologyRequest' })
     .populate('patientId')
@@ -41,6 +93,32 @@ exports.getOPRFromRadiology = asyncHandler(async (req, res) => {
     .populate('radiologyRequest.requester')
     .select({ radiologyRequest: 1, requestNo: 1, status: 1, createdAt:1 });
   res.status(200).json({ success: true, data: opr });
+});
+
+exports.getOPRFromRadiologyKeyword = asyncHandler(async (req, res) => {
+  var arr=[]
+  const opr = await OPR.find({ generatedFrom: 'radiologyRequest' })
+    .populate('patientId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester')
+    .select({ radiologyRequest: 1, requestNo: 1, status: 1, createdAt:1 });
+    for(let i = 0; i<opr.length; i++)
+    {
+       var fullName = opr[i].patientId.firstName+" "+opr[i].patientId.lastName
+       if(
+      (opr[i].patientId.profileNo && opr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.firstName && opr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.lastName && opr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.phoneNumber && opr[i].patientId.phoneNumber.match(req.params.keyword))||
+      (opr[i].patientId.SIN && opr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (opr[i].patientId.mobileNumber && opr[i].patientId.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(opr[i])
+      }
+    }
+    res.status(200).json({ success: true, data:arr }); 
 });
 
 exports.getOPRById = asyncHandler(async (req, res) => {
