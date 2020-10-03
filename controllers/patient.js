@@ -11,7 +11,7 @@ const moment = require('moment');
 const requestNoFormat = require('dateformat');
 var QRCode = require('qrcode');
 var base64ToImage = require('base64-to-image');
-const { urlencoded } = require('body-parser');
+
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find()
     .populate('receivedBy')
@@ -114,8 +114,6 @@ exports.getPatientHistory = asyncHandler(async (req, res) => {
   else{
     res.status(200).json({ success: false, data:"Request does not exist" });
   }
-
-
 });
 exports.getPatientEDR = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ registeredIn: 'EDR' })
