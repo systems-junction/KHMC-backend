@@ -19,6 +19,48 @@ exports.getPatient = asyncHandler(async (req, res) => {
     .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
+exports.getPatientHistoryPre = asyncHandler(async (req, res) => {
+  const patient = await Patient.findOne({_id:req.params.id})
+  const edr = await EDR.find({patientId:patient._id})
+  .populate({
+    path: 'generatedBy',
+    populate: [
+      {
+        path: 'functionalUnit',
+      },
+    ],
+  })
+  .select({requestNo:1, createdAt:1,generatedBy:1 ,status:1,requestType:1 })
+  const ipr = await IPR.find({patientId:patient._id})
+  .populate({
+    path: 'generatedBy',
+    populate: [
+      {
+        path: 'functionalUnit',
+      },
+    ],
+  })
+  .select({requestNo:1, createdAt:1,generatedBy:1 ,status:1 ,requestType:1})
+
+  const opr = await OPR.find({patientId:patient._id})
+  .populate({
+    path: 'generatedBy',
+    populate: [
+      {
+        path: 'functionalUnit',
+      },
+    ],
+  })
+  .select({requestNo:1, createdAt:1,generatedBy:1 ,status:1 ,requestType:1})
+
+  var dataConcatArrayEDRIPR = [edr.concat(ipr)]
+  var dataConcatEDRIPR = dataConcatArrayEDRIPR[0]
+  var dataConcatArrayOPR = [dataConcatEDRIPR.concat(opr)]
+  var data= dataConcatArrayOPR[0]
+
+  res.status(200).json({ success: true, data:data });
+});
+
 exports.getPatientHistory = asyncHandler(async (req, res) => {
   const patient = await Patient.findOne({_id:req.params.id})
   const edr = await EDR.find({patientId:patient._id})
@@ -42,6 +84,8 @@ exports.getPatientHistory = asyncHandler(async (req, res) => {
   .populate('dischargeRequest.dischargeMedication.requester')
   .populate('dischargeRequest.dischargeMedication.medicine.itemId')
   .populate('triageAssessment.requester')
+  .populate('generatedBy')
+
   const ipr = await IPR.find({patientId:patient._id})
   .populate('patientId')
   .populate('consultationNote.requester')
@@ -65,6 +109,15 @@ exports.getPatientHistory = asyncHandler(async (req, res) => {
   .populate('dischargeRequest.dischargeMedication.medicine.itemId')
   .populate('followUp.approvalPerson')
   .populate('triageAssessment.requester')
+  .populate({
+    path: 'generatedBy',
+    populate: [
+      {
+        path: 'functionalUnit',
+      },
+    ],
+  })
+
   const opr = await OPR.find({patientId:patient._id})
   .populate('patientId')
   .populate('pharmacyRequest.requester')
@@ -72,7 +125,8 @@ exports.getPatientHistory = asyncHandler(async (req, res) => {
   .populate('labRequest.requester')
   .populate('labRequest.serviceId')
   .populate('radiologyRequest.serviceId')
-  .populate('radiologyRequest.requester');
+  .populate('radiologyRequest.requester')
+  .populate('generatedBy');
 
   var dataConcatArrayEDRIPR = [edr.concat(ipr)]
   var dataConcatEDRIPR = dataConcatArrayEDRIPR[0]
