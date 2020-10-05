@@ -17,8 +17,11 @@ var upload = multer({ storage: storage });
 const {
   getOPRAll,
   getOPRFromLab,
+  getOPRFromLabKeyword,
   getOPRFromPharmacy,
+  getOPRFromPharmacyKeyword,
   getOPRFromRadiology,
+  getOPRFromRadiologyKeyword,
   getOPRById,
   addOPR,
   deleteOPR,
@@ -34,8 +37,11 @@ const {
 const router = express.Router();
 router.get('/getoprall', getOPRAll);
 router.get('/getoprfromlab', getOPRFromLab);
+router.get('/getoprfromlab/:keyword', getOPRFromLabKeyword);
 router.get('/getoprfrompharmacy', getOPRFromPharmacy);
+router.get('/getoprfrompharmacy/:keyword', getOPRFromPharmacyKeyword);
 router.get('/getoprfromradiology', getOPRFromRadiology);
+router.get('/getoprfromradiology/:keyword', getOPRFromRadiologyKeyword);
 router.get('/getopr/:_id', getOPRById);
 router.post('/addopr', addOPR);
 router.delete('/deleteopr/:_id', deleteOPR);

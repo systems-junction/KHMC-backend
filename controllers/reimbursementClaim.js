@@ -4,7 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 const EDR = require('../models/EDR');
 const IPR = require('../models/IPR');
 const RC = require('../models/reimbursementClaim');
-const Patient = require('../models/patient');
+const IT = require('../models/insuranceItems');
+// const Patient = require('../models/patient');
 const requestNoFormat = require('dateformat');
 const moment = require('moment');
 exports.getClaims = asyncHandler(async (req, res) => {
@@ -135,7 +136,6 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
         .sort({
           createdAt: 'desc',
         })
-        .limit(100);
     }
     const b = await IPR.findOne({ patientId: req.params._id });
     if (b !== null) {
@@ -165,19 +165,202 @@ exports.getEDRorIPR = asyncHandler(async (req, res) => {
         .sort({
           createdAt: 'desc',
         })
-        .limit(100);
     }
     if (a && b) {
       var isafter = moment(edr.createdAt).isAfter(ipr.createdAt);
       if (isafter) {
-        res.status(200).json({ success: true, data: edr, rc:rc });
+        const insurance = await IT.find({providerId:edr.insurerId})
+        var insured = [];
+        for(let i=0; i<edr.pharmacyRequest.length;i++)
+        {
+          for(let j=0; j<edr.pharmacyRequest[i].item.length; j++)
+          {
+            for(let k=0; k<insurance.length; k++)
+            {
+              if(JSON.parse(JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
+              {
+                insured.push(insurance[k])
+              }
+            }
+          }
+        }
+        for(let i=0; i<edr.labRequest.length;i++)
+        {
+            for(let j=0; j<insurance.length; j++)
+            {
+              if(JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId)
+              {
+                insured.push(insurance[j])
+              }
+            }
+        }
+        for(let i=0; i<edr.radiologyRequest.length;i++)
+        {
+            for(let j=0; j<insurance.length; j++)
+            {
+              if(JSON.parse(JSON.stringify(edr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
+              {
+                insured.push(insurance[j])
+              }
+            }
+        }
+        var uniqueArray = (function(insured){
+          var m = {}, uniqueArray = []
+          for (var i=0; i<insured.length; i++) {
+            var v = insured[i];
+            if (!m[v]) {
+              uniqueArray.push(v);
+              m[v]=true;
+            }
+          }
+          return uniqueArray;
+        })(insured);
+        res.status(200).json({ success: true, data: edr, rc:rc, insured:uniqueArray });
       } else {
-        res.status(200).json({ success: true, data: ipr, rc:rc });
+        const insurance = await IT.find({providerId:ipr.insurerId})
+        var insured = [];
+        for(let i=0; i<ipr.pharmacyRequest.length;i++)
+        {
+          for(let j=0; j<ipr.pharmacyRequest[i].item.length; j++)
+          {
+            for(let k=0; k<insurance.length; k++)
+            {
+              if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
+              {
+                insured.push(insurance[k])
+              }
+            }
+          }
+        }
+        for(let i=0; i<ipr.labRequest.length;i++)
+        {
+            for(let j=0; j<insurance.length; j++)
+            {
+              if(JSON.parse(JSON.stringify(ipr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId)
+              {
+                insured.push(insurance[j])
+              }
+            }
+        }
+        for(let i=0; i<ipr.radiologyRequest.length;i++)
+        {
+            for(let j=0; j<insurance.length; j++)
+            {
+              if(JSON.parse(JSON.stringify(ipr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
+              {
+                insured.push(insurance[j])
+              }
+            }
+        }
+        var uniqueArray = (function(insured){
+          var m = {}, uniqueArray = []
+          for (var i=0; i<insured.length; i++) {
+            var v = insured[i];
+            if (!m[v]) {
+              uniqueArray.push(v);
+              m[v]=true;
+            }
+          }
+          return uniqueArray;
+        })(insured);
+        res.status(200).json({ success: true, data: ipr, rc:rc, insured:uniqueArray });
       }
     } else if (a) {
-      res.status(200).json({ success: true, data: edr, rc:rc });
+      const insurance = await IT.find({providerId:edr.insurerId})
+      var insured = [];
+        for(let i=0; i<edr.pharmacyRequest.length;i++)
+        {
+          for(let j=0; j<edr.pharmacyRequest[i].item.length; j++)
+          {
+            for(let k=0; k<insurance.length; k++)
+            {
+              if(JSON.parse(JSON.stringify(edr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
+              {
+                insured.push(insurance[k])
+              }
+            }
+          }
+        }
+        for(let i=0; i<edr.labRequest.length;i++)
+        {
+            for(let j=0; j<insurance.length; j++)
+            {
+              if(JSON.parse(JSON.stringify(edr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId)
+              {
+                insured.push(insurance[j])
+              }
+            }
+        }
+        for(let i=0; i<edr.radiologyRequest.length;i++)
+        {
+            for(let j=0; j<insurance.length; j++)
+            {
+              if(JSON.parse(JSON.stringify(edr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
+              {
+                insured.push(insurance[j])
+              }
+            }
+        }
+        var uniqueArray = (function(insured){
+          var m = {}, uniqueArray = []
+          for (var i=0; i<insured.length; i++) {
+            var v = insured[i];
+            if (!m[v]) {
+              uniqueArray.push(v);
+              m[v]=true;
+            }
+          }
+          return uniqueArray;
+        })(insured);
+        res.status(200).json({ success: true, data: edr, rc:rc, insured:uniqueArray });
     } else if (b) {
-      res.status(200).json({ success: true, data: ipr, rc:rc });
+      const insurance = await IT.find({providerId:ipr.insurerId})
+      var insured = [];
+      for(let i=0; i<ipr.pharmacyRequest.length;i++)
+      {
+        for(let j=0; j<ipr.pharmacyRequest[i].item.length; j++)
+        {
+          for(let k=0; k<insurance.length; k++)
+          {
+            if(JSON.parse(JSON.stringify(ipr.pharmacyRequest[i].item[j].itemId._id)) == insurance[k].itemId)
+            {
+              insured.push(insurance[k])
+            }
+          }
+        }
+      }
+      for(let i=0; i<ipr.labRequest.length;i++)
+      {
+          for(let j=0; j<insurance.length; j++)
+          {
+            if(JSON.parse(JSON.stringify(ipr.labRequest[i].serviceId._id)) == insurance[j].laboratoryServiceId)
+            {
+              insured.push(insurance[j])
+            }
+          }
+      }
+      for(let i=0; i<ipr.radiologyRequest.length;i++)
+      {
+          for(let j=0; j<insurance.length; j++)
+          {
+            if(JSON.parse(JSON.stringify(ipr.radiologyRequest[i].serviceId._id)) == insurance[j].radiologyServiceId)
+            {
+              insured.push(insurance[j])
+            }
+          }
+      }
+      var uniqueArray = (function(insured){
+        var m = {}, uniqueArray = []
+        for (var i=0; i<insured.length; i++) {
+          var v = insured[i];
+          if (!m[v]) {
+            uniqueArray.push(v);
+            m[v]=true;
+          }
+        }
+        return uniqueArray;
+      })(insured);
+      res.status(200).json({ success: true, data: ipr, rc:rc, insured:uniqueArray });
     } else {
       res.status(200).json({ success: false, data: 'User not found' });
     }
@@ -195,7 +378,12 @@ exports.addClaims = asyncHandler(async (req, res) => {
   } = req.body.data;
   var parsed = JSON.parse(req.body.data);
   var rc;
-  if (req.file) {
+  if (req.files) {
+    var arr=[];
+    for(let i=0; i<req.files.length;i++)
+    {
+      arr.push(req.files[i].path);
+    }
     rc = await RC.create({
       requestNo: 'IRI' + requestNoFormat(new Date(), 'mmddyyHHmm'),
       generatedBy: parsed.generatedBy,
@@ -203,7 +391,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
       insurer: parsed.insurer,
       treatmentDetail: parsed.treatmentDetail,
       responseCode: parsed.responseCode,
-      document: req.file.path,
+      document: arr,
       status: parsed.status,
     });
   } else {
@@ -231,10 +419,15 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Reimbursement Claim not found with id of ${_id}`, 404)
     );
   }
-  if (req.file) {
+  if (req.files) {
+    var arr=[];
+    for(let i=0; i<req.files.length;i++)
+    {
+      arr.push(req.files[i].path);
+    }
     rc = await RC.updateOne(
       { _id: _id },
-      { $set: { document: req.file.path } },
+      { $set: { document: arr } },
       JSON.parse(req.body.data)
     );
   } else {

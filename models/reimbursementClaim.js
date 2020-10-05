@@ -22,9 +22,9 @@ const reimbursementClaimSchema = new mongoose.Schema({
         treatmentDetail:{
           type:String
         },
-        document:{
+        document:[{
           type:String
-        },
+        }],
         responseCode:{
             type:String
         },

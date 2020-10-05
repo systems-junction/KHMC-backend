@@ -397,6 +397,13 @@ const IPRSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'functionalUnit',
     },
+    verified:{
+        type:Boolean
+    },
+    insurerId:{
+        type:mongoose.Schema.ObjectId,
+        ref:'insuranceVendors'
+    },
     createdAt: {
         type: Date,
         default: Date.now,

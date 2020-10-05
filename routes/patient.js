@@ -28,6 +28,8 @@ var audioStorage = multer.diskStorage({
 var audioUpload = multer({ storage: audioStorage });
 const {
   getPatient,
+  getPatientHistoryPre,
+  getPatientHistory,
   getPatientEDR,
   getPatientIPR,
   getPatientById,
@@ -55,6 +57,8 @@ const {
 
 const router = express.Router();
 router.get('/getpatient', getPatient);
+router.get('/getpatienthistorypre/:id', getPatientHistoryPre);
+router.get('/getpatienthistory/:id/:requestType', getPatientHistory);
 router.get('/getpatientall/:keyword', getPaitentAll);
 router.get('/getpatientedr', getPatientEDR);
 router.get('/getpatientipr', getPatientIPR);

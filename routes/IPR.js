@@ -34,9 +34,11 @@ const {
   updateIPR,
   addFollowUp,
   getRRPatient,
+  getRRPatientKeyword,
   getRRPatientById,
   getRRById,
   getLRPatient,
+  getLRPatientKeyword,
   getLRById,
   getPHRPatient,
   getPHRById,
@@ -48,10 +50,14 @@ const {
   putDischargeById,
   getIPREDRById,
   getConsultation,
-  getConsultationOld
+  getConsultationOld,
+  getIPRPatient,
+  getIPRKeyword
 } = require('../controllers/IPR');
 
 const router = express.Router();
+router.get('/getiprpatient', getIPRPatient);
+router.get('/getiprpatient/:keyword', getIPRKeyword);
 router.get('/getipr/:_id', getIPRById);
 router.get('/getipr', getIPR);
 router.get('/getdischargeipr', getDischargeIPR);
@@ -71,10 +77,12 @@ router.delete('/deleteipr/:_id', deleteIPR);
 router.put('/updateipr', updateIPR);
 router.put('/addfollowup', upload.single('file'), addFollowUp);
 router.get('/getrrpatient', getRRPatient);
+router.get('/getrrpatient/:keyword', getRRPatientKeyword);
 router.get('/getrrpatientbyid/:_id', getRRPatientById);
 router.get('/getrrbyid/:_id', getRRById);
 router.put('/updaterr', upload.single('file'), putRRById);
 router.get('/getlrpatient', getLRPatient);
+router.get('/getlrpatient/:keyword', getLRPatientKeyword);
 router.get('/getlrbyid/:_id', getLRById);
 router.put('/updatelr', upload.single('file'), putLRById);
 router.get('/getphrpatient', getPHRPatient);

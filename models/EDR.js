@@ -281,6 +281,13 @@ const EDRSchema = new mongoose.Schema({
         type: String,
         default: 'EDR',
     },
+    verified:{
+        type:Boolean
+    },
+    insurerId:{
+        type:mongoose.Schema.ObjectId,
+        ref:'insuranceVendors'
+    },
     createdAt: {
         type: Date,
         default: Date.now,

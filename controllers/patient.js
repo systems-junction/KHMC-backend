@@ -5,18 +5,115 @@ const Patient = require('../models/patient');
 const PatientFHIR = require('../models/patientFHIR/patientFHIR');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
+const OPR = require('../models/OPR');
 const file = require('../models/file');
 const moment = require('moment');
 const requestNoFormat = require('dateformat');
 var QRCode = require('qrcode');
 var base64ToImage = require('base64-to-image');
-const { urlencoded } = require('body-parser');
+
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find()
     .populate('receivedBy')
     .sort({ $natural: -1 })
     .limit(100);
   res.status(200).json({ success: true, data: patient });
+});
+exports.getPatientHistoryPre = asyncHandler(async (req, res) => {
+  const patient = await Patient.findOne({_id:req.params.id})
+  const edr = await EDR.find({patientId:patient._id})
+  .populate('patientId')
+  .select({requestNo:1, createdAt:1,status:1,requestType:1,patientId:1 })
+  const ipr = await IPR.find({patientId:patient._id})
+  .populate('patientId')
+  .populate('functionalUnit')
+  .select({requestNo:1, createdAt:1,functionalUnit:1 ,status:1 ,requestType:1, patientId:1})
+
+  const opr = await OPR.find({patientId:patient._id})
+  .populate('patientId')
+  .populate({
+    path: 'generatedBy',
+    populate: [
+      {
+        path: 'functionalUnit',
+      },
+    ],
+  })
+  .select({requestNo:1, createdAt:1,generatedBy:1 ,status:1 ,requestType:1,patientId:1})
+
+  var dataConcatArrayEDRIPR = [edr.concat(ipr)]
+  var dataConcatEDRIPR = dataConcatArrayEDRIPR[0]
+  var dataConcatArrayOPR = [dataConcatEDRIPR.concat(opr)]
+  var data= dataConcatArrayOPR[0]
+
+  res.status(200).json({ success: true, data:data });
+});
+
+exports.getPatientHistory = asyncHandler(async (req, res) => {
+  if(req.params.requestType=="EDR")
+  {
+    const edr = await EDR.findOne({_id:req.params.id})
+    .populate('consultationNote.requester')
+    .populate({
+      path: 'pharmacyRequest',
+      populate: [
+        {
+          path: 'item.itemId',
+        },
+      ],
+    })
+    .populate('pharmacyRequest.item.itemId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester')
+    .populate('residentNotes.doctor')
+    .populate('residentNotes.doctorRef')
+    .populate('dischargeRequest.dischargeMedication.requester')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .populate('triageAssessment.requester');
+    res.status(200).json({ success: true, data:edr });
+  }
+  else if(req.params.requestType=="IPR")
+ {
+  const ipr = await IPR.findOne({_id:req.params.id})
+  .populate('consultationNote.requester')
+  .populate({
+    path: 'pharmacyRequest',
+    populate: [
+      {
+        path: 'item.itemId',
+      },
+    ],
+  })
+  .populate('labRequest.requester')
+  .populate('labRequest.serviceId')
+  .populate('radiologyRequest.serviceId')
+  .populate('radiologyRequest.requester')
+  .populate('residentNotes.doctor')
+  .populate('residentNotes.doctorRef')
+  .populate('nurseService.serviceId')
+  .populate('nurseService.requester')
+  .populate('dischargeRequest.dischargeMedication.requester')
+  .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+  .populate('followUp.approvalPerson')
+  .populate('triageAssessment.requester');
+  res.status(200).json({ success: true, data:ipr });
+ }
+  else if (req.params.requestType=="OPR")
+  {
+    const opr = await OPR.find({_id:req.params.id})
+    .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest.medicine.itemId')
+    .populate('labRequest.requester')
+    .populate('labRequest.serviceId')
+    .populate('radiologyRequest.serviceId')
+    .populate('radiologyRequest.requester');
+    res.status(200).json({ success: true, data:opr });
+  }
+  else{
+    res.status(200).json({ success: false, data:"Request does not exist" });
+  }
 });
 exports.getPatientEDR = asyncHandler(async (req, res) => {
   const patient = await Patient.find({ registeredIn: 'EDR' })
@@ -106,6 +203,7 @@ exports.getPaitentAll = asyncHandler(async (req, res) => {
         emergencyRelation: 1,
         coveredFamilyMembers: 1,
         otherCoverageDetails: 1,
+        QR:1,
         createdAt: 1,
         updatedAt: 1,
       },
@@ -340,6 +438,23 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Patient not found with id of ${_id}`, 404));
   }
   if (req.file) {
+    patientQR = await Patient.findOne({ _id: _id });
+
+    if (!patientQR.QR) {
+      QRCode.toDataURL(JSON.stringify(patientQR.profileNo), function (
+        err,
+        url
+      ) {
+        var base64Str = url;
+        var path = './uploads/';
+        var pathFormed = base64ToImage(base64Str, path);
+        Patient.findOneAndUpdate(
+          { _id: patientQR._id },
+          { $set: { QR: '/uploads/' + pathFormed.fileName } }
+        ).then((docs) => {});
+      });
+    }
+
     patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
@@ -351,6 +466,23 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       { new: true }
     );
   } else {
+    patientQR = await Patient.findOne({ _id: _id });
+
+    if (!patientQR.QR) {
+      QRCode.toDataURL(JSON.stringify(patientQR.profileNo), function (
+        err,
+        url
+      ) {
+        var base64Str = url;
+        var path = './uploads/';
+        var pathFormed = base64ToImage(base64Str, path);
+        Patient.findOneAndUpdate(
+          { _id: patientQR._id },
+          { $set: { QR: '/uploads/' + pathFormed.fileName } }
+        ).then((docs) => {});
+      });
+    }
+
     patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
