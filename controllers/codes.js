@@ -34,7 +34,7 @@ exports.getICD = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: uniqueArray });
   });
   exports.getICDByCategories = asyncHandler(async (req, res) => {
-    const icd = await ICD.find({procedureCodeCategory:req.params.code}).select({icd10PCSCodes:1})
+    const icd = await ICD.find({procedureCodeCategory:req.params.code}).select({icd10PCSCodes:1,procedureCodeDescriptions:1})
     res.status(200).json({ success: true, data: icd });
   });
 
