@@ -16,6 +16,7 @@ var upload = multer({ storage: storage });
 const {
 getClaims,
 getPatient,
+getPatientInsurance,
 getPatientDischarged,
 getEDRorIPR,
 addClaims,
@@ -25,6 +26,7 @@ updateClaims
 const router = express.Router();
 router.get('/getclaim', getClaims);
 router.get('/getpatient/:id/:keyword', getPatient);
+router.get('/getpatientinsurance/:id/:keyword', getPatientInsurance);
 router.get('/getpatientdischarge/:id/:keyword', getPatientDischarged);
 router.get('/getedripr/:_id', getEDRorIPR);
 router.post('/addclaim', upload.array('file'), addClaims);
