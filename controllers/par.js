@@ -34,7 +34,7 @@ exports.getEDRandIPR = asyncHandler(async (req, res) => {
       { 'labRequest': { $ne: [] }},
       { 'radiologyRequest': {$ne: [] }},
       { 'pharmacyRequest': {$ne: [] } }
-    ] ,paymentMethod:"Insurance"
+    ],paymentMethod:"Insurance"
   })
     .populate('patientId')
     .populate('consultationNote.requester')
