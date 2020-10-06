@@ -11,7 +11,23 @@ const asyncHandler = require('../middleware/async');
             res.status(400).send({success:false, message: "Error getting warehouse inventory!", error: e.toString()});
         }
     };
-
+exports.getWhInventoryKeyword = asyncHandler(async(req,res)=>{
+   const ware = await WhInventory.find().populate('itemId').limit(500);
+   var arr= [];
+   for(let i = 0; i<ware.length; i++)
+    {
+        if(
+      (ware[i].itemId.itemCode && ware[i].itemId.itemCode.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ware[i].itemId.name && ware[i].itemId.name.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ware[i].itemId.tradeName && ware[i].itemId.tradeName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (ware[i].itemId.scientificName && ware[i].itemId.scientificName.match(req.params.keyword))
+      )
+      {
+        arr.push(ware[i])
+      }
+    }
+    res.status(200).json({ success: true, data:arr });
+})
     exports.addWhInventory = (req, res, next) => {
         const { itemId, qty, maximumLevel, reorderLevel, minimumLevel } = req.body;
         try{
