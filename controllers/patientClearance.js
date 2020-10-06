@@ -22,7 +22,7 @@ exports.getPatientClearanceById = asyncHandler(async (req, res) => {
 });
 
 exports.addPatientClearance = asyncHandler(async (req, res) => {
-  const {patientId,edrId,iprId,generatedBy,consultantFee,residentFee,subTotal,total} = req.body;
+  const {patientId,edrId,iprId,generatedBy,consultantFee,residentFee,subTotal,total,returnedAmount} = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
   var diff = now - start + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
@@ -30,7 +30,7 @@ exports.addPatientClearance = asyncHandler(async (req, res) => {
   var day = Math.floor(diff / oneDay);
    const patient = await PatientClearance.create({
       clearanceNo: 'PC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
-      patientId,edrId,iprId,generatedBy,consultantFee,residentFee,subTotal,total
+      patientId,edrId,iprId,generatedBy,consultantFee,residentFee,subTotal,total,returnedAmount
     });
   res.status(200).json({ success: true, data: patient });
 });
