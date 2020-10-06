@@ -64,22 +64,21 @@ exports.getPatient = asyncHandler(async (req, res) => {
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" }}).populate('patientId')
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId')
     for(let i = 0; i<ipr.length; i++)
     {
-        if(ipr[i].patientId.paymentMethod=="Insurance")
-        {
+        // if(ipr[i].patientId.paymentMethod=="Insurance")
+        // {
           array.push(ipr[i].patientId) 
-        }
-
+        // }
     }
-  const edr = await EDR.find({ status: { $ne: "Discharged" }}).populate('patientId')
+  const edr = await EDR.find({ status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId')
     for(let i = 0; i<edr.length; i++)
     {
-      if(edr[i].patientId.paymentMethod=="Insurance")
-      {
+      // if(edr[i].patientId.paymentMethod=="Insurance")
+      // {
         array.push(edr[i].patientId)
-      }
+      // }
     }
     const unique = Array.from(new Set(array)) 
     for(let i = 0; i<unique.length; i++)
