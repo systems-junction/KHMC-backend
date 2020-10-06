@@ -1,6 +1,7 @@
 const express = require('express');
 const {
     getFuInventory,
+    getFuInventoryKeyword,
     getFuInventoryByFU,
     addFuInventory,
     deleteFuInventory,
@@ -12,6 +13,7 @@ const router = express.Router();
 
 
 router.get('/getfuinventory', getFuInventory);
+router.get('/getfuinventory/:keyword', getFuInventoryKeyword);
 router.get('/getfuinventory/:_id', getFuInventoryByFU);
 router.post('/addfuinventory', addFuInventory);
 router.delete('/deletefuinventory/:_id', deleteFuInventory);
