@@ -90,6 +90,14 @@ const internalReturnRequestSchema = new mongoose.Schema({
   batchNo: {
     type: String,
   },
+  returnBatchArray: [
+    {
+      batchNumber: String,
+      expiryDatePerBatch: { type: Date },
+      receivedQtyPerBatch: { type: Number },
+      returnedQtyPerBatch: { type: Number },
+    },
+  ],
 });
 
 module.exports = mongoose.model(

@@ -35,7 +35,7 @@ exports.deleteInternalReturnRequests = asyncHandler(async (req, res, next) => {
 
 exports.addInternalReturnRequest = asyncHandler(async (req, res) => {
     const { generatedBy,dateGenerated,expiryDate,to,from,fuId,buId,itemId,currentQty,reason,returnedQty,
-           reasonDetail,description,status,damageReport,replenishmentRequestBU,replenishmentRequestFU} = req.body;
+           reasonDetail,description,status,damageReport,replenishmentRequestBU,replenishmentRequestFU, returnBatchArray} = req.body;
     var now = new Date();
     var start = new Date(now.getFullYear(), 0, 0);
     var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
@@ -58,7 +58,8 @@ exports.addInternalReturnRequest = asyncHandler(async (req, res) => {
         reasonDetail,
         damageReport,
         status,
-        replenishmentRequestBU,replenishmentRequestFU
+        replenishmentRequestBU,replenishmentRequestFU,
+        returnBatchArray
     });
     notification("Return Request", "A new Return Request "+irr.returnRequestNo+" has been generated at "+irr.createdAt, "FU Internal Request Return Approval Member")
     const send = await InternalReturnRequest.find({to:"Warehouse",from:"FU"}).populate('fuId').populate('itemId').populate('replenishmentRequestFU');
