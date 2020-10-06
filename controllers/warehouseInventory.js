@@ -3,7 +3,7 @@ const moment = require('moment');
 const asyncHandler = require('../middleware/async');
     exports.getWhInventory = (req, res, next) => {
         try {
-            WhInventory.find().populate('itemId').limit(100).then(function(data, err){
+            WhInventory.find().populate('itemId').limit(500).then(function(data, err){
                 if(err) throw err;
                 res.status(200).send({success:true, data: data , message: "Warehouse inventory fetched successfully" });
             })

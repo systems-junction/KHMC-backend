@@ -4,11 +4,16 @@ const { v4: uuidv4 } = require('uuid');
 const PAR = require('../models/par');
 const EDR = require('../models/EDR');
 const IPR = require('../models/IPR');
-const OPR = require('../models/OPR');
 const requestNoFormat = require('dateformat');
 
 exports.getEDRandIPR = asyncHandler(async (req, res) => {
-  const edr = await EDR.find()
+  const edr = await EDR.find({
+    $or: [
+      { 'labRequest': { $ne: [] }},
+      { 'radiologyRequest': {$ne: [] }},
+      { 'pharmacyRequest': {$ne: [] } }
+    ],paymentMethod:"Insurance"
+  })
     .populate('patientId')
     .populate('consultationNote.requester')
     .populate({
@@ -24,7 +29,13 @@ exports.getEDRandIPR = asyncHandler(async (req, res) => {
     .populate('residentNotes.doctorRef')
     .populate('dischargeRequest.dischargeMedication.requester')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-  const ipr = await IPR.find()
+  const ipr = await IPR.find({
+    $or: [
+      { 'labRequest': { $ne: [] }},
+      { 'radiologyRequest': {$ne: [] }},
+      { 'pharmacyRequest': {$ne: [] } }
+    ] ,paymentMethod:"Insurance"
+  })
     .populate('patientId')
     .populate('consultationNote.requester')
     .populate({
@@ -42,20 +53,9 @@ exports.getEDRandIPR = asyncHandler(async (req, res) => {
     .populate('nurseService.requester')
     .populate('dischargeRequest.dischargeMedication.requester')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId');
-  // const opr = await OPR.find()
-  //   .populate('patientId')
-  //   .populate('pharmacyRequest.requester')
-  //   .populate('pharmacyRequest.medicine.itemId')
-  //   .populate('labRequest.requester')
-  //   .populate('labRequest.serviceId')
-  //   .populate('radiologyRequest.serviceId')
-  //   .populate('radiologyRequest.requester');
-  const data = {
-    edr,
-    ipr,
-    // opr,
-  };
-  res.status(200).json({ success: true, data: data });
+    var dataF = [edr.concat(ipr)];
+    var data = dataF[0]
+    res.status(200).json({ success: true, data: data });
 });
 
 exports.addPAR = asyncHandler(async (req, res) => {

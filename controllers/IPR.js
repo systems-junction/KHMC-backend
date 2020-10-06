@@ -234,18 +234,53 @@ exports.getDischarge = asyncHandler(async (req, res) => {
   })
     .populate('patientId')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-    .select({ dischargeRequest: 1, requestNo: 1 });
-  // res.status(200).json({ success: true, data: ipr });
+    .select({ dischargeRequest: 1, requestNo: 1 , patientId:1 });
 
   const edr = await EDR.find({
     'dischargeRequest.dischargeMedication.medicine': { $ne: [] },
   })
     .populate('patientId')
     .populate('dischargeRequest.dischargeMedication.medicine.itemId')
-    .select({ dischargeRequest: 1, requestNo: 1 });
-  var data = [ipr.concat(edr)];
-  // ipr.push(edr)
+    .select({ dischargeRequest: 1, requestNo: 1 , patientId:1 });
+  var dataF = [ipr.concat(edr)];
+  var data = dataF[0]
   res.status(200).json({ success: true, data: data });
+});
+exports.getDischargeKeyword = asyncHandler(async (req, res) => {
+  const ipr = await IPR.find({
+    'dischargeRequest.dischargeMedication.medicine': { $ne: [] },
+  })
+    .populate('patientId')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .select({ dischargeRequest: 1, requestNo: 1 , patientId:1 });
+
+  const edr = await EDR.find({
+    'dischargeRequest.dischargeMedication.medicine': { $ne: [] },
+  })
+    .populate('patientId')
+    .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    .select({ dischargeRequest: 1, requestNo: 1 , patientId:1 });
+  var dataF = [ipr.concat(edr)];
+  var data = dataF[0]
+  var arr=[]
+  for(let i = 0; i<data.length; i++)
+  {
+     var fullName = data[i].patientId.firstName+" "+data[i].patientId.lastName
+     if(
+    (data[i].patientId.profileNo && data[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.firstName && data[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.lastName && data[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.phoneNumber && data[i].patientId.phoneNumber.match(req.params.keyword))||
+    (data[i].patientId.SIN && data[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.mobileNumber && data[i].patientId.mobileNumber.match(req.params.keyword))||
+    (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+    )
+    {
+      arr.push(data[i])
+    }
+  }
+
+  res.status(200).json({ success: true, data: arr });
 });
 
 exports.getDischargeIPRById = asyncHandler(async (req, res) => {
@@ -1134,7 +1169,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     triageAssessment,
     functionalUnit,
     verified,
-    insurerId
+    insurerId,
+    paymentMethod
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
@@ -1157,7 +1193,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     triageAssessment,
     functionalUnit,
     verified,
-    insurerId
+    insurerId,
+    paymentMethod
   });
   res.status(200).json({ success: true, data: ipr });
 });

@@ -88,3 +88,29 @@ exports.addDischargeRequest = asyncHandler(async (req, res) => {
     }
     res.status(200).json({ success: true, data: dr });
   });
+
+  exports.getDischarge = asyncHandler(async (req, res) => {
+    const dc = await DR.find()
+    .populate('iprId')
+    .populate('edrId')
+
+    // .populate('consultationNote.requester')
+    // .populate('residentNotes.doctorRef').populate('dischargeRequest.dischargeMedication.requester')
+    // .populate('dischargeRequest.dischargeMedication.requester')
+    // .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    // // .populate('pharmacyRequest.requester').populate('pharmacyRequest.medicine.itemId')
+    // .populate('labRequest.requester').populate('labRequest.serviceId')
+    // .populate('radiologyRequest.serviceId').populate('radiologyRequest.requester')  
+    // const ipr = await IPR.find({'dischargeRequest.dischargeMedication.medicine':{$ne:[]}})
+    // .populate('patientId')
+    // .populate('consultationNote.requester')
+    // .populate('residentNotes.doctorRef').populate('dischargeRequest.dischargeMedication.requester')
+    // .populate('dischargeRequest.dischargeMedication.requester')
+    // .populate('dischargeRequest.dischargeMedication.medicine.itemId')
+    // // .populate('pharmacyRequest.requester').populate('pharmacyRequest.medicine.itemId')
+    // .populate('labRequest.requester').populate('labRequest.serviceId')
+    // .populate('nurseService.requester').populate('nurseService.serviceId')
+    // .populate('radiologyRequest.serviceId').populate('radiologyRequest.requester')  
+    // const data = edr.concat(ipr)
+    res.status(200).json({ success: true, data: dc });
+  });
