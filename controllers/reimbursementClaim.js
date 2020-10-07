@@ -15,6 +15,30 @@ exports.getClaims = asyncHandler(async (req, res) => {
     .populate('insurer');
   res.status(200).json({ success: true, data: rc });
 });
+exports.getClaimsKeyword = asyncHandler(async (req, res) => {
+  const rc = await RC.find()
+    .populate('generatedBy')
+    .populate('patient')
+    .populate('insurer');
+    var arr=[];
+    for(let i = 0; i<rc.length; i++)
+    {
+       var fullName = rc[i].patient.firstName+" "+rc[i].patient.lastName
+       if(
+      (rc[i].patient.profileNo && rc[i].patient.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.firstName && rc[i].patient.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.lastName && rc[i].patient.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.phoneNumber && rc[i].patient.phoneNumber.match(req.params.keyword))||
+      (rc[i].patient.SIN && rc[i].patient.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.mobileNumber && rc[i].patient.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(rc[i])
+      }
+    }
+  res.status(200).json({ success: true, data: arr });
+});
 
 exports.getPatient = asyncHandler(async (req, res) => {
   var array=[]
