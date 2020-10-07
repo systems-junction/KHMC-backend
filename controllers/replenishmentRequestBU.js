@@ -52,8 +52,7 @@ exports.getReplenishmentRequestsBUNMKeyword = asyncHandler(async (req, res) => {
   for(let i = 0; i<replenishmentRequest.length; i++)
   {
      if(
-    (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (replenishmentRequest[i].patientReferenceNo && replenishmentRequest[i].patientReferenceNo.toLowerCase().match(req.params.keyword.toLowerCase()))
+    (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
     )
     {
       arr.push(replenishmentRequest[i])
