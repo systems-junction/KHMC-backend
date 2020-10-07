@@ -46,6 +46,22 @@ exports.getReplenishmentRequestsBUNM = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Non Medical"}).populate('buId').populate('fuId').populate('item.itemId');    
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
+exports.getReplenishmentRequestsBUNMKeyword = asyncHandler(async (req, res) => {
+  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Non Medical"}).populate('buId').populate('fuId').populate('item.itemId');    
+  var arr = []
+  for(let i = 0; i<replenishmentRequest.length; i++)
+  {
+     if(
+    (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+    (replenishmentRequest[i].patientReferenceNo && replenishmentRequest[i].patientReferenceNo.toLowerCase().match(req.params.keyword.toLowerCase()))
+    )
+    {
+      arr.push(replenishmentRequest[i])
+    }
+  }
+
+  res.status(200).json({ success: true, data: arr });
+});
 
 exports.getReplenishmentRequestsByIdBU = asyncHandler(async (req, res) => {
     const replenishmentRequest = await ReplenishmentRequestBU.findOne({_id:req.body._id}).populate('buId').populate('fuId').populate('itemId');
