@@ -404,6 +404,9 @@ const IPRSchema = new mongoose.Schema({
         type:mongoose.Schema.ObjectId,
         ref:'insuranceVendors'
     },
+    paymentMethod:{
+        type:String
+    },
     createdAt: {
         type: Date,
         default: Date.now,

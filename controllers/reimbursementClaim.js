@@ -15,6 +15,30 @@ exports.getClaims = asyncHandler(async (req, res) => {
     .populate('insurer');
   res.status(200).json({ success: true, data: rc });
 });
+exports.getClaimsKeyword = asyncHandler(async (req, res) => {
+  const rc = await RC.find()
+    .populate('generatedBy')
+    .populate('patient')
+    .populate('insurer');
+    var arr=[];
+    for(let i = 0; i<rc.length; i++)
+    {
+       var fullName = rc[i].patient.firstName+" "+rc[i].patient.lastName
+       if(
+      (rc[i].patient.profileNo && rc[i].patient.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.firstName && rc[i].patient.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.lastName && rc[i].patient.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.phoneNumber && rc[i].patient.phoneNumber.match(req.params.keyword))||
+      (rc[i].patient.SIN && rc[i].patient.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (rc[i].patient.mobileNumber && rc[i].patient.mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        arr.push(rc[i])
+      }
+    }
+  res.status(200).json({ success: true, data: arr });
+});
 
 exports.getPatient = asyncHandler(async (req, res) => {
   var array=[]
@@ -61,6 +85,58 @@ exports.getPatient = asyncHandler(async (req, res) => {
 
 });
 
+exports.getPatientInsurance = asyncHandler(async (req, res) => {
+  var array=[]
+  var secondArray=[]
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId')
+    for(let i = 0; i<ipr.length; i++)
+    {
+        // if(ipr[i].patientId.paymentMethod=="Insurance")
+        // {
+          array.push(ipr[i].patientId) 
+        // }
+    }
+  const edr = await EDR.find({ status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId')
+    for(let i = 0; i<edr.length; i++)
+    {
+      // if(edr[i].patientId.paymentMethod=="Insurance")
+      // {
+        array.push(edr[i].patientId)
+      // }
+    }
+    const unique = Array.from(new Set(array)) 
+    for(let i = 0; i<unique.length; i++)
+    {
+       var fullName = unique[i].firstName+" "+unique[i].lastName
+       if(
+      (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
+      (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        secondArray.push(unique[i])
+      }
+    }
+    var uniqueArray = (function(secondArray){
+      var m = {}, uniqueArray = []
+      for (var i=0; i<secondArray.length; i++) {
+        var v = secondArray[i];
+        if (!m[v]) {
+          uniqueArray.push(v);
+          m[v]=true;
+        }
+      }
+      return uniqueArray;
+    })(secondArray);
+    res.status(200).json({ success: true, data:uniqueArray });      
+
+});
+
+
 exports.getPatientDischarged = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
@@ -70,6 +146,51 @@ exports.getPatientDischarged = asyncHandler(async (req, res) => {
         array.push(ipr[i].patientId) 
     }
   const edr = await EDR.find({ status: "Discharged" }).populate('patientId')
+    for(let i = 0; i<edr.length; i++)
+    {
+        array.push(edr[i].patientId)
+    }
+    const unique = Array.from(new Set(array)) 
+    for(let i = 0; i<unique.length; i++)
+    {
+       var fullName = unique[i].firstName+" "+unique[i].lastName
+       if(
+      (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
+      (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
+      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      )
+      {
+        secondArray.push(unique[i])
+      }
+    }
+    var uniqueArray = (function(secondArray){
+      var m = {}, uniqueArray = []
+      for (var i=0; i<secondArray.length; i++) {
+        var v = secondArray[i];
+        if (!m[v]) {
+          uniqueArray.push(v);
+          m[v]=true;
+        }
+      }
+      return uniqueArray;
+    })(secondArray);
+    res.status(200).json({ success: true, data:uniqueArray });      
+
+});
+
+exports.getPatientHistoryAll = asyncHandler(async (req, res) => {
+  var array=[]
+  var secondArray=[]
+  const ipr = await IPR.find({}).populate('patientId')
+    for(let i = 0; i<ipr.length; i++)
+    {
+        array.push(ipr[i].patientId) 
+    }
+  const edr = await EDR.find().populate('patientId')
     for(let i = 0; i<edr.length; i++)
     {
         array.push(edr[i].patientId)

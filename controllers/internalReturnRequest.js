@@ -13,6 +13,20 @@ exports.getInternalReturnRequestsFU = asyncHandler(async (req, res) => {
     const internalRequestFU = await InternalReturnRequest.find({to:"Warehouse",from:"FU"}).populate('fuId').populate('itemId').populate('replenishmentRequestFU');
     res.status(200).json({ success: true, data: internalRequestFU });
 });
+exports.getInternalReturnRequestsFUByKeyword = asyncHandler(async (req, res) => {
+    const internalRequestFU = await InternalReturnRequest.find({to:"Warehouse",from:"FU"}).populate('fuId').populate('itemId').populate('replenishmentRequestFU');
+    var arr=[];
+    for(let i=0; i<internalRequestFU.length; i++)
+    {
+      if(
+        (internalRequestFU[i].returnRequestNo && internalRequestFU[i].returnRequestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
+        )
+        {
+          arr.push(internalRequestFU[i])
+        }
+    }
+    res.status(200).json({ success: true, data: arr });
+});
 exports.getInternalReturnRequestsBU = asyncHandler(async (req, res) => {
     const internalRequestBU = await InternalReturnRequest.find({to:"FU",from:"BU"}).populate('buId').populate('fuId').populate('itemId').populate('replenishmentRequestBU');
     res.status(200).json({ success: true, data: internalRequestBU });

@@ -46,6 +46,7 @@ const {
   putLRById,
   putPHRById,
   getDischarge,
+  getDischargeKeyword,
   getDischargeById,
   putDischargeById,
   getIPREDRById,
@@ -89,6 +90,7 @@ router.get('/getphrpatient', getPHRPatient);
 router.get('/getphrbyid/:_id', getPHRById);
 router.put('/updatephrbyid', putPHRById);
 router.get('/getdischarge', getDischarge);
+router.get('/getdischarge/:keyword', getDischargeKeyword);
 router.get('/getdischargebyid/:_id', getDischargeById);
 router.put('/updatedischargebyid', putDischargeById);
 router.get('/getipredrbyid/:_id', getIPREDRById);

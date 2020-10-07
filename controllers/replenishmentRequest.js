@@ -17,6 +17,25 @@ exports.getReplenishmentRequestsFU = asyncHandler(async (req, res) => {
     .populate('approvedBy');
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
+exports.getReplenishmentRequestsFUByKeyword = asyncHandler(async (req, res) => {
+  const replenishmentRequest = await ReplenishmentRequest.find()
+    .populate('fuId')
+    .populate('items.itemId')
+    .populate('approvedBy');
+    var arr=[];
+    for(let i=0; i<replenishmentRequest.length; i++)
+    {
+      if(
+        (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
+        )
+        {
+          arr.push(replenishmentRequest[i])
+        }
+    }
+    res.status(200).json({ success: true, data: arr });
+
+});
+
 exports.getReplenishmentRequestsByIdFU = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequest.findOne({ _id: _id })
     .populate('fuId')

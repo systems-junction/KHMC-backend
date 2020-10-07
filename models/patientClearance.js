@@ -32,6 +32,9 @@ const patientClearanceSchema = new mongoose.Schema({
     total:{
         type:Number
     },
+    returnedAmount:{
+        type:Number
+    },
     createdAt: {
         type: Date,
         default: Date.now

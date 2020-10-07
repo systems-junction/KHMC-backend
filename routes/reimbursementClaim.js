@@ -15,17 +15,23 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 const {
 getClaims,
+getClaimsKeyword,
 getPatient,
+getPatientInsurance,
 getPatientDischarged,
 getEDRorIPR,
 addClaims,
-updateClaims
+updateClaims,
+getPatientHistoryAll
 } = require('../controllers/reimbursementClaim');
 
 const router = express.Router();
 router.get('/getclaim', getClaims);
+router.get('/getclaim/:keyword', getClaimsKeyword);
 router.get('/getpatient/:id/:keyword', getPatient);
+router.get('/getpatientinsurance/:id/:keyword', getPatientInsurance);
 router.get('/getpatientdischarge/:id/:keyword', getPatientDischarged);
+router.get('/getpatienthistory/:keyword', getPatientHistoryAll);
 router.get('/getedripr/:_id', getEDRorIPR);
 router.post('/addclaim', upload.array('file'), addClaims);
 router.put('/updateclaim', upload.array('file'), updateClaims);
