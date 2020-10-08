@@ -18,8 +18,8 @@ const patientSchema = new mongoose.Schema({
   lastName: {
     type: String,
   },
-  fullName:{
-    type:String
+  fullName: {
+    type: String,
   },
   gender: {
     type: String,
@@ -123,11 +123,14 @@ const patientSchema = new mongoose.Schema({
   coveredFamilyMembers: {
     type: String,
   },
-  otherCoverageDetails:{
-    type:String
+  otherCoverageDetails: {
+    type: String,
   },
-  QR:{
-    type:String
+  QR: {
+    type: String,
+  },
+  otherCity: {
+    type: String,
   },
   createdAt: {
     type: Date,
