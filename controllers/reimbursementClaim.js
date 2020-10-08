@@ -81,8 +81,8 @@ exports.getPatient = asyncHandler(async (req, res) => {
       }
       return uniqueArray;
     })(secondArray);
-    res.status(200).json({ success: true, data:uniqueArray });      
-
+    let response = uniqueArray.slice(0,50)
+    res.status(200).json({ success: true, data:response });      
 });
 
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
@@ -132,7 +132,8 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
       }
       return uniqueArray;
     })(secondArray);
-    res.status(200).json({ success: true, data:uniqueArray });      
+    let response = uniqueArray.slice(0,50)
+    res.status(200).json({ success: true, data:response });      
 
 });
 
@@ -178,7 +179,8 @@ exports.getPatientDischarged = asyncHandler(async (req, res) => {
       }
       return uniqueArray;
     })(secondArray);
-    res.status(200).json({ success: true, data:uniqueArray });      
+    let response = uniqueArray.slice(0,50)
+    res.status(200).json({ success: true, data:response });      
 
 });
 
@@ -223,7 +225,8 @@ exports.getPatientHistoryAll = asyncHandler(async (req, res) => {
       }
       return uniqueArray;
     })(secondArray);
-    res.status(200).json({ success: true, data:uniqueArray });      
+    let response = uniqueArray.slice(0,50)
+    res.status(200).json({ success: true, data:response });      
 
 });
 
