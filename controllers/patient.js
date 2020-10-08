@@ -144,7 +144,7 @@ exports.getPatientIPR = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientById = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({ _id: req.params.id }).populate(
+  const patient = await Patient.findOne({ _id: req.params.id }).populate(
     'receivedBy'
   );
   res.status(200).json({ success: true, data: patient });
@@ -165,121 +165,65 @@ exports.getPatientByMRN = asyncHandler(async (req, res) => {
     .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
-exports.getPaitentAll = asyncHandler(async (req, res) => {
-  // const patientProfile = await Patient.find({
-  //   $or: [
-  //     { profileNo: { $regex: req.params.keyword, $options: 'i' } },
-  //     { firstName: { $regex: req.params.keyword, $options: 'i' } },
-  //     { lastName: { $regex: req.params.keyword, $options: 'i' } },
-  //     { fullName: { $regex: req.params.keyword, $options: 'i' } },
-  //     { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
-  //     { SIN: { $regex: req.params.keyword, $options: 'i' } },
-  //     { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
-  //   ],
-  // }).sort({$natural:-1}).limit(100);
+exports.getPaitentKeyword = asyncHandler(async (req, res) => {
   const patient = await Patient.aggregate([
-    {
+  {
       $project: {
         name: { $concat: ['$firstName', ' ', '$lastName'] },
         profileNo: 1,
         SIN: 1,
-        firstName: 1,
-        lastName: 1,
-        city: 1,
-        country: 1,
-        address: 1,
-        dob: 1,
         age: 1,
         gender: 1,
-        title: 1,
-        nationality: 1,
-        height: 1,
-        weight: 1,
-        bloodGroup: 1,
         phoneNumber: 1,
         mobileNumber: 1,
-        email: 1,
-        otherDetails: 1,
-        paymentMethod: 1,
-        depositAmount: 1,
-        amountReceived: 1,
-        bankName: 1,
-        depositorName: 1,
-        depositSlip: 1,
-        insuranceNo: 1,
-        insuranceVendor: 1,
-        coverageDetails: 1,
-        coverageTerms: 1,
-        payment: 1,
-        registeredIn: 1,
-        emergencyName: 1,
-        emergencyContactNo: 1,
-        emergencyRelation: 1,
-        coveredFamilyMembers: 1,
-        otherCoverageDetails: 1,
-        QR: 1,
-        createdAt: 1,
-        updatedAt: 1,
       },
     },
     {
-      $match: {
+    $match: {
         $or: [
           { name: { $regex: req.params.keyword, $options: 'i' } },
-          { firstName: { $regex: req.params.keyword, $options: 'i' } },
-          { lastName: { $regex: req.params.keyword, $options: 'i' } },
           { profileNo: { $regex: req.params.keyword, $options: 'i' } },
           { SIN: { $regex: req.params.keyword, $options: 'i' } },
           { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
           { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
         ],
       },
-    },
-  ]).limit(100);
+    }
+    ]).limit(50)
+
+  // const patient = await Patient.aggregate([
+  //   {
+  //     $project: {
+  //       name: { $concat: ['$firstName', ' ', '$lastName'] },
+  //       profileNo: 1,
+  //       SIN: 1,
+  //       firstName: 1,
+  //       lastName: 1,
+  //       age: 1,
+  //       gender: 1,
+  //       phoneNumber: 1,
+  //       mobileNumber: 1,
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       $or: [
+  //         { name: { $regex: req.params.keyword, $options: 'i' } },
+  //         { firstName: { $regex: req.params.keyword, $options: 'i' } },
+  //         { lastName: { $regex: req.params.keyword, $options: 'i' } },
+  //         { profileNo: { $regex: req.params.keyword, $options: 'i' } },
+  //         { SIN: { $regex: req.params.keyword, $options: 'i' } },
+  //         { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
+  //         { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
+  //       ],
+  //     },
+  //   },
+  // ]).limit(50);
   res.status(200).json({ success: true, data: patient });
 });
+
 exports.addPatient = asyncHandler(async (req, res) => {
-  const {
-    profileNo,
-    SIN,
-    title,
-    firstName,
-    lastName,
-    fullName,
-    gender,
-    nationality,
-    dob,
-    drugAllergy,
-    phoneNumber,
-    mobileNumber,
-    email,
-    country,
-    city,
-    address,
-    otherDetails,
-    paymentMethod,
-    depositAmount,
-    amountReceived,
-    bankName,
-    depositorName,
-    age,
-    height,
-    weight,
-    bloodGroup,
-    // insuranceId,
-    coverageDetails,
-    coverageTerms,
-    payment,
-    registeredIn,
-    receivedBy,
-    insuranceNo,
-    insuranceVendor,
-    emergencyName,
-    emergencyContactNo,
-    emergencyRelation,
-    coveredFamilyMembers,
-    otherCoverageDetails,
-  } = req.body.data;
+
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
   var diff =
@@ -295,7 +239,6 @@ exports.addPatient = asyncHandler(async (req, res) => {
       profileNo: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
-      otherCity: parsed.otherCity,
       firstName: parsed.firstName,
       lastName: parsed.lastName,
       fullName: parsed.firstName + ' ' + parsed.lastName,
@@ -333,13 +276,13 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
+      otherCity:parsed.otherCity
     });
   } else {
     patient = await Patient.create({
       profileNo: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
-      otherCity: parsed.otherCity,
       firstName: parsed.firstName,
       lastName: parsed.lastName,
       fullName: parsed.firstName + ' ' + parsed.lastName,
@@ -376,6 +319,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
+      otherCity:parsed.otherCity
     });
   }
   notification(

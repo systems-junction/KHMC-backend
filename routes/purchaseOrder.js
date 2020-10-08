@@ -4,6 +4,7 @@ const { validateParams } = require('../middleware/validator');
 const {
     getPurchaseOrder,
     getPurchaseOrders,
+    getPurchaseOrdersKeyword,
     addPurchaseOrder,
     deletePurchaseOrder,
     updatePurchaseOrder,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.get('/getpurchaseorder', getPurchaseOrder);
 router.get('/getpurchaseorders', getPurchaseOrders);
+router.get('/getpurchaseorders/:keyword', getPurchaseOrdersKeyword);
 router.post('/addpurchaseorder', validateParams([
     {
         param_key: 'generated',

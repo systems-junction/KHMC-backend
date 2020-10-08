@@ -57,7 +57,7 @@ exports.getFuInventoryKeyword = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: arr });
 });
 exports.getFuInventoryByFU = asyncHandler(async (req, res) => {
-    const fuInventory = await FuInventory.find({fuId:req.params._id}).populate('itemId').populate('fuId').limit(500);
+  const fuInventory = await FuInventory.find({fuId:req.params._id}).populate('itemId').populate('fuId').limit(500);
     const items = await Items.find().limit(500);
     const functionalUnit = await FunctionalUnit.find();
     const data = {
@@ -67,6 +67,25 @@ exports.getFuInventoryByFU = asyncHandler(async (req, res) => {
     }
     res.status(200).json({ success: true, data: data });
 });
+
+exports.getFuInventoryByFUKeyword = asyncHandler(async (req, res) => {
+  const fuInventory = await FuInventory.find({fuId:req.params._id}).populate('itemId').populate('fuId').limit(500);
+  var arr= [];
+  for(let i = 0; i<fuInventory.length; i++)
+   {
+       if(
+     (fuInventory[i].itemId.itemCode && fuInventory[i].itemId.itemCode.toLowerCase().match(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.name && fuInventory[i].itemId.name.toLowerCase().match(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.tradeName && fuInventory[i].itemId.tradeName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.scientificName && fuInventory[i].itemId.scientificName.match(req.params.keyword))
+     )
+     {
+       arr.push(fuInventory[i])
+     }
+   }
+  res.status(200).json({ success: true, data: arr });
+});
+
 exports.addFuInventory = asyncHandler(async (req, res) => {
     const { fuId, itemId, qty, maximumLevel, reorderLevel, minimumLevel } = req.body;
     const fuInventory = await FuInventory.create({

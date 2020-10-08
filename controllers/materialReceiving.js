@@ -35,6 +35,38 @@ exports.getMaterialReceivings = asyncHandler(async (req, res) => {
     
     res.status(200).json({ success: true, data: data });
 });
+exports.getMaterialReceivingsKeyword = asyncHandler(async (req, res) => {
+    const materialReceivings = await MaterialReceiving.find()
+    .populate({
+        path : 'poId',
+        populate: [{
+            path : 'purchaseRequestId',
+            populate : {
+                path : 'item.itemId'
+              }},{
+            path:'vendorId'
+        }]
+    }).populate('vendorId').populate({
+        path:'prId.id',
+        populate:{path:'item.itemId'}
+    })
+    var arr = [];
+    for(let i=0; i<materialReceivings.length; i++)
+    {
+        if(
+            (materialReceivings[i].poId.purchaseOrderNo && materialReceivings[i].poId.purchaseOrderNo.toLowerCase().match(req.params.keyword.toLowerCase()))
+            ||(materialReceivings[i].vendorId.englishName && materialReceivings[i].vendorId.englishName.toLowerCase().match(req.params.keyword.toLowerCase()))
+            )
+            {
+              arr.push(materialReceivings[i])
+            }
+    }
+    const data = {
+        materialReceivings:arr
+    }
+    
+    res.status(200).json({ success: true, data: data });
+});
 exports.getMaterialReceivingsById = asyncHandler(async (req, res) => {
     const materialReceivings = await MaterialReceiving.findOne({_id:req.params._id})
     .populate({

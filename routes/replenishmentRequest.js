@@ -1,6 +1,7 @@
 const express = require('express');
 const {
     getReplenishmentRequestsFU,
+    getReplenishmentRequestsFUByKeyword,
     getReplenishmentRequestsByIdFU,
     // getReplenishmentRequestsBU,
     // getReplenishmentRequestsByIdBU,
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post('/getcurrentitemquantityfu', getCurrentItemQuantityFU);
 // router.post('/getcurrentitemquantitybu', getCurrentItemQuantityBU);
 router.get('/getreplenishmentrequestsFU', getReplenishmentRequestsFU);
+router.get('/getreplenishmentrequests/:keyword', getReplenishmentRequestsFUByKeyword);
 router.get('/getreplenishmentrequestsFU/:_id', getReplenishmentRequestsByIdFU);
 // router.get('/getreplenishmentrequestsBU', getReplenishmentRequestsBU);
 // router.get('/getreplenishmentrequestsBU/:_id', getReplenishmentRequestsByIdBU);

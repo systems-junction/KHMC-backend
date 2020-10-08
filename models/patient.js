@@ -126,11 +126,11 @@ const patientSchema = new mongoose.Schema({
   otherCoverageDetails: {
     type: String,
   },
-  QR: {
-    type: String,
+  otherCity:{
+    type:String
   },
-  otherCity: {
-    type: String,
+  QR:{
+    type:String
   },
   createdAt: {
     type: Date,

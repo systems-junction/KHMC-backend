@@ -15,6 +15,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 const {
 getClaims,
+getClaimsKeyword,
 getPatient,
 getPatientInsurance,
 getPatientDischarged,
@@ -26,6 +27,7 @@ getPatientHistoryAll
 
 const router = express.Router();
 router.get('/getclaim', getClaims);
+router.get('/getclaim/:keyword', getClaimsKeyword);
 router.get('/getpatient/:id/:keyword', getPatient);
 router.get('/getpatientinsurance/:id/:keyword', getPatientInsurance);
 router.get('/getpatientdischarge/:id/:keyword', getPatientDischarged);

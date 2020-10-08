@@ -3,6 +3,7 @@ const { validateParams } = require('../middleware/validator');
 
 const {
     getPurchaseRequests,
+    getPurchaseRequestKeyword,
     addPurchaseRequest,
     deletePurchaseRequest,
     updatePurchaseRequest,
@@ -13,6 +14,7 @@ const router = express.Router();
 router.get('/getprvendor/:_id',getPurchaseRequestVendors)
 router.get('/getcurrqty/:_id',getCurrentItemQuantity)
 router.get('/getpurchaserequests', getPurchaseRequests);
+router.get('/getpurchaserequests/:keyword', getPurchaseRequestKeyword);
 router.post('/addpurchaserequest', validateParams([
     {
         param_key: 'generatedBy',
