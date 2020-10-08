@@ -155,10 +155,9 @@ exports.getPaitentKeyword = asyncHandler(async (req, res) => {
   const patient = await Patient.aggregate([
   {
       $project: {
+        name: { $concat: ['$firstName', ' ', '$lastName'] },
         profileNo: 1,
         SIN: 1,
-        firstName: 1,
-        lastName: 1,
         age: 1,
         gender: 1,
         phoneNumber: 1,
@@ -168,8 +167,7 @@ exports.getPaitentKeyword = asyncHandler(async (req, res) => {
     {
     $match: {
         $or: [
-          { firstName: { $regex: req.params.keyword, $options: 'i' } },
-          { lastName: { $regex: req.params.keyword, $options: 'i' } },
+          { name: { $regex: req.params.keyword, $options: 'i' } },
           { profileNo: { $regex: req.params.keyword, $options: 'i' } },
           { SIN: { $regex: req.params.keyword, $options: 'i' } },
           { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
