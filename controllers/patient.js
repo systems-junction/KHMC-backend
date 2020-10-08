@@ -262,6 +262,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
+      otherCity:parsed.otherCity
     });
   } else {
     patient = await Patient.create({
@@ -304,6 +305,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
+      otherCity:parsed.otherCity
     });
   }
   notification(
