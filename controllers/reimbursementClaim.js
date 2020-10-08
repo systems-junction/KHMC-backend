@@ -26,8 +26,8 @@ exports.getClaimsKeyword = asyncHandler(async (req, res) => {
        var fullName = rc[i].patient.firstName+" "+rc[i].patient.lastName
        if(
       (rc[i].patient.profileNo && rc[i].patient.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (rc[i].patient.firstName && rc[i].patient.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (rc[i].patient.lastName && rc[i].patient.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (rc[i].patient.firstName && rc[i].patient.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (rc[i].patient.lastName && rc[i].patient.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (rc[i].patient.phoneNumber && rc[i].patient.phoneNumber.match(req.params.keyword))||
       (rc[i].patient.SIN && rc[i].patient.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (rc[i].patient.mobileNumber && rc[i].patient.mobileNumber.match(req.params.keyword))||
@@ -59,8 +59,8 @@ exports.getPatient = asyncHandler(async (req, res) => {
        var fullName = unique[i].firstName+" "+unique[i].lastName
        if(
       (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
       (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
@@ -110,8 +110,8 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
        var fullName = unique[i].firstName+" "+unique[i].lastName
        if(
       (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
       (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
@@ -156,8 +156,8 @@ exports.getPatientDischarged = asyncHandler(async (req, res) => {
        var fullName = unique[i].firstName+" "+unique[i].lastName
        if(
       (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
       (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
@@ -201,8 +201,8 @@ exports.getPatientHistoryAll = asyncHandler(async (req, res) => {
        var fullName = unique[i].firstName+" "+unique[i].lastName
        if(
       (unique[i].profileNo && unique[i].profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].firstName && unique[i].firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
+      // (unique[i].lastName && unique[i].lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].phoneNumber && unique[i].phoneNumber.match(req.params.keyword))||
       (unique[i].SIN && unique[i].SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
       (unique[i].mobileNumber && unique[i].mobileNumber.match(req.params.keyword))||
