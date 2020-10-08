@@ -43,12 +43,12 @@ exports.getClaimsKeyword = asyncHandler(async (req, res) => {
 exports.getPatient = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" }}).populate('patientId')
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" }}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<ipr.length; i++)
     {
         array.push(ipr[i].patientId) 
     }
-  const edr = await EDR.find({ status: { $ne: "Discharged" }}).populate('patientId')
+  const edr = await EDR.find({ status: { $ne: "Discharged" }}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<edr.length; i++)
     {
         array.push(edr[i].patientId)
@@ -88,7 +88,7 @@ exports.getPatient = asyncHandler(async (req, res) => {
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId')
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<ipr.length; i++)
     {
         // if(ipr[i].patientId.paymentMethod=="Insurance")
@@ -96,7 +96,7 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
           array.push(ipr[i].patientId) 
         // }
     }
-  const edr = await EDR.find({ status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId')
+  const edr = await EDR.find({ status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<edr.length; i++)
     {
       // if(edr[i].patientId.paymentMethod=="Insurance")
@@ -141,12 +141,12 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
 exports.getPatientDischarged = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id, status: "Discharged" }).populate('patientId')
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: "Discharged" }).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<ipr.length; i++)
     {
         array.push(ipr[i].patientId) 
     }
-  const edr = await EDR.find({ status: "Discharged" }).populate('patientId')
+  const edr = await EDR.find({ status: "Discharged" }).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<edr.length; i++)
     {
         array.push(edr[i].patientId)
@@ -187,12 +187,12 @@ exports.getPatientDischarged = asyncHandler(async (req, res) => {
 exports.getPatientHistoryAll = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({}).populate('patientId')
+  const ipr = await IPR.find({}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<ipr.length; i++)
     {
         array.push(ipr[i].patientId) 
     }
-  const edr = await EDR.find().populate('patientId')
+  const edr = await EDR.find().populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber').select({patientId:1})
     for(let i = 0; i<edr.length; i++)
     {
         array.push(edr[i].patientId)
