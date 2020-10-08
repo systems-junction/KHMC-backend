@@ -130,7 +130,7 @@ exports.getPatientIPR = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientById = asyncHandler(async (req, res) => {
-  const patient = await Patient.find({ _id: req.params.id }).populate(
+  const patient = await Patient.findOne({ _id: req.params.id }).populate(
     'receivedBy'
   );
   res.status(200).json({ success: true, data: patient });
@@ -207,6 +207,7 @@ exports.getPaitentKeyword = asyncHandler(async (req, res) => {
   // ]).limit(50);
   res.status(200).json({ success: true, data: patient });
 });
+
 exports.addPatient = asyncHandler(async (req, res) => {
 
   var now = new Date();
