@@ -563,11 +563,13 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
     {
       arr.push(req.files[i].path);
     }
+    await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
     rc = await RC.updateOne(
       { _id: _id },
       { $set: { document: arr } },
       JSON.parse(req.body.data)
     );
+
   } else {
     rc = await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
   }
