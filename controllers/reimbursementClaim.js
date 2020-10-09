@@ -491,6 +491,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     status,
   } = req.body.data;
   var claimSolution;
+  var parsed = JSON.parse(req.body.data);
   if(parsed.requestType=="IPR")
   {
     claimSolution = IPR.findOne({_id:parsed.edriprId})
@@ -501,7 +502,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     claimSolution = EDR.findOne({_id:parsed.edriprId})
     await EDR.findOneAndUpdate({_id:parsed.edriprId},{$set:{claimed:true}})
   }
-  var parsed = JSON.parse(req.body.data);
+  
   var rc;
   if(claimSolution.claimed===true)
   {
