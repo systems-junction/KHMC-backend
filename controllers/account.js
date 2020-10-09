@@ -27,6 +27,7 @@ exports.getAccount = asyncHandler(async (req, res) => {
     .populate('vendorId');
   res.status(200).json({ success: true, data: account });
 });
+
 exports.getAccountById = asyncHandler(async (req, res) => {
   const account = await Account.findOne({ _id: req.params._id })
     .populate({
@@ -87,52 +88,72 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               itemId: account.mrId.prId[i].id.item[j].itemId,
             }).populate('prId');
 
-            let obj = {
-              batchNumber: receive.batchNumber,
-              expiryDate: receive.expiryDate,
-              quantity: receive.receivedQty,
-            };
+            // let obj = {
+            //   batchNumber: receive.batchNumber,
+            //   expiryDate: receive.expiryDate,
+            //   quantity: receive.receivedQty,
+            // };
+
+            const beforeUpdateQty = await WhInventory.findOne({
+              itemId: receive.itemId,
+            });
 
             const afterUpdateQty = await WhInventory.findOneAndUpdate(
               { itemId: receive.itemId },
-              { $set: { qty: receive.currentQty + receive.receivedQty } },
+              { $set: { qty: beforeUpdateQty.qty + receive.receivedQty } },
               { new: true }
             );
 
             console.log(afterUpdateQty);
 
-            let arr = [];
-            let found = false;
-            for (let i = 0; i < afterUpdateQty.batchArray.length; i++) {
-              if (
-                afterUpdateQty.batchArray[i].batchNumber === obj.batchNumber
-              ) {
-                found = true;
-                arr.push({
-                  batchNumber: afterUpdateQty.batchArray[i].batchNumber,
-                  expiryDate: afterUpdateQty.batchArray[i].expiryDate,
-                  quantity:
-                    afterUpdateQty.batchArray[i].quantity + receive.receivedQty,
-                });
-              } else {
-                arr.push(afterUpdateQty.batchArray[i]);
+            let arr = afterUpdateQty.batchArray;
+
+            for (let i = 0; i < receive.batchArray.length; i++) {
+              let obj = receive.batchArray[i];
+              let found = false;
+
+              for (let j = 0; j < afterUpdateQty.batchArray.length; j++) {
+                if (
+                  afterUpdateQty.batchArray[j].batchNumber === obj.batchNumber
+                ) {
+                  found = true;
+                  arr[j] = {
+                    batchNumber: obj.batchNumber,
+                    expiryDate: obj.expiryDate,
+                    quantity:
+                      parseInt(afterUpdateQty.batchArray[j].quantity) +
+                      parseInt(obj.quantity),
+                  };
+                }
+              }
+
+              if (found === false) {
+                arr.push(obj);
               }
             }
 
+            console.log('arr', arr);
+
             let quantityUpdated;
-            if (found === false) {
-              quantityUpdated = await WhInventory.findOneAndUpdate(
-                { itemId: receive.itemId },
-                { $push: { batchArray: obj } },
-                { new: true }
-              );
-            } else if (found === true) {
-              quantityUpdated = await WhInventory.findOneAndUpdate(
-                { itemId: receive.itemId },
-                { $set: { batchArray: arr } },
-                { new: true }
-              );
-            }
+            // if (found === false) {
+            //   quantityUpdated = await WhInventory.findOneAndUpdate(
+            //     { itemId: receive.itemId },
+            //     { $push: { batchArray: obj } },
+            //     { new: true }
+            //   );
+            // } else if (found === true) {
+            //   quantityUpdated = await WhInventory.findOneAndUpdate(
+            //     { itemId: receive.itemId },
+            //     { $set: { batchArray: arr } },
+            //     { new: true }
+            //   );
+            // }
+
+            quantityUpdated = await WhInventory.findOneAndUpdate(
+              { itemId: receive.itemId },
+              { $set: { batchArray: arr } },
+              { new: true }
+            );
 
             quantityUpdated.batchArray.sort((a, b) =>
               a.expiryDate > b.expiryDate ? 1 : -1
@@ -144,7 +165,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               { new: true }
             );
 
-            console.log(abc);
+            console.log('after updated warehouse with sorted', abc);
 
             await PurchaseRequest.updateOne(
               { _id: account.mrId.prId[i].id },

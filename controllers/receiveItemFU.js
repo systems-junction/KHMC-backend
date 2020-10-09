@@ -125,9 +125,9 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       removedWithZeroQty.push(updatedBatchArray[i]);
     }
   }
-  //   console.log('removedWithZeroQty', removedWithZeroQty);
+  // console.log('removedWithZeroQty', removedWithZeroQty);
   //   console.log('updatedBatchArray', updatedBatchArray);
-  //   console.log('newBatch', newBatch);
+  // console.log('newBatch', newBatch);
 
   if (pRequest && fuTest) {
     await ReceiveItemFU.create({
@@ -182,6 +182,8 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       fuId: req.body.fuId,
     });
 
+  
+
     for (let i = 0; i < newBatch.length; i++) {
       let found = false;
 
@@ -207,16 +209,17 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         }
       }
 
-      if (found === false)
-        // await FUInventory.findOneAndUpdate(
-        //   { itemId: itemId, fuId: req.body.fuId },
-        //   { $push: { batchArray: obj } },
-        //   { new: true }
-        // );
+      if (found === false) {
         arr.push(obj);
+      }
+      // await FUInventory.findOneAndUpdate(
+      //   { itemId: itemId, fuId: req.body.fuId },
+      //   { $push: { batchArray: obj } },
+      //   { new: true }
+      // );
     }
 
-    console.log('arr', arr);
+    // console.log('arr', arr);
 
     // quantityUpdated = await FUInventory.findOneAndUpdate({
     //   itemId: itemId,
