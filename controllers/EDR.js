@@ -265,7 +265,8 @@ exports.addEDR = asyncHandler(async (req, res) => {
     triageAssessment,
     verified,
     insurerId,
-    paymentMethod
+    paymentMethod,
+    claimed
   } = req.body;
   var count = 0;
     const edrCheck = await EDR.find({patientId:req.body.patientId})
@@ -312,7 +313,8 @@ exports.addEDR = asyncHandler(async (req, res) => {
     triageAssessment,
     verified,
     insurerId,
-    paymentMethod
+    paymentMethod,
+    claimed:false
   });
   res.status(200).json({ success: true, data: edr });
 }

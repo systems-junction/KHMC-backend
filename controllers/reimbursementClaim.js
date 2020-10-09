@@ -490,8 +490,24 @@ exports.addClaims = asyncHandler(async (req, res) => {
     document,
     status,
   } = req.body.data;
+  var claimSolution;
+  if(parsed.requestType=="IPR")
+  {
+    claimSolution = IPR.findOne({_id:parsed.edriprId})
+   await IPR.findOneAndUpdate({_id:parsed.edriprId},{$set:{claimed:true}},{ new: true })   
+  }
+  else if(parsed.requestType=="EDR")
+  {
+    claimSolution = EDR.findOne({_id:parsed.edriprId})
+    await EDR.findOneAndUpdate({_id:parsed.edriprId},{$set:{claimed:true}})
+  }
   var parsed = JSON.parse(req.body.data);
   var rc;
+  if(claimSolution.claimed===true)
+  {
+   res.status(200).json({ success: false });
+  }
+else{
   if (req.files) {
     var arr=[];
     for(let i=0; i<req.files.length;i++)
@@ -506,7 +522,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
-    rc = await RC.create({
+  rc = await RC.create({
       requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       generatedBy: parsed.generatedBy,
       patient: parsed.patient,
@@ -518,7 +534,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     });
   } else {
     rc = await RC.create({
-      requestNo: 'IRI' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       generatedBy: parsed.generatedBy,
       patient: parsed.patient,
       insurer: parsed.insurer,
@@ -528,8 +544,8 @@ exports.addClaims = asyncHandler(async (req, res) => {
       status: parsed.status,
     });
   }
-
   res.status(200).json({ success: true, data: rc });
+}
 });
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
