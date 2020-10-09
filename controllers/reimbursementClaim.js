@@ -88,7 +88,7 @@ exports.getPatient = asyncHandler(async (req, res) => {
 exports.getPatientInsurance = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender').select({patientId:1})
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender weight QR createdAt').select({patientId:1})
     for(let i = 0; i<ipr.length; i++)
     {
         // if(ipr[i].patientId.paymentMethod=="Insurance")
@@ -96,7 +96,7 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
           array.push(ipr[i].patientId) 
         // }
     }
-  const edr = await EDR.find({ status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender').select({patientId:1})
+  const edr = await EDR.find({ status: { $ne: "Discharged" },paymentMethod:"Insurance"}).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender weight QR createdAt').select({patientId:1})
     for(let i = 0; i<edr.length; i++)
     {
       // if(edr[i].patientId.paymentMethod=="Insurance")
@@ -134,9 +134,7 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
     })(secondArray);
     let response = uniqueArray.slice(0,50)
     res.status(200).json({ success: true, data:response });      
-
 });
-
 
 exports.getPatientDischarged = asyncHandler(async (req, res) => {
   var array=[]
