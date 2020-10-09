@@ -1,12 +1,9 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const notification = require('../components/notification');
-const { v4: uuidv4 } = require('uuid');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
-const Patient = require('../models/patient');
 const requestNoFormat = require('dateformat');
-
 exports.getIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find()
     .populate('patientId')
@@ -1172,11 +1169,37 @@ exports.addIPR = asyncHandler(async (req, res) => {
     insurerId,
     paymentMethod
   } = req.body;
+  var count = 0;
+  const edrCheck = await EDR.find({patientId:req.body.patientId})
+    for( let i =0 ; i<edrCheck.length; i++)
+    {
+      if(edrCheck[i].status == "pending")
+      {
+        count++;
+      }
+      if(count>0)
+      break;
+    }
+    const iprCheck = await IPR.find({patientId:req.body.patientId})
+    for( let i =0 ; i<iprCheck.length; i++)
+    {
+      if(iprCheck[i].status == "pending")
+      {
+        count++;
+      }
+      if(count>0)
+      break;
+    }
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
   var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
+  if(count>0)
+  {
+    res.status(200).json({ success: false });
+  }
+  else{
   const ipr = await IPR.create({
     requestNo: 'IPR' +day+ requestNoFormat(new Date(), 'yyHHMM'),
     patientId,
@@ -1197,6 +1220,8 @@ exports.addIPR = asyncHandler(async (req, res) => {
     paymentMethod
   });
   res.status(200).json({ success: true, data: ipr });
+}
+
 });
 
 exports.deleteIPR = asyncHandler(async (req, res, next) => {
