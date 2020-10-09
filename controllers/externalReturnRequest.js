@@ -8,6 +8,21 @@ exports.getExternalReturnRequests = asyncHandler(async (req, res) => {
     const externalRequest = await ExternalReturnRequest.find().populate('itemId');
     res.status(200).json({ success: true, data: externalRequest });
 });
+exports.getExternalReturnRequestsKeyword = asyncHandler(async (req, res) => {
+    const externalRequest = await ExternalReturnRequest.find().populate('itemId');
+    var arr =[];
+    for(let i = 0 ; i<externalRequest.length; i++)
+    {
+        if(
+            (externalRequest[i].returnRequestNo && externalRequest[i].returnRequestNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+            (externalRequest[i].itemId.itemCode && externalRequest[i].itemId.itemCode.match(req.params.keyword))
+            )
+           {
+            arr.push(externalRequest[i])
+            }
+    }
+    res.status(200).json({ success: true, data: arr });
+});
 exports.getExternalReturnRequestsById = asyncHandler(async (req, res) => {
     const externalRequest = await ExternalReturnRequest.findOne({_id:_id,}).populate('itemId');
     res.status(200).json({ success: true, data: externalRequest });

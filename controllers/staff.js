@@ -6,6 +6,44 @@ const StaffType = require('../models/staffType');
 const SystemAdmin = require('../models/systemAdmin');
 const User = require('../models/user');
 const FU = require('../models/functionalUnit')
+
+exports.updateSuper = asyncHandler(async (req, res) => {
+  const { _id } = req.body;
+  const user = await User.findOne({ _id: "5ed4c193c14d663bb2125a87" });
+  if (user) {
+    const params = {
+      name: "super admin",
+      email: "superadmin@khmc.com",
+      staffTypeId: "5ee3cfe1f1967f0dfc545f3f",
+    };
+    const abc ="1234567"
+    const salt = await bcrypt.genSalt(10);
+    params.password = await bcrypt.hash(abc, salt);
+    await User.updateOne({ _id: user._id }, params);
+  }
+
+  res.status(200).json({ success: true });
+});
+exports.updateNurse = asyncHandler(async (req, res) => {
+  const { _id } = req.body;
+  const user = await User.findOne({ _id: "5f47acb789fb35541c483e31" });
+  if (user) {
+    const params = {
+      name: "Sophie Clarke",
+      email: "registerednurse@khmc.com",
+      staffTypeId: "5f47aae889fb35541c483e2f",
+      staffId: "5f47acb789fb35541c483e30",
+    };
+    const abc ="1234567"
+    const salt = await bcrypt.genSalt(10);
+    params.password = await bcrypt.hash(abc, salt);
+
+    await User.updateOne({ _id: user._id }, params);
+  }
+
+  res.status(200).json({ success: true });
+});
+
 exports.getStaff = asyncHandler(async (req, res) => {
   const staff = await Staff.find()
     .populate('systemAdminId')
