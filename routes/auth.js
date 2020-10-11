@@ -16,13 +16,13 @@ router.post('/login', validateParams([
       param_key: 'email',
       required: true,
       type: 'string',
-      validator_functions: [(param) => {return param.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)}]
+      // validator_functions: [(param) => {return param.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)}]
   },
   {
       param_key: 'password',
       required: true,
       type: 'string',
-      validator_functions: [(param) => {return param.length === 6}]
+      // validator_functions: [(param) => {return param.length === 6}]
   }
 ]), login);
 router.get('/logout', logout);

@@ -30,6 +30,33 @@ exports.getPurchaseRequests = asyncHandler(async (req, res) => {
   };
   res.status(200).json({ success: true, data: data });
 });
+exports.getPurchaseRequestKeyword = asyncHandler(async (req, res) => {
+  const purchaseRequest = await PurchaseRequest.find()
+    .populate('item.itemId')
+    .populate('vendorId')
+    .populate('approvedBy')
+    .populate({
+      path: 'item.itemId',
+      populate: [
+        { path: 'vendorId' }
+      ],
+    })
+    var arr = [];
+    for(let i=0; i<purchaseRequest.length; i++)
+    {
+        if(
+            (purchaseRequest[i].requestNo && purchaseRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
+            ||(purchaseRequest[i].vendorId.englishName && purchaseRequest[i].vendorId.englishName.toLowerCase().match(req.params.keyword.toLowerCase()))
+            )
+            {
+              arr.push(purchaseRequest[i])
+            }
+    }
+  const data = {
+    purchaseRequest:arr
+  };
+  res.status(200).json({ success: true, data: data });
+});
 exports.addPurchaseRequest = asyncHandler(async (req, res) => {
   const {
     generatedBy,

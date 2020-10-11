@@ -126,6 +126,9 @@ const patientSchema = new mongoose.Schema({
   otherCoverageDetails:{
     type:String
   },
+  otherCity:{
+    type:String
+  },
   QR:{
     type:String
   },

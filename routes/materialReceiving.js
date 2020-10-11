@@ -3,6 +3,7 @@ const { validateParams } = require('../middleware/validator');
 
 const {
     getMaterialReceivings,
+    getMaterialReceivingsKeyword,
     getMaterialReceivingsById,
     addMaterialReceiving,
     deleteMaterialReceiving,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 
 router.get('/getmaterialreceivings', getMaterialReceivings);
+router.get('/getmaterialreceivingskey/:keyword', getMaterialReceivingsKeyword);
 router.get('/getmaterialreceivings/:_id', getMaterialReceivingsById);
 router.post('/addmaterialreceiving', validateParams([
     {

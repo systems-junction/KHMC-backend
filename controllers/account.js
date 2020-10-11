@@ -27,7 +27,31 @@ exports.getAccount = asyncHandler(async (req, res) => {
     .populate('vendorId');
   res.status(200).json({ success: true, data: account });
 });
-
+exports.getAccountKeyword = asyncHandler(async (req, res) => {
+  const account = await Account.find().populate({
+    path : 'mrId',
+     populate: [{
+        path : 'poId',
+        populate : {
+          path : 'purchaseRequestId',
+          populate:{
+            path : 'item.itemId'
+          }
+          }}]
+  }).populate('vendorId');
+  var arr =[];
+  for(let i = 0 ; i<account.length; i++)
+  {
+      if(
+          (account[i].mrId.poId.purchaseOrderNo && account[i].mrId.poId.purchaseOrderNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
+          (account[i].vendorId.englishName && account[i].vendorId.englishName.match(req.params.keyword))
+          )
+         {
+          arr.push(account[i])
+          }
+  }
+  res.status(200).json({ success: true, data: arr });
+});
 exports.getAccountById = asyncHandler(async (req, res) => {
   const account = await Account.findOne({ _id: req.params._id })
     .populate({
