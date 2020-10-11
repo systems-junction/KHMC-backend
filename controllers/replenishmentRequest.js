@@ -22,18 +22,18 @@ exports.getReplenishmentRequestsFUByKeyword = asyncHandler(async (req, res) => {
     .populate('fuId')
     .populate('items.itemId')
     .populate('approvedBy');
-    var arr=[];
-    for(let i=0; i<replenishmentRequest.length; i++)
-    {
-      if(
-        (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-        )
-        {
-          arr.push(replenishmentRequest[i])
-        }
+  var arr = [];
+  for (let i = 0; i < replenishmentRequest.length; i++) {
+    if (
+      replenishmentRequest[i].requestNo &&
+      replenishmentRequest[i].requestNo
+        .toLowerCase()
+        .match(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(replenishmentRequest[i]);
     }
-    res.status(200).json({ success: true, data: arr });
-
+  }
+  res.status(200).json({ success: true, data: arr });
 });
 
 exports.getReplenishmentRequestsByIdFU = asyncHandler(async (req, res) => {
@@ -205,12 +205,16 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
           itemId: req.body.items[i].itemId,
         });
 
-        await WHInventory.findOneAndUpdate(
-          {
-            itemId: req.body.items[i].itemId,
-          },
-          { $set: { tempBatchArray: wh.batchArray } }
+        req.body.items[i].tempBatchArray = JSON.parse(
+          JSON.stringify(wh.batchArray)
         );
+
+        // await WHInventory.findOneAndUpdate(
+        //   {
+        //     itemId: req.body.items[i].itemId,
+        //   },
+        //   { $set: { tempBatchArray: wh.batchArray } }
+        // );
 
         let updatedBatchArray = wh.batchArray;
         var newBatch = [];
@@ -264,7 +268,7 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
             removedWithZeroQty.push(updatedBatchArray[i]);
           }
         }
-        
+
         console.log('removedWithZeroQty', removedWithZeroQty);
         console.log('updatedBatchArray', updatedBatchArray);
         console.log('newBatch', newBatch);

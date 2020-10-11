@@ -88,6 +88,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               itemId: account.mrId.prId[i].id.item[j].itemId,
             }).populate('prId');
 
+            console.log("receive",receive)
             // let obj = {
             //   batchNumber: receive.batchNumber,
             //   expiryDate: receive.expiryDate,

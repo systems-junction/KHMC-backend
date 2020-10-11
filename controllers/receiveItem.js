@@ -511,7 +511,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     });
     //this should not be here i.e receive item
   }
-  if (!withOutReturnBatchArray.length > 0) {
+  if (withOutReturnBatchArray.length > 0) {
     if (req.body.receivedQty > req.body.requestedQty) {
       var qty = req.body.receivedQty - req.body.requestedQty;
       await ReceiveItem.create({

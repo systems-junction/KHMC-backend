@@ -60,10 +60,22 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
 
-  const wh = await FUInventory.findOneAndUpdate(
-    { itemId: req.body.itemId, fuId: fuId },
-    { new: true }
-  ).populate('itemId');
+  // const wh = await FUInventory.findOneAndUpdate(
+  //   { itemId: req.body.itemId, fuId: fuId },
+  //   { new: true }
+  // ).populate('itemId');
+
+  let wh = '';
+  const repRequest = await ReplenishmentRequestBU.findOne({
+    _id: replenishmentRequestId,
+  });
+
+  for (let i = 0; i < repRequest.items.length; i++) {
+    if (repRequest.items[i].itemId == itemId) {
+      wh = repRequest.items[i];
+    }
+  }
+
 
   //code for batch calculation and setting
   let updatedBatchArray = wh.tempBatchArray;

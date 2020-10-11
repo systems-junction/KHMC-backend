@@ -70,6 +70,16 @@ const replenishmentRequestSchema = new mongoose.Schema({
           quantity: Number,
         },
       ],
+
+      tempBatchArray: [
+        {
+          batchNumber: String,
+          expiryDate: {
+            type: Date,
+          },
+          quantity: Number,
+        },
+      ],
     },
   ],
   status: {

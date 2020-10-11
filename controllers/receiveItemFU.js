@@ -12,6 +12,7 @@ const WHInventory = require('../models/warehouseInventory');
 const Item = require('../models/item');
 const requestNoFormat = require('dateformat');
 const { rename } = require('fs');
+const item = require('../models/item');
 
 exports.getReceiveItemsFU = asyncHandler(async (req, res) => {
   const receiveItems = await ReceiveItemFU.find().populate('vendorId');
@@ -70,13 +71,25 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
     fuId: req.body.fuId,
   });
 
-  const wh = await WHInventory.findOne({ itemId: itemId });
+  // const wh = await WHInventory.findOne({ itemId: itemId });
+
+  let wh = '';
+  const repRequest = await ReplenishmentRequest.findOne({
+    _id: replenishmentRequestId,
+  });
+
+  for (let i = 0; i < repRequest.items.length; i++) {
+    if (repRequest.items[i].itemId == itemId) {
+      wh = repRequest.items[i];
+    }
+  }
 
   //code for batch calculation and setting
   let updatedBatchArray = wh.tempBatchArray;
   var newBatch = [];
   let counterForBatchArray = 0;
   let remainingQty = receivedQty;
+
   for (let i = 0; i < wh.tempBatchArray.length; i++) {
     if (wh.tempBatchArray[i].quantity >= remainingQty) {
       updatedBatchArray[i] = {
@@ -176,13 +189,12 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
 
     //updating the batch array in FU Inven
     let quantityUpdated;
-    let arr = [];
     let alreadyFound = await FUInventory.findOne({
       itemId: itemId,
       fuId: req.body.fuId,
     });
 
-  
+    let arr = alreadyFound.batchArray;
 
     for (let i = 0; i < newBatch.length; i++) {
       let found = false;
@@ -193,18 +205,15 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         quantity: newBatch[i].quantity,
       };
 
-      for (let j = 0; j < alreadyFound.batchArray.length; j++) {
-        if (
-          alreadyFound.batchArray[j].batchNumber === newBatch[i].batchNumber
-        ) {
+      for (let j = 0; j < arr.length; j++) {
+        if (arr[j].batchNumber === newBatch[i].batchNumber) {
           found = true;
-          arr.push({
-            batchNumber: alreadyFound.batchArray[j].batchNumber,
-            expiryDate: alreadyFound.batchArray[j].expiryDate,
+          arr[j] = {
+            batchNumber: arr[j].batchNumber,
+            expiryDate: arr[j].expiryDate,
             quantity:
-              parseInt(alreadyFound.batchArray[j].quantity) +
-              parseInt(newBatch[i].quantity),
-          });
+              parseInt(arr[j].quantity) + parseInt(newBatch[i].quantity),
+          };
           //   break;
         }
       }
@@ -212,19 +221,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       if (found === false) {
         arr.push(obj);
       }
-      // await FUInventory.findOneAndUpdate(
-      //   { itemId: itemId, fuId: req.body.fuId },
-      //   { $push: { batchArray: obj } },
-      //   { new: true }
-      // );
     }
-
-    // console.log('arr', arr);
-
-    // quantityUpdated = await FUInventory.findOneAndUpdate({
-    //   itemId: itemId,
-    //   fuId: req.body.fuId,
-    // });
 
     quantityUpdated = await FUInventory.findOneAndUpdate(
       {

@@ -357,13 +357,17 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
         fuId: func._id,
       }).populate('itemId');
 
-      await FUInventory.findOneAndUpdate(
-        {
-          itemId: req.body.item[i].itemId,
-          fuId: func._id,
-        },
-        { $set: { tempBatchArray: wh.batchArray } }
+
+      req.body.item[i].tempBatchArray = JSON.parse(
+        JSON.stringify(wh.batchArray)
       );
+      // await FUInventory.findOneAndUpdate(
+      //   {
+      //     itemId: req.body.item[i].itemId,
+      //     fuId: func._id,
+      //   },
+      //   { $set: { tempBatchArray: wh.batchArray } }
+      // );
 
       let updatedBatchArray = wh.batchArray;
       var newBatch = [];
