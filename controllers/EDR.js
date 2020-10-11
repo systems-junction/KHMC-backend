@@ -1,7 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { v4: uuidv4 } = require('uuid');
 const EDR = require('../models/EDR');
+const IPR = require('../models/IPR')
 const requestNoFormat = require('dateformat');
 
 exports.getEDR = asyncHandler(async (req, res) => {
@@ -265,14 +265,41 @@ exports.addEDR = asyncHandler(async (req, res) => {
     triageAssessment,
     verified,
     insurerId,
-    paymentMethod
+    paymentMethod,
+    claimed
   } = req.body;
+  var count = 0;
+    const edrCheck = await EDR.find({patientId:req.body.patientId})
+    for( let i =0 ; i<edrCheck.length; i++)
+    {
+      if(edrCheck[i].status == "pending")
+      {
+        count++;
+      }
+      if(count>0)
+      break;
+    }
+    const iprCheck = await IPR.find({patientId:req.body.patientId})
+    for( let i =0 ; i<iprCheck.length; i++)
+    {
+      if(iprCheck[i].status == "pending")
+      {
+        count++;
+      }
+      if(count>0)
+      break;
+    }
     var now = new Date();
     var start = new Date(now.getFullYear(), 0, 0);
     var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
     var oneDay = 1000 * 60 * 60 * 24;
     var day = Math.floor(diff / oneDay);
-  const edr = await EDR.create({
+    if(count>0)
+    {
+      res.status(200).json({ success: false });
+    }
+    else{
+    const edr = await EDR.create({
     requestNo: 'EDR' + day + requestNoFormat(new Date(), 'yyHHMM'),
     patientId,
     generatedBy,
@@ -286,9 +313,11 @@ exports.addEDR = asyncHandler(async (req, res) => {
     triageAssessment,
     verified,
     insurerId,
-    paymentMethod
+    paymentMethod,
+    claimed:false
   });
   res.status(200).json({ success: true, data: edr });
+}
 });
 
 exports.deleteEDR = asyncHandler(async (req, res, next) => {

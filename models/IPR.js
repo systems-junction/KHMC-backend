@@ -407,6 +407,9 @@ const IPRSchema = new mongoose.Schema({
     paymentMethod:{
         type:String
     },
+    claimed:{
+        type:Boolean
+    },
     createdAt: {
         type: Date,
         default: Date.now,

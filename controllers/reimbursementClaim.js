@@ -23,16 +23,8 @@ exports.getClaimsKeyword = asyncHandler(async (req, res) => {
     var arr=[];
     for(let i = 0; i<rc.length; i++)
     {
-       var fullName = rc[i].patient.firstName+" "+rc[i].patient.lastName
        if(
-      (rc[i].patient.profileNo && rc[i].patient.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      // (rc[i].patient.firstName && rc[i].patient.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      // (rc[i].patient.lastName && rc[i].patient.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (rc[i].patient.phoneNumber && rc[i].patient.phoneNumber.match(req.params.keyword))||
-      (rc[i].patient.SIN && rc[i].patient.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (rc[i].patient.mobileNumber && rc[i].patient.mobileNumber.match(req.params.keyword))||
-      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
-      )
+      (rc[i].requestNo && rc[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase())))
       {
         arr.push(rc[i])
       }
@@ -498,16 +490,40 @@ exports.addClaims = asyncHandler(async (req, res) => {
     document,
     status,
   } = req.body.data;
+  var claimSolution;
   var parsed = JSON.parse(req.body.data);
+  if(parsed.requestType=="IPR")
+  {
+    claimSolution = await IPR.findOne({_id:parsed.edriprId})
+   await IPR.findOneAndUpdate({_id:parsed.edriprId},{$set:{claimed:true}},{ new: true })   
+  }
+  else if(parsed.requestType=="EDR")
+  {
+    claimSolution = await EDR.findOne({_id:parsed.edriprId})
+    await EDR.findOneAndUpdate({_id:parsed.edriprId},{$set:{claimed:true}})
+  }
   var rc;
+  if(claimSolution.claimed===true)
+  {
+   res.status(200).json({ success: false });
+  }
+else{
   if (req.files) {
     var arr=[];
     for(let i=0; i<req.files.length;i++)
     {
       arr.push(req.files[i].path);
     }
-    rc = await RC.create({
-      requestNo: 'IRI' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+    var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
+  rc = await RC.create({
+      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       generatedBy: parsed.generatedBy,
       patient: parsed.patient,
       insurer: parsed.insurer,
@@ -518,7 +534,7 @@ exports.addClaims = asyncHandler(async (req, res) => {
     });
   } else {
     rc = await RC.create({
-      requestNo: 'IRI' + requestNoFormat(new Date(), 'mmddyyHHmm'),
+      requestNo: 'RC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       generatedBy: parsed.generatedBy,
       patient: parsed.patient,
       insurer: parsed.insurer,
@@ -528,8 +544,8 @@ exports.addClaims = asyncHandler(async (req, res) => {
       status: parsed.status,
     });
   }
-
   res.status(200).json({ success: true, data: rc });
+}
 });
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
@@ -547,11 +563,13 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
     {
       arr.push(req.files[i].path);
     }
+    await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
     rc = await RC.updateOne(
       { _id: _id },
       { $set: { document: arr } },
       JSON.parse(req.body.data)
     );
+
   } else {
     rc = await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
   }
