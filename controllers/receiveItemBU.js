@@ -70,9 +70,9 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
     _id: replenishmentRequestId,
   });
 
-  for (let i = 0; i < repRequest.items.length; i++) {
-    if (repRequest.items[i].itemId == itemId) {
-      wh = repRequest.items[i];
+  for (let i = 0; i < repRequest.item.length; i++) {
+    if (repRequest.item[i].itemId == itemId) {
+      wh = repRequest.item[i];
     }
   }
 
