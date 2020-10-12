@@ -208,6 +208,15 @@ const EDRSchema = new mongoose.Schema({
                 totalPrice: {
                     type: Number,
                 },
+                itemType: {
+                    type:String
+                },
+                make_model:{
+                    type:String
+                },
+                size:{
+                    type:String
+                },
             }, ],
         },
         status: {
