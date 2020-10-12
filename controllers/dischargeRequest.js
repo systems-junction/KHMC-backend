@@ -44,7 +44,6 @@ exports.addDischargeRequest = asyncHandler(async (req, res) => {
         depositorName: req.body.depositorName,
         receivedBy:req.body.receivedBy
               });
-              // console.log(dr)
     // if (req.file) {
     //   dr = await DR.create({
     //     edrId: parsed.edrId,
