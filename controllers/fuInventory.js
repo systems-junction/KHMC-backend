@@ -22,7 +22,6 @@ exports.test = asyncHandler(async(req,res)=>{
 // if(abc){count++}
 // if(count==2000)
 // {
-//   console.log("done")
 //   break;
 // }
 // }

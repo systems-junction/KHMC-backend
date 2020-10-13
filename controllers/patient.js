@@ -152,6 +152,7 @@ exports.getPatientByMRN = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPaitentKeyword = asyncHandler(async (req, res) => {
+
   const patient = await Patient.aggregate([
   {
       $project: {
@@ -176,35 +177,25 @@ exports.getPaitentKeyword = asyncHandler(async (req, res) => {
       },
     }
     ]).limit(50)
-
-  // const patient = await Patient.aggregate([
-  //   {
-  //     $project: {
-  //       name: { $concat: ['$firstName', ' ', '$lastName'] },
-  //       profileNo: 1,
-  //       SIN: 1,
-  //       firstName: 1,
-  //       lastName: 1,
-  //       age: 1,
-  //       gender: 1,
-  //       phoneNumber: 1,
-  //       mobileNumber: 1,
-  //     },
-  //   },
-  //   {
-  //     $match: {
-  //       $or: [
-  //         { name: { $regex: req.params.keyword, $options: 'i' } },
-  //         { firstName: { $regex: req.params.keyword, $options: 'i' } },
-  //         { lastName: { $regex: req.params.keyword, $options: 'i' } },
-  //         { profileNo: { $regex: req.params.keyword, $options: 'i' } },
-  //         { SIN: { $regex: req.params.keyword, $options: 'i' } },
-  //         { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
-  //         { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
-  //       ],
-  //     },
-  //   },
-  // ]).limit(50);
+//     const patient = await Patient.find({
+//       $or: [
+//         { firstName: { $regex: req.params.keyword, $options: 'i' } },
+//         { lastName: { $regex: req.params.keyword, $options: 'i' } },
+//         { profileNo: { $regex: req.params.keyword, $options: 'i' } },
+//         { SIN: { $regex: req.params.keyword, $options: 'i' } },
+//         { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
+//         { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
+//       ],
+// }).limit(50).select({
+//       firstName:1,
+//       lastName:1,
+//       profileNo: 1,
+//       SIN: 1,
+//       age: 1,
+//       gender: 1,
+//       phoneNumber: 1,
+//       mobileNumber: 1,
+// })
   res.status(200).json({ success: true, data: patient });
 });
 
