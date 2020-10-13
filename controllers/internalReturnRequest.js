@@ -197,10 +197,10 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
       );
 
       let internalRequest = await InternalReturnRequest.findOne({
-        _id
-      })
+        _id,
+      });
 
-      console.log(internalRequest)
+      // console.log(internalRequest)
 
       let newBatchArray = fuWithUpdatedQty.batchArray;
       for (let i = 0; i < internalRequest.returnBatchArray.length; i++) {
@@ -248,6 +248,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
         whiId: wh._id,
         itemId: req.body.itemId,
         returnedQty: req.body.returnedQty,
+        batchArray: internalReturn.batchArray,
       });
     }
   }

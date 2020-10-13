@@ -437,8 +437,8 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     }
   }
 
-  console.log(returnedBatchArray);
-  console.log(withOutReturnBatchArray);
+  console.log("return array",returnedBatchArray);
+  console.log("without return array",withOutReturnBatchArray);
 
   returnedBatchArray.sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
   withOutReturnBatchArray.sort((a, b) =>
@@ -455,7 +455,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
 
-  if (returnedBatchArray.length > 0) {
+  if (returnedBatchArray.length > 0 && status !== 'rejected') {
     const err = await ExternalReturnRequest.create({
       returnRequestNo: 'ER' + day + requestNoFormat(new Date(), 'yyHHMM'),
       generatedBy: 'System',
@@ -511,7 +511,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     });
     //this should not be here i.e receive item
   }
-  if (withOutReturnBatchArray.length > 0) {
+  if (withOutReturnBatchArray.length > 0 || status === 'rejected') {
     if (req.body.receivedQty > req.body.requestedQty) {
       var qty = req.body.receivedQty - req.body.requestedQty;
       await ReceiveItem.create({
@@ -579,7 +579,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         itemId,
         currentQty,
         requestedQty,
-        receivedQty: receivedQuantity,
+        receivedQty: status === 'rejected' ? 0 : receivedQuantity,
         bonusQty,
         batchNumber,
         lotNumber,
@@ -601,7 +601,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         prId,
         status,
         // batchArray: batchArray,
-        batchArray: withOutReturnBatchArray,
+        batchArray: status === 'rejected' ? [] : withOutReturnBatchArray,
       });
     }
   }

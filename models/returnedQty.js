@@ -9,10 +9,10 @@ const ReturnedQuantitySchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'WarehouseInventory',
   },
-  itemId:{
+  itemId: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Item' 
-},
+    ref: 'Item',
+  },
   returnedQty: {
     type: Number,
   },
@@ -24,6 +24,16 @@ const ReturnedQuantitySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  batchArray: [
+    {
+      batchNumber: String,
+      expiryDate: {
+        type: Date,
+      },
+      quantity: Number,
+    },
+  ],
 });
 
 module.exports = mongoose.model('ReturnedQuantity', ReturnedQuantitySchema);
