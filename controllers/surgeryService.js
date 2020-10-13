@@ -19,7 +19,7 @@ exports.addSurgeryService = asyncHandler(async (req, res) => {
     price,
     status,
   });
-  //   notification("Purchase Order", "A new Purchase Order "+purchaseOrder.purchaseOrderNo +" has been generated at "+purchaseOrder.createdAt, "admin")
+    // notification("TEST", "A new TEST ", "admin")
   //   const po = await PurchaseOrder.find()
   //   .populate('vendorId')
   //   .populate('purchaseRequestId');
