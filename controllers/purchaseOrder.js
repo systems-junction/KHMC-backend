@@ -120,8 +120,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
   });
   for(let i = 0 ; i<purchaseRequestId.length; i++)
   {
-   const test =  await purchaseRequest.findOneAndUpdate({_id:purchaseRequestId[i]},{$set:{availabilty:false}})
-    console.log(test)
+   await purchaseRequest.findOneAndUpdate({_id:purchaseRequestId[i]},{$set:{availability:false}})
   }
   notification(
     'Purchase Order',
