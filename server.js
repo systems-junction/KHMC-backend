@@ -29,8 +29,8 @@ connectDB();
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'abdulhannan.itsolution@gmail.com',
-    pass: 'Abc123##',
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
   },
 });
 // Route files
@@ -233,7 +233,7 @@ cron.schedule('*/10 * * * * *', () => {
                 );
               }, '');
               var mailOptions = {
-                from: 'abdulhannan.itsolution@gmail.com',
+                from: 'pmdevteam0@gmail.com',
                 to: vendorEmail,
                 subject: 'Request for items',
                 html:

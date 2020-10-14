@@ -16,6 +16,10 @@ const PurchaseRequestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  availability:{
+    type:Boolean,
+    default:true
+  },
   reason: {
     type: String,
     required: true,

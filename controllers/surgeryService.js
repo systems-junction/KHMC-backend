@@ -4,7 +4,6 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const SurgeryService = require('../models/surgeryService');
 const requestNoFormat = require('dateformat');
-
 exports.getSurgeryService = asyncHandler(async (req, res) => {
   const surgeryService = await SurgeryService.find();
   res.status(200).json({ success: true, data: surgeryService });
@@ -19,7 +18,7 @@ exports.addSurgeryService = asyncHandler(async (req, res) => {
     price,
     status,
   });
-    // notification("TEST", "A new TEST ", "admin")
+  notification("TEST", "A new TEST ", "admin")
   //   const po = await PurchaseOrder.find()
   //   .populate('vendorId')
   //   .populate('purchaseRequestId');
