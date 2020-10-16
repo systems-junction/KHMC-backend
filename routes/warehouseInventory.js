@@ -1,6 +1,7 @@
 const express = require('express');
 const {
     getWhInventory,
+    getWhInventoryPaginated,
     getWhInventoryKeyword,
     addWhInventory,
     deleteWhInventory,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 
 router.get('/getwhinventory', getWhInventory);
+router.get('/getwhinventoryPaginated/:limit/:page', getWhInventoryPaginated);
 router.get('/getwhinventory/:keyword', getWhInventoryKeyword);
 router.get('/getexpiredinventory', getExpiredInventory);
 router.post('/getexpiredinventorybyinput', getExpiredInventoryByInput);

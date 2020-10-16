@@ -11,6 +11,21 @@ const asyncHandler = require('../middleware/async');
             res.status(400).send({success:false, message: "Error getting warehouse inventory!", error: e.toString()});
         }
     };
+    exports.getWhInventoryPaginated = asyncHandler(async (req, res) => {
+      const options = {
+        limit: req.params.limit,
+        page: req.params.page,
+        populate:[{
+          path: 'itemId',
+          populate:{
+            path:'vendorId',
+            select:['englishName','vendorNo'],
+          }
+      }],
+      };
+      const whinventory = await WhInventory.paginate({} , options)    
+      res.status(200).json({ success: true, data: whinventory });
+    });
 exports.getWhInventoryKeyword = asyncHandler(async(req,res)=>{
    const ware = await WhInventory.find().populate('itemId').limit(500);
    var arr= [];

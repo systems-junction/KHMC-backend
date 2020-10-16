@@ -5,6 +5,7 @@ const address = require('./address');
 const contact = require('./contact');
 const photo = require('./attachment');
 const patientSchema = new mongoose.Schema({
+  identifier:[{type:String}],
   name: [name.humanName],
   telecom: [telecom.contactPoint],
   gender: {

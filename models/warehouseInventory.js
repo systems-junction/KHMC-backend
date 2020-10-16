@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const mongoosePaginate = require('mongoose-paginate-v2');
 const WarehouseInventorySchema = new mongoose.Schema({
     itemId: {
         type: mongoose.Schema.ObjectId,
@@ -27,5 +27,5 @@ const WarehouseInventorySchema = new mongoose.Schema({
         default: Date.now
     }
 });
-
+WarehouseInventorySchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('WarehouseInventory', WarehouseInventorySchema);
