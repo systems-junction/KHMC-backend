@@ -318,7 +318,12 @@ exports.addPatient = asyncHandler(async (req, res) => {
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
     'Registered Nurse'
   );
-  QRCode.toDataURL(JSON.stringify(patient.profileNo), function (err, url) {
+  let obj = {}
+  obj.profileNo = patient.profileNo
+  obj.age = patient.age
+  obj.paymentMethod = patient.paymentMethod
+  obj.createdAt = patient.createdAt
+  QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
     var base64Str = url;
     var path = './uploads/';
     var pathFormed = base64ToImage(base64Str, path);
@@ -392,7 +397,12 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     patientQR = await Patient.findOne({ _id: _id });
 
     if (!patientQR.QR) {
-      QRCode.toDataURL(JSON.stringify(patientQR.profileNo), function (
+      let obj = {}
+      obj.profileNo = patient.profileNo
+      obj.age = patient.age
+      obj.paymentMethod = patient.paymentMethod
+      obj.createdAt = patient.createdAt
+      QRCode.toDataURL(JSON.stringify(obj), function (
         err,
         url
       ) {
@@ -420,7 +430,12 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
     patientQR = await Patient.findOne({ _id: _id });
 
     if (!patientQR.QR) {
-      QRCode.toDataURL(JSON.stringify(patientQR.profileNo), function (
+      let obj = {}
+      obj.profileNo = patient.profileNo
+      obj.age = patient.age
+      obj.paymentMethod = patient.paymentMethod
+      obj.createdAt = patient.createdAt
+      QRCode.toDataURL(JSON.stringify(obj), function (
         err,
         url
       ) {

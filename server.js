@@ -13,9 +13,9 @@ const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 var nodemailer = require('nodemailer');
 const requestNoFormat = require('dateformat');
-    // const db = require('monk')(
-    //  'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/stagingdb?retryWrites=true&w=majority'
-    // );
+//  const db = require('monk')(
+//   'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/stagingdb?retryWrites=true&w=majority'
+//  );
 var now = new Date();
 var start = new Date(now.getFullYear(), 0, 0);
 var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
@@ -29,8 +29,8 @@ connectDB();
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'abdulhannan.itsolution@gmail.com',
-    pass: 'Abc123##',
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
   },
 });
 // Route files
@@ -233,7 +233,7 @@ cron.schedule('*/10 * * * * *', () => {
                 );
               }, '');
               var mailOptions = {
-                from: 'abdulhannan.itsolution@gmail.com',
+                from: 'pmdevteam0@gmail.com',
                 to: vendorEmail,
                 subject: 'Request for items',
                 html:

@@ -5,7 +5,7 @@ const User = require('../models/user')
 const privateVapidKey = "s92YuYXxjJ38VQhRSuayTb9yjN_KnVjgKfbpsHOLpjc";
 const publicVapidKey = "BOHtR0qVVMIA-IJEru-PbIKodcux05OzVVIJoIBKQu3Sp1mjvGkjaT-1PIzkEwAiAk6OuSCZfNGsgYkJJjOyV7k"
 webpush.setVapidDetails(
-  "mailto:hannanbutt1995@gmail.com",
+  "mailto:pmdevteam0@gmail.com",
   publicVapidKey,
   privateVapidKey
 );
