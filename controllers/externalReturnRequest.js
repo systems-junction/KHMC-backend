@@ -5,7 +5,12 @@ const asyncHandler = require('../middleware/async');
 const ExternalReturnRequest = require('../models/externalReturnRequest');
 const requestNoFormat = require('dateformat');
 exports.getExternalReturnRequests = asyncHandler(async (req, res) => {
-    const externalRequest = await ExternalReturnRequest.find().populate('itemId');
+    const externalRequest = await ExternalReturnRequest.find().populate({
+        path:'itemId',
+        populate:{
+            path:'vendorId'
+        }
+    });
     res.status(200).json({ success: true, data: externalRequest });
 });
 exports.getExternalReturnRequestsKeyword = asyncHandler(async (req, res) => {
