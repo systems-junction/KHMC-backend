@@ -31,7 +31,6 @@ var  notification = function ( title, message, type)
       for(let i = 0; i<user.length; i++ )
         { 
         Subscription.find({user:user[i]._id}, (err, subscriptions) => {
-          console.log(subscriptions)
           if (err) {
             console.error(`Error occurred while getting subscriptions`);
             res.status(500).json({
@@ -51,7 +50,7 @@ var  notification = function ( title, message, type)
                 webpush
                   .sendNotification(pushSubscription, pushPayload)
                   .then((value) => {
-                    Notification.find({'sendTo.userId':user[i]._id}).then((not,err)=>{
+                    Notification.find({'sendTo.userId':user[i]._id}).limit(50).sort({ $natural: -1 }).then((not,err)=>{
                       globalVariable.io.emit("get_data", not)
                     })
                     resolve({

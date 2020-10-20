@@ -45,7 +45,7 @@ exports.deleteExternalReturnRequests = asyncHandler(async (req, res, next) => {
 });
 
 exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
-    const { generatedBy,generated,dateGenerated,expiryDate,itemId,currentQty,reason,
+    const { generatedBy,generated,dateGenerated,expiryDate,itemId,returnedQty,reason,
            reasonDetail,description,status,damageReport,prId} = req.body;
     var now = new Date();
     var start = new Date(now.getFullYear(), 0, 0);
@@ -59,7 +59,7 @@ exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
         dateGenerated,
         expiryDate,
         itemId,
-        currentQty,
+        returnedQty,
         description,
         reason,
         reasonDetail,

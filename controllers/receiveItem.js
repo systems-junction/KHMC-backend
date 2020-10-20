@@ -1,7 +1,6 @@
 const notification = require('../components/notification')
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { v4: uuidv4 } = require('uuid');
 const ExternalReturnRequest = require('../models/externalReturnRequest');
 const ReceiveItem = require('../models/receiveItem');
 const MaterialReceiving = require('../models/materialReceiving');
@@ -39,7 +38,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                     dateGenerated:req.body.dateReceived,
                     expiryDate:req.body.expiryDate,
                     itemId:req.body.itemId,
-                    currentQty:req.body.qty,
+                    returnedQty:req.body.receivedQty,
                     description:"Date Expired",
                     reason:"expired",
                     reasonDetail:"Date Expired",
@@ -115,7 +114,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                     dateGenerated:req.body.dateReceived,
                     expiryDate:req.body.expiryDate,
                     itemId:req.body.itemId,
-                    currentQty:qty,
+                    returnedQty:receivedQty,
                     description:"Extra quantity",
                     reason:"Extra quantity",
                     reasonDetail:"Extra quantity arrived than requested",

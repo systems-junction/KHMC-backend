@@ -16,7 +16,7 @@ const externalReturnRequestSchema = new mongoose.Schema({
     expiryDate:{
         type:Date
     },
-    currentQty:{
+    returnedQty:{
         type:Number
     },
     itemId:{
