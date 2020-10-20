@@ -26,9 +26,11 @@ var  notification = function ( title, message, type)
         title:title,
         message:message,
         sendTo:array
-      }).then((test,err)=>{
+      }).then((test,err)=>{})
+
       for(var i = 0; i<user.length; i++ )
         {
+        Notification.find({'sendTo.userId':user[i]._id}).then((not,err)=>{
         Subscription.find({user:user[i]._id}, (err, subscriptions) => {
           if (err) {
             console.error(`Error occurred while getting subscriptions`);
@@ -49,7 +51,7 @@ var  notification = function ( title, message, type)
                 webpush
                   .sendNotification(pushSubscription, pushPayload)
                   .then((value) => {
-                    globalVariable.io.emit("get_data", test)
+                    globalVariable.io.emit("get_data", not)
                     resolve({
                       status: true,
                       endpoint: subscription.endpoint,
@@ -67,9 +69,8 @@ var  notification = function ( title, message, type)
             });
           }
         });
+      })    //maybe wrong      
       }
-
-    })//maybe wrong      
     })
   })
 }
