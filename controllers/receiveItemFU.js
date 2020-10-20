@@ -1,16 +1,26 @@
 /* eslint-disable prefer-const */
 const notification = require('../components/notification')
-const { v4: uuidv4 } = require('uuid');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const PurchaseRequest = require('../models/purchaseRequest');
+const PurchaseOrder = require('../models/purchaseOrder');
 const ReceiveItemFU = require('../models/receiveItemFU');
 const FUInventory = require('../models/fuInventory');
 const ReplenishmentRequest = require('../models/replenishmentRequest');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const WHInventory = require('../models/warehouseInventory');
 const Item = require('../models/item');
+const MaterialRecieving = require('../models/materialReceiving');
 const requestNoFormat = require('dateformat');
+const moment = require('moment');
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
+  },
+});
 
 exports.getReceiveItemsFU = asyncHandler(async (req, res) => {
     const receiveItems = await ReceiveItemFU.find().populate('vendorId');
@@ -94,7 +104,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
             if(pr.qty<=pr.reorderLevel)
             {
             const j =await Item.findOne({_id:req.body.itemId}) 
-              const purchaseRequest = await PurchaseRequest.create({
+              var purchaseRequest = await PurchaseRequest.create({
                     requestNo: 'PR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
                     generated:'System',
                     generatedBy:'System',
@@ -122,7 +132,82 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
                     rr: replenishmentRequestId
                   });
                   notification("Purchase Request", "A new Purchase Request "+purchaseRequest.requestNo+"has been generated at "+purchaseRequest.createdAt, "Committe Member")         
-        }
+                  let PO = await PurchaseOrder.create({
+                    purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+                    purchaseRequestId: [purchase._id],
+                    generated: 'System',
+                    generatedBy: 'System',
+                    date: moment().toDate(),
+                    vendorId: purchase.vendorId,
+                    status: 'po_sent',
+                    committeeStatus: 'po_sent',
+                    sentAt: moment().toDate(),
+                    createdAt: moment().toDate(),
+                    updatedAt: moment().toDate(),
+                  })
+                  PO = await PO.populate('vendorId')
+                    .populate({
+                    path: 'purchaseRequestId',
+                    populate: [
+                      {
+                        path: 'item.itemId',
+                      },
+                    ],
+                    })
+                  .execPopulate()
+                }
+                const vendorEmail = PO.vendorId.contactEmail;
+                var prArray = PO.purchaseRequestId.reduce(function (a, b) {
+                  return (
+                    b
+                  );        
+              }, '');
+                var content = prArray.item.reduce(function (a, b) {
+                  return (
+                    a +
+                    '<tr><td>' +
+                    b.itemId.itemCode +
+                    '</a></td><td>' +
+                    b.itemId.name +
+                    '</td><td>' +
+                    b.reqQty +
+                    '</td></tr>'
+                  );
+                }, '');
+                var mailOptions = {
+                  from: 'pmdevteam0@gmail.com',
+                  to: vendorEmail,
+                  subject: 'Request for items',
+                  html:
+                    '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+                    content +
+                    '</tbody></table></div>',
+                };
+                transporter.sendMail(mailOptions, function (error, info) {
+                  if (error) {
+                    console.log(error);
+                  } else {
+                    console.log('Email sent: ' + info.response);
+                  }
+                });
+               await MaterialRecieving.create({
+                  prId: [{
+                    id:purchase._id,
+                    status: 'not recieved'
+                  }],
+                  poId: PO._id,
+                  vendorId: PO.vendorId._id,
+                  status: 'pending_receipt',
+                })
+                notification(
+                  'Purchase Order',
+                  'A new Purchase Order ' +
+                    PO.purchaseOrderNo +
+                    ' has been generated at ' +
+                    PO.createdAt +
+                    ' by System',
+                  'admin'
+                );
     }}
     res.status(200).json({ success: true});
 });
