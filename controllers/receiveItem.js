@@ -41,7 +41,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
                     itemId:req.body.itemId,
                     currentQty:req.body.qty,
                     description:"Date Expired",
-                    reason:"Expired",
+                    reason:"expired",
                     reasonDetail:"Date Expired",
                     status:"approved",
                     prId:req.body.prId
