@@ -51,7 +51,7 @@ var  notification = function ( title, message, type)
                 webpush
                   .sendNotification(pushSubscription, pushPayload)
                   .then((value) => {
-                    Notification.find({'sendTo.userId':user[i]._id}).then((not,err)=>{
+                    Notification.find({'sendTo.userId':user[i]._id}).limit(50).then((not,err)=>{
                       globalVariable.io.emit("get_data", not)
                     })
                     resolve({
