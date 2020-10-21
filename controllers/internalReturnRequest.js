@@ -9,6 +9,7 @@ const WHInventory = require('../models/warehouseInventory');
 const FUInventory = require('../models/fuInventory');
 const ReturnedQty = require('../models/returnedQty')
 const requestNoFormat = require('dateformat');
+const moment = require('moment');
 exports.getInternalReturnRequestsFU = asyncHandler(async (req, res) => {
     const internalRequestFU = await InternalReturnRequest.find({to:"Warehouse",from:"FU"}).populate('fuId').populate('itemId').populate('replenishmentRequestFU');
     res.status(200).json({ success: true, data: internalRequestFU });
@@ -82,6 +83,7 @@ exports.addInternalReturnRequest = asyncHandler(async (req, res) => {
 
 
 exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
+    var todayDate = moment().utc().toDate();
     const { _id } = req.body;
     let internalReturn = await InternalReturnRequest.findById(_id);
     if(!internalReturn) {
@@ -101,7 +103,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
          const receive = await receiveItemFU.findOne({replenishmentRequestId:req.body.replenishmentRequestFU})
          const fu = await FUInventory.findOne({itemId: req.body.itemId, fuId:req.body.fuId})
          const wh = await WHInventory.findOne({itemId: req.body.itemId})
-         await FUInventory.findOneAndUpdate({itemId: req.body.itemId,fuId:req.body.fuId}, { $set: { qty: fu.qty-req.body.returnedQty }},{new:true})
+         await FUInventory.findOneAndUpdate({itemId: req.body.itemId,fuId:req.body.fuId}, { $set: { qty: fu.qty-req.body.returnedQty,updatedAt:todayDate }},{new:true})
          await ReplenishmentRequest.findOneAndUpdate({_id:req.body.replenishmentRequestFU,'items.itemId':req.body.itemId},{ $set: { 'items.$.secondStatus': "Returned", 'items.$.status':"Returned"}})
          await ReturnedQty.create({
             fuiId:fu._id,

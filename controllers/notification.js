@@ -7,7 +7,7 @@ exports.getNotification = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: not });
 });
 
-exports.updateNotification = asyncHandler(async (req, res, next) => {
+exports.updateNotification = asyncHandler(async (req, res) => {
  const not = await Notification.findOneAndUpdate({ _id:req.params.id,'sendTo.userId': req.params.userId },{ $set: { 'sendTo.$.read': true }},{ new: true });
   res.status(200).json({ success: true, data: not });
 });

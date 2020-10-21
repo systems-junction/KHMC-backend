@@ -86,6 +86,7 @@ const RC = require('./routes/reimbursementClaim');
 const patientClearance = require('./routes/patientClearance');
 const codes = require('./routes/codes');
 const notifications = require('./routes/notification');
+const reports = require('./routes/reports');
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -146,6 +147,7 @@ app.use('/api/dischargerequest',dischargeRequest)
 app.use('/api/patientclearance',patientClearance)
 app.use('/api/codes',codes)
 app.use('/api/notifications',notifications)
+app.use('/api/reports',reports)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;

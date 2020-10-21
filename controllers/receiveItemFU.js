@@ -40,6 +40,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
         var oneDay = 1000 * 60 * 60 * 24;
         var day = Math.floor(diff / oneDay);
+        var todayDate = moment().utc().toDate();
         if(pRequest && fuTest)
         {
         await ReceiveItemFU.create({
@@ -72,8 +73,8 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
     {
             const fu = await FUInventory.findOne({itemId: itemId, fuId:req.body.fuId})
             const wh = await WHInventory.findOne({itemId: itemId})
-            const fUnit = await FUInventory.findOneAndUpdate({itemId: itemId, fuId:req.body.fuId}, { $set: { qty: fu.qty+parseInt(receivedQty) }},{new:true})
-            const pr = await WHInventory.findOneAndUpdate({itemId: itemId}, { $set: { qty: wh.qty-parseInt(receivedQty) }},{new:true}).populate('itemId')
+            const fUnit = await FUInventory.findOneAndUpdate({itemId: itemId, fuId:req.body.fuId}, { $set: { qty: fu.qty+parseInt(receivedQty),updatedAt:todayDate }},{new:true})
+            const pr = await WHInventory.findOneAndUpdate({itemId: itemId}, { $set: { qty: wh.qty-parseInt(receivedQty),updatedAt:todayDate }},{new:true}).populate('itemId')
             if (fUnit)
             {
                 const rReq = await ReplenishmentRequest.findOne({_id: replenishmentRequestId})

@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+const moment = require('moment');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Account = require('../models/account');
@@ -64,6 +64,7 @@ exports.getAccountById = asyncHandler(async (req, res) => {
 });
 
 exports.updateAccount = asyncHandler(async (req, res, next) => {
+  var todayDate = moment().utc().toDate();
   const { _id } = req.body;
 
   let account = await Account.findById(_id);
@@ -82,7 +83,7 @@ if(req.body.status=="approve"){
   })
 
   await MaterialReceiving.updateOne({_id:account.mrId._id}, { $set: { status: "complete" }})
-  await PurchaseOrder.updateOne({_id:account.mrId.poId}, { $set: { status: "complete" }})
+  await PurchaseOrder.updateOne({_id:account.mrId.poId}, { $set: { status: "complete" , updatedAt:todayDate }})
   for(let i =0; i<account.mrId.prId.length; i++)
   {
     if(account.mrId.prId[i].status=="received"||account.mrId.prId[i].status=="partially_complete")
@@ -92,7 +93,7 @@ if(req.body.status=="approve"){
       if(account.mrId.prId[i].id.item[j].status=="received") 
       {
         var receive = await ReceiveItem.findOne({prId: account.mrId.prId[i].id._id,itemId:account.mrId.prId[i].id.item[j].itemId}).populate('prId')
-        await WhInventory.updateOne({itemId: receive.itemId}, { $set: { qty: receive.currentQty+receive.receivedQty }})
+        await WhInventory.updateOne({itemId: receive.itemId}, { $set: { qty: receive.currentQty+receive.receivedQty , updatedAt:todayDate }})
         await PurchaseRequest.updateOne({_id:account.mrId.prId[i].id}, { $set: { status: "receive" }})
         if(receive.prId.rr)
         {

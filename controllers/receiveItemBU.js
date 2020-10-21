@@ -13,7 +13,7 @@ const WHInventory = require('../models/warehouseInventory');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const FunctionalUnit = require('../models/functionalUnit')
 const requestNoFormat = require('dateformat');
-
+const moment = require('moment')
 exports.getReceiveItemsBU = asyncHandler(async (req, res) => {
     const receiveItems = await ReceiveItemBU.find().populate('vendorId');
     const data = {
@@ -33,6 +33,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
      var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
      var oneDay = 1000 * 60 * 60 * 24;
      var day = Math.floor(diff / oneDay);
+     var todayDate = moment().utc().toDate();
     await ReceiveItemBU.create({
         itemId,
         currentQty,
@@ -97,7 +98,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         {
           less = 0;
         }
-        const fui = await FUInventory.findOneAndUpdate({itemId: req.body.itemId,_id:fu._id }, { $set: { qty: less }},{new:true}).populate('itemId');
+        const fui = await FUInventory.findOneAndUpdate({itemId: req.body.itemId,_id:fu._id }, { $set: { qty: less,updatedAt:todayDate }},{new:true}).populate('itemId');
         const wh = await WHInventory.findOne({itemId:req.body.itemId})
         const item = await Item.findOne({_id:req.body.itemId})
         var st;
