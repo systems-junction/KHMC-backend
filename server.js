@@ -8,6 +8,7 @@ const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 dotenv.config({ path: './config/.env' });
 connectDB();
+const ChatModel = require('./models/chat')
 // const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
 // const MaterialRecievingModel = require('./models/materialReceiving');
@@ -160,9 +161,18 @@ const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
 io.origins('*:*');
 io.on('connection', (socket) => {
-  socket.on('disconnect', () => {
+   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
+  socket.on("test", function(msg) {
+            ChatModel.create({
+            message:msg.message,
+            sender:msg.sender,
+            receiver:msg.receiver
+          }).then((docs)=>{
+             socket.emit("sending_test", { message: msg  });
+          });
+    });
 });
 
 // Handle unhandled promise rejections
