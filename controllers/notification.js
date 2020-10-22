@@ -3,7 +3,7 @@ const asyncHandler = require('../middleware/async');
 const Notification = require('../models/notification');
 
 exports.getNotification = asyncHandler(async (req, res) => {
-  const not = await Notification.find({'sendTo.userId':req.params.id}).populate('sendTo.userId');
+  const not = await Notification.find({'sendTo.userId':req.params.id}).populate('sendTo.userId').sort({ $natural: -1 });
   res.status(200).json({ success: true, data: not });
 });
 
