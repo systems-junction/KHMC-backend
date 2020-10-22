@@ -12,6 +12,6 @@ const router = express.Router();
 router.post('/trackingpo/:status',trackingPO);
 router.post('/trackingpocount/:status',trackingPOCount);
 router.post('/stocklevelswh',stockLevelsWH)
-router.post('/stocklevelsfu',stockLevelsFU)
+router.post('/stocklevelsfu/:id',stockLevelsFU)
 router.post('/supplierfulfillmentpo',supplierFulfillmentPO)
 module.exports = router;

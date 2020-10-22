@@ -28,13 +28,13 @@ exports.stockLevelsWH = asyncHandler(async (req, res) => {
 exports.stockLevelsFU = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).startOf('day').utc().toDate();
     var endDate = moment(req.body.endDate).startOf('day').utc().toDate();
-    const fui = await FUInventory.find({updatedAt:{$gte: startDate, $lte: endDate}}).populate('itemId', 'name itemCode').populate('fuId','fuName')
+    const fui = await FUInventory.find({fuId:req.params.id,updatedAt:{$gte: startDate, $lte: endDate}}).populate('itemId', 'name itemCode').populate('fuId','fuName')
     res.status(200).json({ success: true, data: fui });
 });
 
 exports.supplierFulfillmentPO = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).startOf('day').utc().toDate();
     var endDate = moment(req.body.endDate).startOf('day').utc().toDate();
-    const po = await PurchaseOrder.find({status:"complete",updatedAt:{$gte: startDate, $lte: endDate}})
+    const po = await PurchaseOrder.find({status:"complete",updatedAt:{$gte: startDate, $lte: endDate}}).populate('vendorId')
     res.status(200).json({ success: true, data: po });
 });
