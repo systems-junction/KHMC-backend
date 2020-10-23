@@ -67,7 +67,7 @@ exports.addExternalReturnRequest = asyncHandler(async (req, res) => {
         status,
         prId
     });
-    notification("Return Request", "A new Return Request "+err.returnRequestNo+" has been generated at "+err.createdAt+" Manually", "Warehouse Incharge")
+    notification("External Return Request", "A new Return Request "+err.returnRequestNo+" has been generated at "+err.createdAt+" Manually", "Warehouse Incharge")
     const send = await ExternalReturnRequest.find().populate('itemId');
     globalVariable.io.emit("get_data", send)
     res.status(200).json({ success: true, data:err });
@@ -84,13 +84,13 @@ exports.updateExternalRequest = asyncHandler(async (req, res, next) => {
     }
     if(req.body.status == "approved")
     {
-        notification("Return Request", "The Return Request "+req.body.returnRequestNo+" has been approved at "+req.body.updatedAt, "admin")
+        notification("External Return Request", "The Return Request "+req.body.returnRequestNo+" has been approved at "+req.body.updatedAt, "admin")
         const send = await ExternalReturnRequest.find().populate('itemId');
         globalVariable.io.emit("get_data", send)
     }
     if(req.body.status == "reject")
     {
-        notification("Return Request", "The Return Request "+req.body.returnRequestNo+" has been rejected at "+req.body.updatedAt, "admin")
+        notification("External Return Request", "The Return Request "+req.body.returnRequestNo+" has been rejected at "+req.body.updatedAt, "admin")
         const send = await ExternalReturnRequest.find().populate('itemId');
         globalVariable.io.emit("get_data", send)
     }

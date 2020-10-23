@@ -157,12 +157,13 @@ const PORT = process.env.PORT || 8080;
 const port = 4001;
 app.listen(
   PORT,
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+  console.log(`Server running in ${process  .env.NODE_ENV} mode on port ${PORT}`)
 );
 const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
 io.origins('*:*');
 io.on('connection', (socket) => {
+  console.log("connected")
    socket.on('disconnect', () => {
     console.log('user disconnected');
   });
