@@ -7,12 +7,13 @@ const Vendor = require('../models/vendor');
 const PurchaseOrder = require('../models/purchaseOrder');
 const MaterialRecieving = require('../models/materialReceiving');
 const requestNoFormat = require('dateformat');
+const purchaseRequest = require('../models/purchaseRequest');
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'abdulhannan.itsolution@gmail.com',
-    pass: 'Abc123##',
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
   },
 });
 exports.getPurchaseOrder = asyncHandler(async (req, res) => {
@@ -117,6 +118,10 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     createdAt: moment().toDate(),
     updatedAt: moment().toDate(),
   });
+  for(let i = 0 ; i<purchaseRequestId.length; i++)
+  {
+   await purchaseRequest.findOneAndUpdate({_id:purchaseRequestId[i]},{$set:{availability:false}})
+  }
   notification(
     'Purchase Order',
     'A new Purchase Order ' +
@@ -198,7 +203,7 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
     }, '');
 
     var mailOptions = {
-      from: 'abdulhannan.itsolution@gmail.com',
+      from: 'pmdevteam0@gmail.com',
       to: vendorEmail,
       subject: 'Request for items',
       html:

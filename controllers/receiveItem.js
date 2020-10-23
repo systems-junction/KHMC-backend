@@ -1,7 +1,6 @@
 const notification = require('../components/notification');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { v4: uuidv4 } = require('uuid');
 const ExternalReturnRequest = require('../models/externalReturnRequest');
 const ReceiveItem = require('../models/receiveItem');
 const MaterialReceiving = require('../models/materialReceiving');

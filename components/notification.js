@@ -2,10 +2,11 @@ const webpush = require("web-push");
 const Subscription = require('../models/subscriber')
 const StaffType = require('../models/staffType')
 const User = require('../models/user')
+const Notification = require('../models/notification')
 const privateVapidKey = "s92YuYXxjJ38VQhRSuayTb9yjN_KnVjgKfbpsHOLpjc";
 const publicVapidKey = "BOHtR0qVVMIA-IJEru-PbIKodcux05OzVVIJoIBKQu3Sp1mjvGkjaT-1PIzkEwAiAk6OuSCZfNGsgYkJJjOyV7k"
 webpush.setVapidDetails(
-  "mailto:hannanbutt1995@gmail.com",
+  "mailto:pmdevteam0@gmail.com",
   publicVapidKey,
   privateVapidKey
 );
@@ -14,8 +15,21 @@ var  notification = function ( title, message, type)
   const payload = JSON.stringify({ title: title,message:message });
   StaffType.findOne({type:type}).then((type, err) => {
     User.find({staffTypeId:type._id}).then((user,err)=>{
-        for(var i = 0; i<user.length; i++ )
+      var array = [];
+      for(var j = 0; j<user.length; j++ )
         {
+        array.push({
+          userId:user[j]._id,
+          read:false})          
+        }
+      Notification.create({
+        title:title,
+        message:message,
+        sendTo:array
+      }).then((test,err)=>{})
+
+      for(let i = 0; i<user.length; i++ )
+        { 
         Subscription.find({user:user[i]._id}, (err, subscriptions) => {
           if (err) {
             console.error(`Error occurred while getting subscriptions`);
@@ -36,6 +50,9 @@ var  notification = function ( title, message, type)
                 webpush
                   .sendNotification(pushSubscription, pushPayload)
                   .then((value) => {
+                    Notification.find({'sendTo.userId':user[i]._id}).populate('sendTo.userId').limit(1).sort({ $natural: -1 }).then((not,err)=>{
+                      globalVariable.io.emit("get_data", not)
+                    })
                     resolve({
                       status: true,
                       endpoint: subscription.endpoint,
@@ -53,6 +70,7 @@ var  notification = function ( title, message, type)
             });
           }
         });
+    
       }
     })
   })

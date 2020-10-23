@@ -1,18 +1,26 @@
 /* eslint-disable prefer-const */
-const notification = require('../components/notification');
-const { v4: uuidv4 } = require('uuid');
+const notification = require('../components/notification')
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const PurchaseRequest = require('../models/purchaseRequest');
+const PurchaseOrder = require('../models/purchaseOrder');
 const ReceiveItemFU = require('../models/receiveItemFU');
 const FUInventory = require('../models/fuInventory');
 const ReplenishmentRequest = require('../models/replenishmentRequest');
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU');
 const WHInventory = require('../models/warehouseInventory');
 const Item = require('../models/item');
+const MaterialRecieving = require('../models/materialReceiving');
 const requestNoFormat = require('dateformat');
-const { rename } = require('fs');
-const item = require('../models/item');
+const moment = require('moment');
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
+  },
+});
 
 exports.getReceiveItemsFU = asyncHandler(async (req, res) => {
   const receiveItems = await ReceiveItemFU.find().populate('vendorId');
@@ -65,6 +73,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
     (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
+  var todayDate = moment().utc().toDate();
 
   const fu = await FUInventory.findOne({
     itemId: itemId,
@@ -177,7 +186,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
   ) {
     const fUnit = await FUInventory.findOneAndUpdate(
       { itemId: itemId, fuId: req.body.fuId },
-      { $set: { qty: fu.qty + parseInt(receivedQty) } },
+      { $set: { qty: fu.qty + parseInt(receivedQty), updatedAt:todayDate } },
       { new: true }
     );
 

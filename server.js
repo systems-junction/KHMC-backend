@@ -1,38 +1,42 @@
 const express = require('express');
-const notification = require('./components/notification');
-const pOrderModel = require('./models/purchaseOrder');
-const MaterialRecievingModel = require('./models/materialReceiving');
 const dotenv = require('dotenv');
 const bodyparser = require('body-parser');
 const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
-const moment = require('moment');
-const cron = require('node-cron');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
-var nodemailer = require('nodemailer');
-const requestNoFormat = require('dateformat');
+dotenv.config({ path: './config/.env' });
+connectDB();
+const ChatModel = require('./models/chat')
+// const notification = require('./components/notification');
+// const pOrderModel = require('./models/purchaseOrder');
+// const MaterialRecievingModel = require('./models/materialReceiving');
+// const moment = require('moment');
+// const cron = require('node-cron');
+// var nodemailer = require('nodemailer');
+// const requestNoFormat = require('dateformat');
 //  const db = require('monk')(
 //   'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/stagingdb?retryWrites=true&w=majority'
 //  );
-var now = new Date();
-var start = new Date(now.getFullYear(), 0, 0);
-var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-var oneDay = 1000 * 60 * 60 * 24;
-var day = Math.floor(diff / oneDay);
-const db = require('monk')(
-'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
-);
-dotenv.config({ path: './config/.env' });
-connectDB();
-var transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'abdulhannan.itsolution@gmail.com',
-    pass: 'Abc123##',
-  },
-});
+// var now = new Date();
+// var start = new Date(now.getFullYear(), 0, 0);
+// var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+// var oneDay = 1000 * 60 * 60 * 24;
+// var day = Math.floor(diff / oneDay);
+// const db = require('monk')(
+// 'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
+// );
+
+// var transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'pmdevteam0@gmail.com',
+//     pass: 'SysJunc#@!',
+//   },
+// });
+
+
 // Route files
 const auth = require('./routes/auth');
 const item = require('./routes/item');
@@ -82,6 +86,8 @@ const PAR = require('./routes/par');
 const RC = require('./routes/reimbursementClaim');
 const patientClearance = require('./routes/patientClearance');
 const codes = require('./routes/codes');
+const notifications = require('./routes/notification');
+const reports = require('./routes/reports');
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -141,6 +147,8 @@ app.use('/api/reimbursementclaim', RC)
 app.use('/api/dischargerequest',dischargeRequest)
 app.use('/api/patientclearance',patientClearance)
 app.use('/api/codes',codes)
+app.use('/api/notifications',notifications)
+app.use('/api/reports',reports)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
@@ -153,123 +161,17 @@ const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
 io.origins('*:*');
 io.on('connection', (socket) => {
-  socket.on('disconnect', () => {
+   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
-});
-const pRequest = db.get('purchaserequests');
-const pOrder = db.get('purchaseorders');
-cron.schedule('*/10 * * * * *', () => {
-  // cron.schedule('* 7 * * *', () => {
-  pRequest
-    .find({ committeeStatus: 'approved', generated: 'System' })
-    .then((docs) => {
-      var temp = [];
-      for (let i = 0; i < docs.length; i++) {
-        temp.push(docs[i]);
-      }
-      while (temp.length > 0) {
-        var c = [];
-        var temp2 = temp[0];
-        if (temp2) {
-          c = temp.filter(
-            (i) => i.vendorId.toString() === temp2.vendorId.toString()
-          );
-        }
-        if (c.length > 0) {
-          var abc = [];
-          c.map((u) => {
-            abc.push(u._id);
+  socket.on("test", function(msg) {
+            ChatModel.create({
+            message:msg.message,
+            sender:msg.sender,
+            receiver:msg.receiver
+          }).then((docs)=>{
+             socket.emit("sending_test", { message: msg  });
           });
-          pOrder.insert({
-            purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
-            purchaseRequestId: abc,
-            generated: 'System',
-            generatedBy: 'System',
-            date: moment().toDate(),
-            vendorId: c[0].vendorId,
-            status: 'pending_receipt',
-            committeeStatus: 'approved',
-            sentAt: moment().toDate(),
-            createdAt: moment().toDate(),
-            updatedAt: moment().toDate(),
-          });
-          pOrderModel
-            .findOneAndUpdate(
-              { committeeStatus: 'approved', generated: 'System' },
-              { $set: { committeeStatus: 'po_sent', status: 'po_sent' } },
-              { new: true }
-            )
-            .populate({
-              path: 'purchaseRequestId',
-              populate: [
-                {
-                  path: 'item.itemId',
-                },
-              ],
-            })
-            .populate('vendorId')
-            .then(function (data, err) {
-              notification(
-                'Purchase Order',
-                'A new Purchase Order ' +
-                  data.purchaseOrderNo +
-                  ' has been generated at ' +
-                  data.createdAt +
-                  ' by System',
-                'admin'
-              );
-              const vendorEmail = data.vendorId.contactEmail;
-              var content = data.purchaseRequestId.reduce(function (a, b) {
-                return (
-                  a +
-                  '<tr><td>' +
-                  b.item.itemId.itemCode +
-                  '</a></td><td>' +
-                  b.item.itemId.name +
-                  '</td><td>' +
-                  b.item.reqQty +
-                  '</td></tr>'
-                );
-              }, '');
-              var mailOptions = {
-                from: 'abdulhannan.itsolution@gmail.com',
-                to: vendorEmail,
-                subject: 'Request for items',
-                html:
-                  '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
-                  content +
-                  '</tbody></table></div>',
-              };
-              transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                  console.log(error);
-                } else {
-                  console.log('Email sent: ' + info.response);
-                }
-              });
-              var work = [];
-              for (let q = 0; q < abc.length; q++) {
-                work.push({ id: abc[q]._id, status: 'not recieved' });
-              }
-              MaterialRecievingModel.create({
-                prId: work,
-                poId: data._id,
-                vendorId: data.vendorId._id,
-                status: 'pending_receipt',
-              }).then(function (data, err) {});
-            });
-          temp = temp.filter(
-            (i) => i.vendorId.toString() != c[0].vendorId.toString()
-          );
-        }
-      }
-      for (let i = 0; i < docs.length; i++) {
-        pRequest.update(
-          { _id: docs[i]._id },
-          { $set: { committeeStatus: 'completed' } }
-        );
-      }
     });
 });
 
@@ -279,7 +181,127 @@ process.on('unhandledRejection', (err, promise) => {
   // Close server & exit process
   // server.close(() => process.exit(1));
 });
+
 global.globalVariable = { io: io };
+
 serverSocket.listen(port, () =>
   console.log(`Socket is listening on port ${port}`)
 );
+
+//automated but reamin in receiveItemBU
+
+// const pRequest = db.get('purchaserequests');
+// const pOrder = db.get('purchaseorders');
+// cron.schedule('*/10 * * * * *', () => {
+  // cron.schedule('* 7 * * *', () => {
+  // pRequest
+  //   .find({ committeeStatus: 'approved', generated: 'System' })
+  //   .then((docs) => {
+      // var temp = [];
+      // for (let i = 0; i < docs.length; i++) {
+      //   temp.push(docs[i]);
+      // }
+      // while (temp.length > 0) {
+        // var c = [];
+        // var temp2 = temp[0];
+        // if (temp2) {
+        //   c = temp.filter(
+        //     (i) => i.vendorId.toString() === temp2.vendorId.toString()
+        //   );
+        // }
+        // if (c.length > 0) {
+          // var abc = [];
+          // c.map((u) => {
+          //   abc.push(u._id);
+          // });
+          // pOrder.insert({
+          //   purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+          //   purchaseRequestId: abc,
+          //   generated: 'System',
+          //   generatedBy: 'System',
+          //   date: moment().toDate(),
+          //   vendorId: c[0].vendorId,
+          //   status: 'pending_receipt',
+          //   committeeStatus: 'approved',
+          //   sentAt: moment().toDate(),
+          //   createdAt: moment().toDate(),
+          //   updatedAt: moment().toDate(),
+          // });
+          // pOrderModel
+          //   .findOneAndUpdate(
+          //     { committeeStatus: 'approved', generated: 'System' },
+          //     { $set: { committeeStatus: 'po_sent', status: 'po_sent' } },
+          //     { new: true }
+          //   )
+          //   .populate({
+          //     path: 'purchaseRequestId',
+          //     populate: [
+          //       {
+          //         path: 'item.itemId',
+          //       },
+          //     ],
+          //   })
+          //   .populate('vendorId')
+          //   .then(function (data, err) {
+          //     notification(
+          //       'Purchase Order',
+          //       'A new Purchase Order ' +
+          //         data.purchaseOrderNo +
+          //         ' has been generated at ' +
+          //         data.createdAt +
+          //         ' by System',
+          //       'admin'
+          //     );
+              // const vendorEmail = data.vendorId.contactEmail;
+              // var content = data.purchaseRequestId.reduce(function (a, b) {
+              //   return (
+              //     a +
+              //     '<tr><td>' +
+              //     b.item.itemId.itemCode +
+              //     '</a></td><td>' +
+              //     b.item.itemId.name +
+              //     '</td><td>' +
+              //     b.item.reqQty +
+              //     '</td></tr>'
+              //   );
+              // }, '');
+              // var mailOptions = {
+              //   from: 'pmdevteam0@gmail.com',
+              //   to: vendorEmail,
+              //   subject: 'Request for items',
+              //   html:
+              //     '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+              //     content +
+              //     '</tbody></table></div>',
+              // };
+              // transporter.sendMail(mailOptions, function (error, info) {
+              //   if (error) {
+              //     console.log(error);
+              //   } else {
+              //     console.log('Email sent: ' + info.response);
+              //   }
+              // });
+              // var work = [];
+              // for (let q = 0; q < abc.length; q++) {
+              //   work.push({ id: abc[q]._id, status: 'not recieved' });
+              // }
+              // MaterialRecievingModel.create({
+              //   prId: work,
+              //   poId: data._id,
+              //   vendorId: data.vendorId._id,
+              //   status: 'pending_receipt',
+              // }).then(function (data, err) {});
+            // });
+          // temp = temp.filter(
+          //   (i) => i.vendorId.toString() != c[0].vendorId.toString()
+          // );
+        // }
+      // }
+      // for (let i = 0; i < docs.length; i++) {
+      //   pRequest.update(
+      //     { _id: docs[i]._id },
+      //     { $set: { committeeStatus: 'completed' } }
+      //   );
+      // }
+    // });
+// });

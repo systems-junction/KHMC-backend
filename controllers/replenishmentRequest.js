@@ -2,14 +2,23 @@
 const notification = require('../components/notification');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const { v4: uuidv4 } = require('uuid');
 const ReplenishmentRequest = require('../models/replenishmentRequest');
 const WHInventory = require('../models/warehouseInventory');
 const FUInventory = require('../models/fuInventory');
 const PurchaseRequest = require('../models/purchaseRequest');
+const PurchaseOrder = require('../models/purchaseOrder');
 const Item = require('../models/item');
+const MaterialRecieving = require('../models/materialReceiving');
 const requestNoFormat = require('dateformat');
-
+const moment = require('moment');
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
+  },
+});
 exports.getReplenishmentRequestsFU = asyncHandler(async (req, res) => {
   const replenishmentRequest = await ReplenishmentRequest.find()
     .populate('fuId')
@@ -78,12 +87,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
       // req.body.items[i].batchArray = newBatch;
     }
   }
-  // const wh = await WHInventory.findOne({ itemId: req.body.itemId });
-  // if (wh.qty < req.body.requestedQty) {
-  //   req.body.secondStatus = 'Cannot be fulfilled';
-  // } else {
-  //   req.body.secondStatus = 'Can be fulfilled';
-  // }
+
   const rrS = await ReplenishmentRequest.create({
     requestNo: 'RR' + day + requestNoFormat(new Date(), 'yyHHMM'),
     generated,
@@ -112,43 +116,122 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     'A new Manual replenishment request has been generated at ' + rrS.createdAt,
     'FU Member'
   );
-  if (req.body.secondStatus == 'Cannot be fulfilled') {
-    const i = await Item.findOne({ _id: req.body.itemId });
-    const purchase = await PurchaseRequest.create({
-      requestNo: 'PR' + day + requestNoFormat(new Date(), 'yyHHMM'),
-      generated: 'System',
-      generatedBy: 'System',
-      committeeStatus: 'pending',
-      status: 'pending',
-      commentNotes: 'System',
-      reason: 'System',
-      item: [
-        {
-          itemId: req.body.itemId,
-          currQty: wh.qty,
-          reqQty: wh.maximumLevel - wh.qty,
-          comments: 'System',
-          name: i.name,
-          description: i.description,
-          itemCode: i.itemCode,
-          status: 'pending',
-          secondStatus: 'pending',
-        },
-      ],
-      vendorId: i.vendorId,
-      requesterName: 'System',
-      department: 'System',
-      orderType: 'System',
-      rr: rrS._id,
-    });
-    notification(
-      'Purchase Request',
-      'A new Purchase Request ' +
-        purchase.requestNo +
-        ' has been generated at ' +
-        purchase.createdAt,
-      'admin'
-    );
+  //scenario for multipe PR generations with 1 item
+  for (let i = 0; i < items.length; i++) {
+    if (req.body.items[i].secondStatus == 'Cannot be fulfilled') {
+      var it = await Item.findOne({ _id: req.body.items[i].itemId });
+      var wh = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
+      var purchase = await PurchaseRequest.create({
+        requestNo: 'PR' + day + requestNoFormat(new Date(), 'yyHHMM'),
+        generated: 'System',
+        generatedBy: 'System',
+        committeeStatus: 'completed',
+        status: 'pending',
+        commentNotes: 'System',
+        reason: 'System',
+        item: [
+          {
+            itemId: req.body.items[i].itemId,
+            currQty: wh.qty,
+            reqQty: wh.maximumLevel - wh.qty,
+            comments: 'System',
+            name: it.name,
+            description: it.description,
+            itemCode: it.itemCode,
+            status: 'pending',
+            secondStatus: 'pending',
+          },
+        ],
+        vendorId: it.vendorId,
+        requesterName: 'System',
+        department: 'System',
+        orderType: 'System',
+        rr: rrS._id,
+      });
+      notification(
+        'Purchase Request',
+        'A new Purchase Request ' +
+          purchase.requestNo +
+          ' has been generated at ' +
+          purchase.createdAt,
+        'admin'
+      );
+      let PO = await PurchaseOrder.create({
+        purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
+        purchaseRequestId: [purchase._id],
+        generated: 'System',
+        generatedBy: 'System',
+        date: moment().toDate(),
+        vendorId: purchase.vendorId,
+        status: 'po_sent',
+        committeeStatus: 'po_sent',
+        sentAt: moment().toDate(),
+        createdAt: moment().toDate(),
+        updatedAt: moment().toDate(),
+      });
+      PO = await PO.populate('vendorId')
+        .populate({
+          path: 'purchaseRequestId',
+          populate: [
+            {
+              path: 'item.itemId',
+            },
+          ],
+        })
+        .execPopulate();
+      const vendorEmail = PO.vendorId.contactEmail;
+      var prArray = PO.purchaseRequestId.reduce(function (a, b) {
+        return b;
+      }, '');
+      var content = prArray.item.reduce(function (a, b) {
+        return (
+          a +
+          '<tr><td>' +
+          b.itemId.itemCode +
+          '</a></td><td>' +
+          b.itemId.name +
+          '</td><td>' +
+          b.reqQty +
+          '</td></tr>'
+        );
+      }, '');
+      var mailOptions = {
+        from: 'pmdevteam0@gmail.com',
+        to: vendorEmail,
+        subject: 'Request for items',
+        html:
+          '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+          content +
+          '</tbody></table></div>',
+      };
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+      await MaterialRecieving.create({
+        prId: [
+          {
+            id: purchase._id,
+            status: 'not recieved',
+          },
+        ],
+        poId: PO._id,
+        vendorId: PO.vendorId._id,
+        status: 'pending_receipt',
+      });
+      notification(
+        'Purchase Order',
+        'A new Purchase Order ' +
+          PO.purchaseOrderNo +
+          ' has been generated at ' +
+          PO.createdAt +
+          ' by System',
+        'admin'
+      );
+    }
   }
   res.status(200).json({ success: true, data: rrS });
 });
@@ -273,9 +356,16 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
         console.log('updatedBatchArray', updatedBatchArray);
         console.log('newBatch', newBatch);
 
+        var todayDate = moment().utc().toDate();
+
         const pr = await WHInventory.findOneAndUpdate(
           { itemId: req.body.items[i].itemId },
-          { $set: { qty: wh.qty - parseInt(req.body.items[i].requestedQty) } },
+          {
+            $set: {
+              qty: wh.qty - parseInt(req.body.items[i].requestedQty),
+              updatedAt: todayDate,
+            },
+          },
           { new: true }
         ).populate('itemId');
 
@@ -326,6 +416,82 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
               'has been generated at ' +
               purchaseRequest.createdAt,
             'Committe Member'
+          );
+
+          let PO = await PurchaseOrder.create({
+            purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
+            purchaseRequestId: [purchase._id],
+            generated: 'System',
+            generatedBy: 'System',
+            date: moment().toDate(),
+            vendorId: purchase.vendorId,
+            status: 'po_sent',
+            committeeStatus: 'po_sent',
+            sentAt: moment().toDate(),
+            createdAt: moment().toDate(),
+            updatedAt: moment().toDate(),
+          });
+          PO = await PO.populate('vendorId')
+            .populate({
+              path: 'purchaseRequestId',
+              populate: [
+                {
+                  path: 'item.itemId',
+                },
+              ],
+            })
+            .execPopulate();
+          const vendorEmail = PO.vendorId.contactEmail;
+          var prArray = PO.purchaseRequestId.reduce(function (a, b) {
+            return b;
+          }, '');
+          var content = prArray.item.reduce(function (a, b) {
+            return (
+              a +
+              '<tr><td>' +
+              b.itemId.itemCode +
+              '</a></td><td>' +
+              b.itemId.name +
+              '</td><td>' +
+              b.reqQty +
+              '</td></tr>'
+            );
+          }, '');
+          var mailOptions = {
+            from: 'pmdevteam0@gmail.com',
+            to: vendorEmail,
+            subject: 'Request for items',
+            html:
+              '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+              content +
+              '</tbody></table></div>',
+          };
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          });
+          await MaterialRecieving.create({
+            prId: [
+              {
+                id: purchase._id,
+                status: 'not recieved',
+              },
+            ],
+            poId: PO._id,
+            vendorId: PO.vendorId._id,
+            status: 'pending_receipt',
+          });
+          notification(
+            'Purchase Order',
+            'A new Purchase Order ' +
+              PO.purchaseOrderNo +
+              ' has been generated at ' +
+              PO.createdAt +
+              ' by System',
+            'admin'
           );
         }
       }

@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+const moment = require('moment');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const Account = require('../models/account');
@@ -28,27 +28,34 @@ exports.getAccount = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: account });
 });
 exports.getAccountKeyword = asyncHandler(async (req, res) => {
-  const account = await Account.find().populate({
-    path : 'mrId',
-     populate: [{
-        path : 'poId',
-        populate : {
-          path : 'purchaseRequestId',
-          populate:{
-            path : 'item.itemId'
-          }
-          }}]
-  }).populate('vendorId');
-  var arr =[];
-  for(let i = 0 ; i<account.length; i++)
-  {
-      if(
-          (account[i].mrId.poId.purchaseOrderNo && account[i].mrId.poId.purchaseOrderNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-          (account[i].vendorId.englishName && account[i].vendorId.englishName.match(req.params.keyword))
-          )
-         {
-          arr.push(account[i])
-          }
+  const account = await Account.find()
+    .populate({
+      path: 'mrId',
+      populate: [
+        {
+          path: 'poId',
+          populate: {
+            path: 'purchaseRequestId',
+            populate: {
+              path: 'item.itemId',
+            },
+          },
+        },
+      ],
+    })
+    .populate('vendorId');
+  var arr = [];
+  for (let i = 0; i < account.length; i++) {
+    if (
+      (account[i].mrId.poId.purchaseOrderNo &&
+        account[i].mrId.poId.purchaseOrderNo
+          .toLowerCase()
+          .match(req.params.keyword.toLowerCase())) ||
+      (account[i].vendorId.englishName &&
+        account[i].vendorId.englishName.match(req.params.keyword))
+    ) {
+      arr.push(account[i]);
+    }
   }
   res.status(200).json({ success: true, data: arr });
 });
@@ -73,6 +80,7 @@ exports.getAccountById = asyncHandler(async (req, res) => {
 });
 
 exports.updateAccount = asyncHandler(async (req, res, next) => {
+  var todayDate = moment().utc().toDate();
   const { _id } = req.body;
 
   let account = await Account.findById(_id);
@@ -98,7 +106,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
     );
     await PurchaseOrder.updateOne(
       { _id: account.mrId.poId },
-      { $set: { status: 'complete' } }
+      { $set: { status: 'complete', updatedAt: todayDate } }
     );
     for (let i = 0; i < account.mrId.prId.length; i++) {
       if (
@@ -112,7 +120,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               itemId: account.mrId.prId[i].id.item[j].itemId,
             }).populate('prId');
 
-            console.log("receive",receive)
+            console.log('receive', receive);
             // let obj = {
             //   batchNumber: receive.batchNumber,
             //   expiryDate: receive.expiryDate,
@@ -125,7 +133,12 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
 
             const afterUpdateQty = await WhInventory.findOneAndUpdate(
               { itemId: receive.itemId },
-              { $set: { qty: beforeUpdateQty.qty + receive.receivedQty } },
+              {
+                $set: {
+                  qty: beforeUpdateQty.qty + receive.receivedQty,
+                  updatedAt: todayDate,
+                },
+              },
               { new: true }
             );
 
@@ -176,7 +189,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
 
             quantityUpdated = await WhInventory.findOneAndUpdate(
               { itemId: receive.itemId },
-              { $set: { batchArray: arr } },
+              { $set: { batchArray: arr, updatedAt: todayDate } },
               { new: true }
             );
 
@@ -186,7 +199,12 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
 
             const abc = await WhInventory.findOneAndUpdate(
               { itemId: receive.itemId },
-              { $set: { batchArray: quantityUpdated.batchArray } },
+              {
+                $set: {
+                  batchArray: quantityUpdated.batchArray,
+                  updatedAt: todayDate,
+                },
+              },
               { new: true }
             );
 

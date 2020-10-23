@@ -9,7 +9,7 @@ const WHInventory = require('../models/warehouseInventory');
 const FUInventory = require('../models/fuInventory');
 const ReturnedQty = require('../models/returnedQty');
 const requestNoFormat = require('dateformat');
-
+const moment = require('moment');
 exports.getInternalReturnRequestsFU = asyncHandler(async (req, res) => {
   const internalRequestFU = await InternalReturnRequest.find({
     to: 'Warehouse',
@@ -148,6 +148,7 @@ exports.addInternalReturnRequest = asyncHandler(async (req, res) => {
 });
 
 exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
+  var todayDate = moment().utc().toDate();
   const { _id } = req.body;
   let internalReturn = await InternalReturnRequest.findById(_id);
   if (!internalReturn) {
@@ -192,7 +193,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
       const wh = await WHInventory.findOne({ itemId: req.body.itemId });
       let fuWithUpdatedQty = await FUInventory.findOneAndUpdate(
         { itemId: req.body.itemId, fuId: req.body.fuId },
-        { $set: { qty: fu.qty - req.body.returnedQty } },
+        { $set: { qty: fu.qty - req.body.returnedQty, updatedAt: todayDate } },
         { new: true }
       );
 

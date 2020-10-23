@@ -36,20 +36,28 @@ exports.getReplenishmentRequestsBUM = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 exports.getReplenishmentRequestsBUMKeyword = asyncHandler(async (req, res) => {
-  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Medical"}).populate('buId').populate('fuId').populate('item.itemId');    
-  var arr = []
-  for(let i = 0; i<replenishmentRequest.length; i++)
-  {
-     if(
-    (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (replenishmentRequest[i].patientReferenceNo && replenishmentRequest[i].patientReferenceNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-    )
-    {
-      arr.push(replenishmentRequest[i])
+  const replenishmentRequest = await ReplenishmentRequestBU.find({
+    orderFor: 'Medical',
+  })
+    .populate('buId')
+    .populate('fuId')
+    .populate('item.itemId');
+  var arr = [];
+  for (let i = 0; i < replenishmentRequest.length; i++) {
+    if (
+      (replenishmentRequest[i].requestNo &&
+        replenishmentRequest[i].requestNo
+          .toLowerCase()
+          .match(req.params.keyword.toLowerCase())) ||
+      (replenishmentRequest[i].patientReferenceNo &&
+        replenishmentRequest[i].patientReferenceNo
+          .toLowerCase()
+          .match(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(replenishmentRequest[i]);
     }
   }
   res.status(200).json({ success: true, data: arr });
-
 });
 
 exports.getReplenishmentRequestsBUNM = asyncHandler(async (req, res) => {
@@ -62,15 +70,21 @@ exports.getReplenishmentRequestsBUNM = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: replenishmentRequest });
 });
 exports.getReplenishmentRequestsBUNMKeyword = asyncHandler(async (req, res) => {
-  const replenishmentRequest = await ReplenishmentRequestBU.find({orderFor:"Non Medical"}).populate('buId').populate('fuId').populate('item.itemId');    
-  var arr = []
-  for(let i = 0; i<replenishmentRequest.length; i++)
-  {
-     if(
-    (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-    )
-    {
-      arr.push(replenishmentRequest[i])
+  const replenishmentRequest = await ReplenishmentRequestBU.find({
+    orderFor: 'Non Medical',
+  })
+    .populate('buId')
+    .populate('fuId')
+    .populate('item.itemId');
+  var arr = [];
+  for (let i = 0; i < replenishmentRequest.length; i++) {
+    if (
+      replenishmentRequest[i].requestNo &&
+      replenishmentRequest[i].requestNo
+        .toLowerCase()
+        .match(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(replenishmentRequest[i]);
     }
   }
 
@@ -357,7 +371,6 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
         fuId: func._id,
       }).populate('itemId');
 
-
       req.body.item[i].tempBatchArray = JSON.parse(
         JSON.stringify(wh.batchArray)
       );
@@ -444,9 +457,11 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
         less = 0;
       }
 
+      var todayDate = moment().utc().toDate();
+
       const fui = await FUInventory.findOneAndUpdate(
         { itemId: req.body.item[i].itemId, _id: fu._id },
-        { $set: { qty: less } },
+        { $set: { qty: less, updatedAt: todayDate } },
         { new: true }
       ).populate('itemId');
 
