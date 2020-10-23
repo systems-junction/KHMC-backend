@@ -172,7 +172,7 @@ io.on('connection', (socket) => {
             ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
               $push: { chat: msg.obj1 }
             }).then((docs)=>{
-             socket.emit("chat_receive", { message: msg.obj1  });
+             io.emit("chat_receive", { message: msg.obj1  });
           });
     });
 });
