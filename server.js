@@ -8,7 +8,7 @@ const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 dotenv.config({ path: './config/.env' });
 connectDB();
-const ChatModel = require('./models/chat')
+const ChatModel = require('./models/chatRoom')
 // const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
 // const MaterialRecievingModel = require('./models/materialReceiving');
@@ -88,6 +88,7 @@ const patientClearance = require('./routes/patientClearance');
 const codes = require('./routes/codes');
 const notifications = require('./routes/notification');
 const reports = require('./routes/reports');
+const chatRooms = require('./routes/chatRoom');
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -149,6 +150,7 @@ app.use('/api/patientclearance',patientClearance)
 app.use('/api/codes',codes)
 app.use('/api/notifications',notifications)
 app.use('/api/reports',reports)
+app.use('/api/chatroom',chatRooms)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
@@ -164,13 +166,12 @@ io.on('connection', (socket) => {
    socket.on('disconnect', () => {
     console.log('user disconnected');
   });
-  socket.on("test", function(msg) {
-            ChatModel.create({
-            message:msg.message,
-            sender:msg.sender,
-            receiver:msg.receiver
-          }).then((docs)=>{
-             socket.emit("sending_test", { message: msg  });
+  socket.on("chat_sent", function(msg) {
+    console.log(msg)
+            ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
+              $push: { chat: msg.obj1 }
+            }).then((docs)=>{
+             socket.emit("chat_receive", { message: msg.obj1  });
           });
     });
 });
