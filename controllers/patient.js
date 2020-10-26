@@ -314,7 +314,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     });
   }
   notification(
-    'Patient',
+    'Patient Registered',
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
     'Registered Nurse'
   );
@@ -699,7 +699,7 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
 exports.triage = asyncHandler(async (req, res) => {
   const patient = await Patient.findOne({ _id: req.params.id });
   notification(
-    'Patient',
+    'Patient Triage Added',
     'A Patient with MRN ' +
       patient.profileNo +
       ' has been registered with Triage Level',
