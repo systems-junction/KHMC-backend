@@ -18,7 +18,7 @@ exports.addSurgeryService = asyncHandler(async (req, res) => {
     price,
     status,
   });
-  notification("TEST", "A new TEST ", "admin")
+  notification("Surgery Service", "A new surgery service has been added", "admin")
   // globalVariable.io.emit("get_data", surgeryService)
   //   const po = await PurchaseOrder.find()
   //   .populate('vendorId')
