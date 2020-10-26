@@ -223,6 +223,9 @@ const IPRSchema = new mongoose.Schema({
         serviceName: {
             type: String,
         },
+        comments: {
+            type: String,
+        },
         requester: {
             type: mongoose.Schema.ObjectId,
             ref: 'staff',
