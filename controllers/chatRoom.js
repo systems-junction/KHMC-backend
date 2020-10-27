@@ -24,6 +24,14 @@ exports.createChat = asyncHandler(async (req, res) => {
     }
 
   });
+
+  exports.uploadChatFile = asyncHandler(async (req, res) => {
+    const file = req.file
+    if(file){
+      res.send(file)
+    }   
+  });
+
   exports.deleteChat = asyncHandler(async (req, res) => {
     const chat = await ChatRoom.deleteOne({_id:req.params.id})
     res.status(200).json({ success: true, data: {} });

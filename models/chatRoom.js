@@ -14,6 +14,10 @@ const chatSchema = new mongoose.Schema({
             message: {
             type: String
             },
+            msgType: {
+                type: String,
+                default: ""
+            },
             sender: {
             type: mongoose.Schema.ObjectId,
             ref:'User'
