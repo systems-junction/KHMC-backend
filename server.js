@@ -169,13 +169,20 @@ io.on('connection', (socket) => {
   });
   socket.on("chat_sent", function(msg) {
     console.log(msg)
-            ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
+    // io.emit("chat_receive", { message: msg  });
+    console.log("msg obj 1", msg.obj1)
+    ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
               $push: { chat: msg.obj1 }
             }).then((docs)=>{
              io.emit("chat_receive", { message: msg.obj1  });
           });
     });
 });
+
+// setInterval(()=>{
+//   console.log("called every second")
+//   io.emit("called")
+// },5000)
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
