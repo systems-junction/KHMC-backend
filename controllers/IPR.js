@@ -8,7 +8,7 @@ exports.getIPR = asyncHandler(async (req, res) => {
   const ipr = await IPR.find()
     .populate('patientId')
     .populate('consultationNote.requester')
-    // .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest')
     // .populate('pharmacyRequest.medicine.itemId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')
@@ -636,7 +636,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Radiology/Imaging'
+        'Radiology/Imaging',
+        '/home/rcm/sr/rr/ipr'
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -663,7 +664,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Radiology/Imaging'
+        'Radiology/Imaging',
+        '/home/rcm/sr/rr/ipr'
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -704,7 +706,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Radiology/Imaging'
+        'Radiology/Imaging',
+        '/home/rcm/sr/rr/ipr'
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -731,7 +734,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Radiology/Imaging'
+        'Radiology/Imaging',
+        '/home/rcm/sr/rr/ipr'
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -977,7 +981,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Lab Technician'
+        'Lab Technician',
+        '/home/rcm/sr/lr/ipr'
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -1004,7 +1009,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Lab Technician'
+        'Lab Technician',
+        '/home/rcm/sr/lr/ipr'
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -1044,7 +1050,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Lab Technician'
+        'Lab Technician',
+        '/home/rcm/sr/lr/ipr'
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -1071,7 +1078,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
         request +
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
-        'Lab Technician'
+        'Lab Technician',
+        '/home/rcm/sr/lr/ipr'
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);

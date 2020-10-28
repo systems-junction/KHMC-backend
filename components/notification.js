@@ -10,9 +10,9 @@ webpush.setVapidDetails(
   publicVapidKey,
   privateVapidKey
 );
-var  notification = function ( title, message, type)
+var  notification = function ( title, message, type, route)
 {
-  const payload = JSON.stringify({ title: title,message:message });
+  const payload = JSON.stringify({ title: title, message:message, route:route });
   StaffType.findOne({type:type}).then((type, err) => {
     User.find({staffTypeId:type._id}).then((user,err)=>{
       var array = [];
@@ -25,6 +25,7 @@ var  notification = function ( title, message, type)
       Notification.create({
         title:title,
         message:message,
+        route:route,
         sendTo:array
       }).then((test,err)=>{})
 

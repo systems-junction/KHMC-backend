@@ -7,6 +7,9 @@ const notificationSchema = new mongoose.Schema(
     message:{
     type:String
     },
+    route:{
+    type:String
+    },
     sendTo:[
     {    
     userId:{
