@@ -7,6 +7,7 @@ const cors = require('cors');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 dotenv.config({ path: './config/.env' });
+const webRTCSocket = require('./lib/socket');
 connectDB();
 const ChatModel = require('./models/chatRoom')
 // const notification = require('./components/notification');
@@ -89,6 +90,7 @@ const codes = require('./routes/codes');
 const notifications = require('./routes/notification');
 const reports = require('./routes/reports');
 const chatRooms = require('./routes/chatRoom');
+
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -145,38 +147,39 @@ app.use('/api/ecr', ECR);
 app.use('/api/opr', OPR);
 app.use('/api/par', PAR);
 app.use('/api/reimbursementclaim', RC)
-app.use('/api/dischargerequest',dischargeRequest)
-app.use('/api/patientclearance',patientClearance)
-app.use('/api/codes',codes)
-app.use('/api/notifications',notifications)
-app.use('/api/reports',reports)
-app.use('/api/chatroom',chatRooms)
+app.use('/api/dischargerequest', dischargeRequest)
+app.use('/api/patientclearance', patientClearance)
+app.use('/api/codes', codes)
+app.use('/api/notifications', notifications)
+app.use('/api/reports', reports)
+app.use('/api/chatroom', chatRooms)
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
 const port = 4001;
 app.listen(
   PORT,
-  console.log(`Server running in ${process  .env.NODE_ENV} mode on port ${PORT}`)
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
 const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
 io.origins('*:*');
 io.on('connection', (socket) => {
   console.log("connected")
-   socket.on('disconnect', () => {
+  socket.on('disconnect', () => {
     console.log('user disconnected');
   });
-  socket.on("chat_sent", function(msg) {
+  socket.on("chat_sent", function (msg) {
     console.log(msg)
     // io.emit("chat_receive", { message: msg  });
     console.log("msg obj 1", msg.obj1)
-    ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
-              $push: { chat: msg.obj1 }
-            }).then((docs)=>{
-             io.emit("chat_receive", { message: msg.obj1  });
-          });
+    ChatModel.findOneAndUpdate({ _id: msg.obj2.chatId }, {
+      $push: { chat: msg.obj1 }
+    }).then((docs) => {
+      io.emit("chat_receive", { message: msg.obj1 });
     });
+  });
 });
 
 // setInterval(()=>{
@@ -193,9 +196,10 @@ process.on('unhandledRejection', (err, promise) => {
 
 global.globalVariable = { io: io };
 
-serverSocket.listen(port, () =>
+serverSocket.listen(port, () => {
+  webRTCSocket(serverSocket);
   console.log(`Socket is listening on port ${port}`)
-);
+});
 
 //automated but reamin in receiveItemBU
 
