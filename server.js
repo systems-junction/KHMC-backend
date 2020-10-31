@@ -6,14 +6,18 @@ const socketIO = require('socket.io');
 const cors = require('cors');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
+const moment = require('moment');
+const cron = require('node-cron');
 dotenv.config({ path: './config/.env' });
 connectDB();
 const ChatModel = require('./models/chatRoom')
+const WHinventoryModel = require('./models/warehouseInventory')
+const ExpiredItemsWHModel = require('./models/expiredItemsWH')
 // const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
 // const MaterialRecievingModel = require('./models/materialReceiving');
-// const moment = require('moment');
-// const cron = require('node-cron');
+
+
 // var nodemailer = require('nodemailer');
 // const requestNoFormat = require('dateformat');
 //  const db = require('monk')(
@@ -168,9 +172,6 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
   socket.on("chat_sent", function(msg) {
-    console.log(msg)
-    // io.emit("chat_receive", { message: msg  });
-    console.log("msg obj 1", msg.obj1)
     ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
               $push: { chat: msg.obj1 }
             }).then((docs)=>{
@@ -178,11 +179,6 @@ io.on('connection', (socket) => {
           });
     });
 });
-
-// setInterval(()=>{
-//   console.log("called every second")
-//   io.emit("called")
-// },5000)
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
@@ -196,7 +192,27 @@ global.globalVariable = { io: io };
 serverSocket.listen(port, () =>
   console.log(`Socket is listening on port ${port}`)
 );
-
+var todayDate = moment().utc().toDate();
+// cron.schedule('*/10 * * * * *', () => {
+//   WHinventoryModel.aggregate([
+//     {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+//     {$unwind:'$itemId'},
+//     {$unwind:'$batchArray'},
+//     {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+//     {$project:{_id:1, itemId: 1,batchArray:1,qty:1}}
+// ]).then((docs)=>{
+//   for(let i=0;i<docs.length;i++)
+//   {
+//     WHinventoryModel.update({_id:docs[i]._id},{
+//       $pull: { batchArray : { _id : docs[i].batchArray._id } }
+//     },{multi:true},function (err, numAffected) { console.log("data:", numAffected) }
+//     // ).then((res)=>{
+//     //   console.log(JSON.stringify(res))
+//     // }
+//     )
+//   }
+// })
+// });
 //automated but reamin in receiveItemBU
 
 // const pRequest = db.get('purchaserequests');

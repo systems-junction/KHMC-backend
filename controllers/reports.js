@@ -38,3 +38,52 @@ exports.supplierFulfillmentPO = asyncHandler(async (req, res) => {
     const po = await PurchaseOrder.find({status:"complete",updatedAt:{$gte: startDate, $lte: endDate}}).populate('vendorId')
     res.status(200).json({ success: true, data: po });
 });
+
+exports.expiredItemsWH = asyncHandler(async (req, res) => {
+    var todayDate = moment().utc().toDate();
+    const whi = await WHInventory.aggregate([
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+        {$project:{_id:1, itemId: 1,batchArray:1}}
+    ])
+    res.status(200).json({ success: true, data: whi });
+});
+
+exports.expiredItemsFU = asyncHandler(async (req, res) => {
+    var todayDate = moment().utc().toDate();
+    const fui = await FUInventory.aggregate([
+        {$match:{fuId:req.params.id}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+        {$project:{_id:1, itemId: 1,batchArray:1}}
+    ])
+    res.status(200).json({ success: true, data: fui });
+});
+
+exports.nearlyExpiredItemsWH = asyncHandler(async (req, res) => {
+    var selectedDate = moment(req.body.selectedDate).utc().toDate();
+    const whi = await WHInventory.aggregate([
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$match:{'batchArray.expiryDate':{$lte: selectedDate}}},
+        {$project:{_id:1, itemId: 1,batchArray:1}}
+    ])
+    res.status(200).json({ success: true, data: whi });
+});
+exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
+    var selectedDate = moment(req.body.selectedDate).utc().toDate();
+    const fui = await FUInventory.aggregate([
+        {$match:{fuId:req.params.id}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$match:{'batchArray.expiryDate':{$lte: selectedDate}}},
+        {$project:{_id:1, itemId: 1,batchArray:1}}
+    ])
+    res.status(200).json({ success: true, data: fui });
+});
