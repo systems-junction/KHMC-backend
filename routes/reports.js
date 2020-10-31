@@ -19,7 +19,7 @@ router.post('/stocklevelswh',stockLevelsWH)
 router.post('/stocklevelsfu/:id',stockLevelsFU)
 router.post('/supplierfulfillmentpo',supplierFulfillmentPO)
 router.get('/expireditemswarehouse',expiredItemsWH)
-router.get('/expireditemsfunctionalunit',expiredItemsFU)
+router.get('/expireditemsfunctionalunit/:id',expiredItemsFU)
 router.post('/nearlyexpireditemswarehouse/:id',nearlyExpiredItemsWH)
 router.post('/nearlyexpireditemsfunctionalunit/:id',nearlyExpiredItemsFU)
 module.exports = router;

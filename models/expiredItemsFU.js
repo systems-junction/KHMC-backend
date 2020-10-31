@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
-const expiredItemsWHSchema = new mongoose.Schema(
+const expiredItemsFUSchema = new mongoose.Schema(
   {
     itemId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Item'
+    },
+    fuId:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'functionalUnit'
     },
     batch: 
       {
@@ -18,4 +22,4 @@ const expiredItemsWHSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('expiredItemwh', expiredItemsWHSchema);
+module.exports = mongoose.model('expiredItemfu', expiredItemsFUSchema);

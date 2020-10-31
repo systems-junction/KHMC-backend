@@ -2,6 +2,8 @@ const asyncHandler = require('../middleware/async');
 const PurchaseOrder = require('../models/purchaseOrder')
 const WHInventory = require('../models/warehouseInventory')
 const FUInventory = require('../models/fuInventory')
+const ExpiredItemsWH = require('../models/expiredItemsWH')
+const ExpiredItemsFU = require('../models/expiredItemsFU')
 var moment = require('moment');
 
 exports.trackingPO = asyncHandler(async (req, res) => {
@@ -41,27 +43,14 @@ exports.supplierFulfillmentPO = asyncHandler(async (req, res) => {
 
 exports.expiredItemsWH = asyncHandler(async (req, res) => {
     var todayDate = moment().utc().toDate();
-    const whi = await WHInventory.aggregate([
-        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
-        {$unwind:'$itemId'},
-        // {$unwind:'$batchArray'},
-        // {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
-        // {$project:{_id:1, itemId: 1,batchArray:1}}
-    ]).limit(1)
-    res.status(200).json({ success: true, data: whi });
+    const exp = await ExpiredItemsWH.find({'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    res.status(200).json({ success: true, data: exp });
 });
 
 exports.expiredItemsFU = asyncHandler(async (req, res) => {
     var todayDate = moment().utc().toDate();
-    const fui = await FUInventory.aggregate([
-        {$match:{fuId:req.params.id}},
-        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
-        {$unwind:'$itemId'},
-        {$unwind:'$batchArray'},
-        {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
-        {$project:{_id:1, itemId: 1,batchArray:1}}
-    ])
-    res.status(200).json({ success: true, data: fui });
+    const exp = await ExpiredItemsWH.find({fuId:req.params.id,'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    res.status(200).json({ success: true, data: exp });
 });
 
 exports.nearlyExpiredItemsWH = asyncHandler(async (req, res) => {

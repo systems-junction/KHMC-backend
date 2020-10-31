@@ -12,7 +12,9 @@ dotenv.config({ path: './config/.env' });
 connectDB();
 const ChatModel = require('./models/chatRoom')
 const WHInventoryModel = require('./models/warehouseInventory')
+const FUInventoryModel = require('./models/fuInventory')
 const ExpiredItemsWHModel = require('./models/expiredItemsWH')
+const ExpiredItemsFUModel = require('./models/expiredItemsFU')
 // const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
 // const MaterialRecievingModel = require('./models/materialReceiving');
@@ -193,7 +195,7 @@ serverSocket.listen(port, () =>
   console.log(`Socket is listening on port ${port}`)
 );
 var todayDate = moment().utc().toDate();
-cron.schedule('*/10 * * * * *', () => {
+cron.schedule('0 0 0 * * *', () => {
   WHInventoryModel.aggregate([
     {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
     {$unwind:'$itemId'},
@@ -201,19 +203,41 @@ cron.schedule('*/10 * * * * *', () => {
     {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
     {$project:{_id:1, itemId: 1,batchArray:1,qty:1}}
 ]).then((docs)=>{
-  console.log(docs)
+  for(let i=0;i<docs.length;i++)
+  {
+    ExpiredItemsWHModel.create({
+      itemId:docs[i].itemId,
+      batch:docs[i].batchArray
+    })
+      WHInventoryModel.findOneAndUpdate({_id:docs[i]._id},{
+        $pull: { batchArray : { _id : docs[i].batchArray._id } },
+        $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
+      },{new:true}).then((response)=>{
+    })
+  }
 })
-//   for(let i=0;i<docs.length;i++)
-//   {
-//     console.log("here2")
-//     WHinventoryModel.update({_id:docs[i]._id},{
-//       "$pull": { "batchArray" : { "batchNumber" : docs[i].batchArray.batchNumber.toString() } },
-//       $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
-//     }).then((res)=>{
-//       console.log(JSON.stringify(res))
-//     })
-//   }
-// })
+FUInventoryModel.aggregate([
+  {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+  {$unwind:'$itemId'},
+  {$unwind:'$batchArray'},
+  {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+  {$project:{_id:1, itemId: 1,batchArray:1,qty:1,fuId:1}}
+]).then((docs)=>{
+for(let i=0;i<docs.length;i++)
+{
+  ExpiredItemsFUModel.create({
+    itemId:docs[i].itemId,
+    batch:docs[i].batchArray,
+    fuId:docs[i].fuId
+  })
+    FUInventoryModel.findOneAndUpdate({_id:docs[i]._id},{
+      $pull: { batchArray : { _id : docs[i].batchArray._id } },
+      $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
+    },{new:true}).then((response)=>{
+  })
+}
+})
+
 });
 //automated but reamin in receiveItemBU
 
