@@ -44,10 +44,10 @@ exports.expiredItemsWH = asyncHandler(async (req, res) => {
     const whi = await WHInventory.aggregate([
         {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
         {$unwind:'$itemId'},
-        {$unwind:'$batchArray'},
-        {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
-        {$project:{_id:1, itemId: 1,batchArray:1}}
-    ])
+        // {$unwind:'$batchArray'},
+        // {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+        // {$project:{_id:1, itemId: 1,batchArray:1}}
+    ]).limit(1)
     res.status(200).json({ success: true, data: whi });
 });
 

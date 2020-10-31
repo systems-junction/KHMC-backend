@@ -8,7 +8,7 @@ const {
     expiredItemsWH,
     expiredItemsFU,
     nearlyExpiredItemsWH,
-    nearlyExpiredItemsFU,
+    nearlyExpiredItemsFU
 } = require('../controllers/reports');
 
 const router = express.Router();

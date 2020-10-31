@@ -11,7 +11,7 @@ const cron = require('node-cron');
 dotenv.config({ path: './config/.env' });
 connectDB();
 const ChatModel = require('./models/chatRoom')
-const WHinventoryModel = require('./models/warehouseInventory')
+const WHInventoryModel = require('./models/warehouseInventory')
 const ExpiredItemsWHModel = require('./models/expiredItemsWH')
 // const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
@@ -193,26 +193,28 @@ serverSocket.listen(port, () =>
   console.log(`Socket is listening on port ${port}`)
 );
 var todayDate = moment().utc().toDate();
-// cron.schedule('*/10 * * * * *', () => {
-//   WHinventoryModel.aggregate([
-//     {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
-//     {$unwind:'$itemId'},
-//     {$unwind:'$batchArray'},
-//     {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
-//     {$project:{_id:1, itemId: 1,batchArray:1,qty:1}}
-// ]).then((docs)=>{
+cron.schedule('*/10 * * * * *', () => {
+  WHInventoryModel.aggregate([
+    {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+    {$unwind:'$itemId'},
+    {$unwind:'$batchArray'},
+    {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+    {$project:{_id:1, itemId: 1,batchArray:1,qty:1}}
+]).then((docs)=>{
+  console.log(docs)
+})
 //   for(let i=0;i<docs.length;i++)
 //   {
+//     console.log("here2")
 //     WHinventoryModel.update({_id:docs[i]._id},{
-//       $pull: { batchArray : { _id : docs[i].batchArray._id } }
-//     },{multi:true},function (err, numAffected) { console.log("data:", numAffected) }
-//     // ).then((res)=>{
-//     //   console.log(JSON.stringify(res))
-//     // }
-//     )
+//       "$pull": { "batchArray" : { "batchNumber" : docs[i].batchArray.batchNumber.toString() } },
+//       $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
+//     }).then((res)=>{
+//       console.log(JSON.stringify(res))
+//     })
 //   }
 // })
-// });
+});
 //automated but reamin in receiveItemBU
 
 // const pRequest = db.get('purchaserequests');
