@@ -2,6 +2,8 @@ const asyncHandler = require('../middleware/async');
 const PurchaseOrder = require('../models/purchaseOrder')
 const WHInventory = require('../models/warehouseInventory')
 const FUInventory = require('../models/fuInventory')
+const ExpiredItemsWH = require('../models/expiredItemsWH')
+const ExpiredItemsFU = require('../models/expiredItemsFU')
 var moment = require('moment');
 
 exports.trackingPO = asyncHandler(async (req, res) => {
@@ -37,4 +39,40 @@ exports.supplierFulfillmentPO = asyncHandler(async (req, res) => {
     var endDate = moment(req.body.endDate).startOf('day').utc().toDate();
     const po = await PurchaseOrder.find({status:"complete",updatedAt:{$gte: startDate, $lte: endDate}}).populate('vendorId')
     res.status(200).json({ success: true, data: po });
+});
+
+exports.expiredItemsWH = asyncHandler(async (req, res) => {
+    var todayDate = moment().utc().toDate();
+    const exp = await ExpiredItemsWH.find({'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    res.status(200).json({ success: true, data: exp });
+});
+
+exports.expiredItemsFU = asyncHandler(async (req, res) => {
+    var todayDate = moment().utc().toDate();
+    const exp = await ExpiredItemsWH.find({fuId:req.params.id,'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    res.status(200).json({ success: true, data: exp });
+});
+
+exports.nearlyExpiredItemsWH = asyncHandler(async (req, res) => {
+    var selectedDate = moment(req.body.selectedDate).utc().toDate();
+    const whi = await WHInventory.aggregate([
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$match:{'batchArray.expiryDate':{$lte: selectedDate}}},
+        {$project:{_id:1, itemId: 1,batchArray:1}}
+    ])
+    res.status(200).json({ success: true, data: whi });
+});
+exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
+    var selectedDate = moment(req.body.selectedDate).utc().toDate();
+    const fui = await FUInventory.aggregate([
+        {$match:{fuId:req.params.id}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$match:{'batchArray.expiryDate':{$lte: selectedDate}}},
+        {$project:{_id:1, itemId: 1,batchArray:1}}
+    ])
+    res.status(200).json({ success: true, data: fui });
 });

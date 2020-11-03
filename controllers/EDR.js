@@ -8,7 +8,7 @@ exports.getEDR = asyncHandler(async (req, res) => {
   const edr = await EDR.find()
     .populate('patientId')
     .populate('consultationNote.requester')
-    // .populate('pharmacyRequest.requester')
+    .populate('pharmacyRequest')
     // .populate('pharmacyRequest.medicine.itemId')
     .populate('labRequest.requester')
     .populate('labRequest.serviceId')

@@ -6,14 +6,21 @@ const socketIO = require('socket.io');
 const cors = require('cors');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
+const moment = require('moment');
+const cron = require('node-cron');
 dotenv.config({ path: './config/.env' });
+const webRTCSocket = require('./lib/socket');
 connectDB();
 const ChatModel = require('./models/chatRoom')
+const WHInventoryModel = require('./models/warehouseInventory')
+const FUInventoryModel = require('./models/fuInventory')
+const ExpiredItemsWHModel = require('./models/expiredItemsWH')
+const ExpiredItemsFUModel = require('./models/expiredItemsFU')
 // const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
 // const MaterialRecievingModel = require('./models/materialReceiving');
-// const moment = require('moment');
-// const cron = require('node-cron');
+
+
 // var nodemailer = require('nodemailer');
 // const requestNoFormat = require('dateformat');
 //  const db = require('monk')(
@@ -89,6 +96,7 @@ const codes = require('./routes/codes');
 const notifications = require('./routes/notification');
 const reports = require('./routes/reports');
 const chatRooms = require('./routes/chatRoom');
+
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -145,44 +153,37 @@ app.use('/api/ecr', ECR);
 app.use('/api/opr', OPR);
 app.use('/api/par', PAR);
 app.use('/api/reimbursementclaim', RC)
-app.use('/api/dischargerequest',dischargeRequest)
-app.use('/api/patientclearance',patientClearance)
-app.use('/api/codes',codes)
-app.use('/api/notifications',notifications)
-app.use('/api/reports',reports)
-app.use('/api/chatroom',chatRooms)
+app.use('/api/dischargerequest', dischargeRequest)
+app.use('/api/patientclearance', patientClearance)
+app.use('/api/codes', codes)
+app.use('/api/notifications', notifications)
+app.use('/api/reports', reports)
+app.use('/api/chatroom', chatRooms)
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
 const port = 4001;
 app.listen(
   PORT,
-  console.log(`Server running in ${process  .env.NODE_ENV} mode on port ${PORT}`)
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
 const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
 io.origins('*:*');
 io.on('connection', (socket) => {
   console.log("connected")
-   socket.on('disconnect', () => {
+  socket.on('disconnect', () => {
     console.log('user disconnected');
   });
   socket.on("chat_sent", function(msg) {
-    console.log(msg)
-    // io.emit("chat_receive", { message: msg  });
-    console.log("msg obj 1", msg.obj1)
     ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
               $push: { chat: msg.obj1 }
             }).then((docs)=>{
              io.emit("chat_receive", { message: msg.obj1  });
           });
     });
-});
-
-// setInterval(()=>{
-//   console.log("called every second")
-//   io.emit("called")
-// },5000)
+  });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
@@ -193,10 +194,55 @@ process.on('unhandledRejection', (err, promise) => {
 
 global.globalVariable = { io: io };
 
-serverSocket.listen(port, () =>
+serverSocket.listen(port, () => {
+  webRTCSocket(serverSocket);
   console.log(`Socket is listening on port ${port}`)
-);
+});
+var todayDate = moment().utc().toDate();
+cron.schedule('0 0 0 * * *', () => {
+  WHInventoryModel.aggregate([
+    {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+    {$unwind:'$itemId'},
+    {$unwind:'$batchArray'},
+    {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+    {$project:{_id:1, itemId: 1,batchArray:1,qty:1}}
+]).then((docs)=>{
+  for(let i=0;i<docs.length;i++)
+  {
+    ExpiredItemsWHModel.create({
+      itemId:docs[i].itemId,
+      batch:docs[i].batchArray
+    })
+      WHInventoryModel.findOneAndUpdate({_id:docs[i]._id},{
+        $pull: { batchArray : { _id : docs[i].batchArray._id } },
+        $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
+      },{new:true}).then((response)=>{
+    })
+  }
+})
+FUInventoryModel.aggregate([
+  {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+  {$unwind:'$itemId'},
+  {$unwind:'$batchArray'},
+  {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
+  {$project:{_id:1, itemId: 1,batchArray:1,qty:1,fuId:1}}
+]).then((docs)=>{
+for(let i=0;i<docs.length;i++)
+{
+  ExpiredItemsFUModel.create({
+    itemId:docs[i].itemId,
+    batch:docs[i].batchArray,
+    fuId:docs[i].fuId
+  })
+    FUInventoryModel.findOneAndUpdate({_id:docs[i]._id},{
+      $pull: { batchArray : { _id : docs[i].batchArray._id } },
+      $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
+    },{new:true}).then((response)=>{
+  })
+}
+})
 
+});
 //automated but reamin in receiveItemBU
 
 // const pRequest = db.get('purchaserequests');

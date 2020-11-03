@@ -31,18 +31,18 @@ exports.getReplenishmentRequestsFUByKeyword = asyncHandler(async (req, res) => {
     .populate('fuId')
     .populate('items.itemId')
     .populate('approvedBy');
-    var arr=[];
-    for(let i=0; i<replenishmentRequest.length; i++)
-    {
-      if(
-        (replenishmentRequest[i].requestNo && replenishmentRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-        )
-        {
-          arr.push(replenishmentRequest[i])
-        }
+  var arr = [];
+  for (let i = 0; i < replenishmentRequest.length; i++) {
+    if (
+      replenishmentRequest[i].requestNo &&
+      replenishmentRequest[i].requestNo
+        .toLowerCase()
+        .match(req.params.keyword.toLowerCase())
+    ) {
+      arr.push(replenishmentRequest[i]);
     }
-    res.status(200).json({ success: true, data: arr });
-
+  }
+  res.status(200).json({ success: true, data: arr });
 });
 
 exports.getReplenishmentRequestsByIdFU = asyncHandler(async (req, res) => {
@@ -67,19 +67,24 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     requesterName,
     orderType,
     department,
-    secondStatus
+    secondStatus,
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
-  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+  var diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
-  for(let i=0; i<items.length; i++){
+  for (let i = 0; i < items.length; i++) {
     var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
+
     if (wahi.qty < req.body.items[i].requestedQty) {
       req.body.items[i].secondStatus = 'Cannot be fulfilled';
     } else {
       req.body.items[i].secondStatus = 'Can be fulfilled';
+      // req.body.items[i].batchArray = newBatch;
     }
   }
 
@@ -95,7 +100,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     comments,
     items,
     status,
-    secondStatus:"pending",
+    secondStatus: 'pending',
     approvedBy,
     requesterName,
     orderType,
@@ -111,21 +116,20 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
     'A new Manual replenishment request has been generated at ' + rrS.createdAt,
     'FU Member'
   );
-  //scenario for multipe PR generations with 1 item 
-  for(let i=0; i<items.length; i++){
-    if (req.body.items[i].secondStatus == 'Cannot be fulfilled')
-    {
-      var it = await Item.findOne({ _id: req.body.items[i].itemId });    
-      var wh =  await WHInventory.findOne({ itemId: req.body.items[i].itemId })
+  //scenario for multipe PR generations with 1 item
+  for (let i = 0; i < items.length; i++) {
+    if (req.body.items[i].secondStatus == 'Cannot be fulfilled') {
+      var it = await Item.findOne({ _id: req.body.items[i].itemId });
+      var wh = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
       var purchase = await PurchaseRequest.create({
-        requestNo: 'PR'+ day + requestNoFormat(new Date(), 'yyHHMM'),
+        requestNo: 'PR' + day + requestNoFormat(new Date(), 'yyHHMM'),
         generated: 'System',
         generatedBy: 'System',
         committeeStatus: 'completed',
         status: 'pending',
         commentNotes: 'System',
         reason: 'System',
-        item:[
+        item: [
           {
             itemId: req.body.items[i].itemId,
             currQty: wh.qty,
@@ -134,9 +138,9 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
             name: it.name,
             description: it.description,
             itemCode: it.itemCode,
-            status:"pending",
-            secondStatus:"pending"
-          }
+            status: 'pending',
+            secondStatus: 'pending',
+          },
         ],
         vendorId: it.vendorId,
         requesterName: 'System',
@@ -153,7 +157,7 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
         'admin'
       );
       let PO = await PurchaseOrder.create({
-        purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+        purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
         purchaseRequestId: [purchase._id],
         generated: 'System',
         generatedBy: 'System',
@@ -164,23 +168,21 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
         sentAt: moment().toDate(),
         createdAt: moment().toDate(),
         updatedAt: moment().toDate(),
-      })
+      });
       PO = await PO.populate('vendorId')
         .populate({
-        path: 'purchaseRequestId',
-        populate: [
-          {
-            path: 'item.itemId',
-          },
-        ],
+          path: 'purchaseRequestId',
+          populate: [
+            {
+              path: 'item.itemId',
+            },
+          ],
         })
-      .execPopulate()
+        .execPopulate();
       const vendorEmail = PO.vendorId.contactEmail;
       var prArray = PO.purchaseRequestId.reduce(function (a, b) {
-        return (
-          b
-        );        
-    }, '');
+        return b;
+      }, '');
       var content = prArray.item.reduce(function (a, b) {
         return (
           a +
@@ -209,15 +211,17 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
           console.log('Email sent: ' + info.response);
         }
       });
-     await MaterialRecieving.create({
-        prId: [{
-          id:purchase._id,
-          status: 'not recieved'
-        }],
+      await MaterialRecieving.create({
+        prId: [
+          {
+            id: purchase._id,
+            status: 'not recieved',
+          },
+        ],
         poId: PO._id,
         vendorId: PO.vendorId._id,
         status: 'pending_receipt',
-      })
+      });
       notification(
         'Purchase Order',
         'A new Purchase Order ' +
@@ -228,9 +232,8 @@ exports.addReplenishmentRequest = asyncHandler(async (req, res) => {
         'admin'
       );
     }
-
   }
-  res.status(200).json({ success: true, data:rrS });
+  res.status(200).json({ success: true, data: rrS });
 });
 
 exports.deleteReplenishmentRequest = asyncHandler(async (req, res, next) => {
@@ -249,6 +252,15 @@ exports.deleteReplenishmentRequest = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
+
   const { _id } = req.body;
   let replenishmentRequest = await ReplenishmentRequest.findById(_id);
   if (!replenishmentRequest) {
@@ -259,12 +271,230 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
       )
     );
   }
-  for(let i=0; i<req.body.items.length; i++){
+  for (let i = 0; i < req.body.items.length; i++) {
     var wahi = await WHInventory.findOne({ itemId: req.body.items[i].itemId });
+
     if (wahi.qty < req.body.items[i].requestedQty) {
       req.body.items[i].secondStatus = 'Cannot be fulfilled';
     } else {
       req.body.items[i].secondStatus = 'Can be fulfilled';
+
+      if (
+        req.body.status == 'Delivery in Progress' ||
+        req.body.status == 'Partial Delivery in Progress'
+      ) {
+        //code for batch calculation and setting
+        const wh = await WHInventory.findOne({
+          itemId: req.body.items[i].itemId,
+        });
+
+        req.body.items[i].tempBatchArray = JSON.parse(
+          JSON.stringify(wh.batchArray)
+        );
+
+        // await WHInventory.findOneAndUpdate(
+        //   {
+        //     itemId: req.body.items[i].itemId,
+        //   },
+        //   { $set: { tempBatchArray: wh.batchArray } }
+        // );
+
+        let updatedBatchArray = wh.batchArray;
+        var newBatch = [];
+        let counterForBatchArray = 0;
+        let remainingQty = req.body.items[i].requestedQty;
+        for (let i = 0; i < wh.batchArray.length; i++) {
+          if (wh.batchArray[i].quantity >= remainingQty) {
+            updatedBatchArray[i] = {
+              quantity: wh.batchArray[i].quantity - remainingQty,
+              batchNumber: wh.batchArray[i].batchNumber,
+              expiryDate: wh.batchArray[i].expiryDate,
+              _id: wh.batchArray[i]._id,
+            };
+            newBatch[counterForBatchArray] = {
+              quantity: remainingQty,
+              batchNumber: wh.batchArray[i].batchNumber,
+              expiryDate: wh.batchArray[i].expiryDate,
+              _id: wh.batchArray[i]._id,
+            };
+            counterForBatchArray++;
+            break;
+          } else if (
+            wh.batchArray[i].quantity < remainingQty &&
+            wh.batchArray[i].quantity !== '0'
+          ) {
+            remainingQty = remainingQty - wh.batchArray[i].quantity;
+            newBatch[counterForBatchArray] = {
+              quantity: wh.batchArray[i].quantity,
+              batchNumber: wh.batchArray[i].batchNumber,
+              expiryDate: wh.batchArray[i].expiryDate,
+              _id: wh.batchArray[i]._id,
+            };
+            counterForBatchArray++;
+
+            updatedBatchArray[i] = {
+              quantity: 0,
+              batchNumber: wh.batchArray[i].batchNumber,
+              expiryDate: wh.batchArray[i].expiryDate,
+              _id: wh.batchArray[i]._id,
+            };
+          }
+
+          if (remainingQty === 0) {
+            break;
+          }
+        }
+
+        let removedWithZeroQty = [];
+        for (let i = 0; i < updatedBatchArray.length; i++) {
+          if (updatedBatchArray[i].quantity !== 0) {
+            removedWithZeroQty.push(updatedBatchArray[i]);
+          }
+        }
+
+        console.log('removedWithZeroQty', removedWithZeroQty);
+        console.log('updatedBatchArray', updatedBatchArray);
+        console.log('newBatch', newBatch);
+
+        var todayDate = moment().utc().toDate();
+
+        const pr = await WHInventory.findOneAndUpdate(
+          { itemId: req.body.items[i].itemId },
+          {
+            $set: {
+              qty: wh.qty - parseInt(req.body.items[i].requestedQty),
+              updatedAt: todayDate,
+            },
+          },
+          { new: true }
+        ).populate('itemId');
+
+        //updating the batch array in WH inventory
+        await WHInventory.findOneAndUpdate(
+          { itemId: req.body.items[i].itemId },
+          { $set: { batchArray: removedWithZeroQty } },
+          { new: true }
+        ).populate('itemId');
+
+        req.body.items[i].batchArray = newBatch;
+
+        console.log('Pr', pr);
+        //code for generating PR after WH inventory update
+        if (pr.qty <= pr.reorderLevel) {
+          const j = await Item.findOne({ _id: req.body.items[i].itemId });
+          const purchaseRequest = await PurchaseRequest.create({
+            requestNo: 'PR' + day + requestNoFormat(new Date(), 'yyHHMM'),
+            generated: 'System',
+            generatedBy: 'System',
+            committeeStatus: 'pending',
+            status: 'pending',
+            commentNotes: 'System',
+            reason: 'reactivated_items',
+            item: [
+              {
+                itemId: req.body.items[i].itemId,
+                currQty: pr.qty,
+                reqQty: pr.maximumLevel - pr.qty,
+                comments: 'System',
+                name: j.name,
+                description: j.description,
+                itemCode: j.itemCode,
+                status: 'pending',
+                secondStatus: 'pending',
+              },
+            ],
+            vendorId: j.vendorId,
+            requesterName: 'System',
+            department: '',
+            orderType: '',
+            rr: _id,
+          });
+          notification(
+            'Purchase Request',
+            'A new Purchase Request ' +
+              purchaseRequest.requestNo +
+              'has been generated at ' +
+              purchaseRequest.createdAt,
+            'Committe Member'
+          );
+
+          let PO = await PurchaseOrder.create({
+            purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
+            purchaseRequestId: [purchase._id],
+            generated: 'System',
+            generatedBy: 'System',
+            date: moment().toDate(),
+            vendorId: purchase.vendorId,
+            status: 'po_sent',
+            committeeStatus: 'po_sent',
+            sentAt: moment().toDate(),
+            createdAt: moment().toDate(),
+            updatedAt: moment().toDate(),
+          });
+          PO = await PO.populate('vendorId')
+            .populate({
+              path: 'purchaseRequestId',
+              populate: [
+                {
+                  path: 'item.itemId',
+                },
+              ],
+            })
+            .execPopulate();
+          const vendorEmail = PO.vendorId.contactEmail;
+          var prArray = PO.purchaseRequestId.reduce(function (a, b) {
+            return b;
+          }, '');
+          var content = prArray.item.reduce(function (a, b) {
+            return (
+              a +
+              '<tr><td>' +
+              b.itemId.itemCode +
+              '</a></td><td>' +
+              b.itemId.name +
+              '</td><td>' +
+              b.reqQty +
+              '</td></tr>'
+            );
+          }, '');
+          var mailOptions = {
+            from: 'pmdevteam0@gmail.com',
+            to: vendorEmail,
+            subject: 'Request for items',
+            html:
+              '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+              content +
+              '</tbody></table></div>',
+          };
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          });
+          await MaterialRecieving.create({
+            prId: [
+              {
+                id: purchase._id,
+                status: 'not recieved',
+              },
+            ],
+            poId: PO._id,
+            vendorId: PO.vendorId._id,
+            status: 'pending_receipt',
+          });
+          notification(
+            'Purchase Order',
+            'A new Purchase Order ' +
+              PO.purchaseOrderNo +
+              ' has been generated at ' +
+              PO.createdAt +
+              ' by System',
+            'admin'
+          );
+        }
+      }
     }
   }
   replenishmentRequest = await ReplenishmentRequest.findOneAndUpdate(
@@ -299,7 +529,7 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
 exports.getCurrentItemQuantityFU = asyncHandler(async (req, res) => {
   const fuInventory = await FUInventory.findOne(
     { itemId: req.body.itemId, fuId: req.body.fuId },
-    { qty: 1, maximumLevel:1 }
+    { qty: 1, maximumLevel: 1 }
   );
   res.status(200).json({ success: true, data: fuInventory });
 });
