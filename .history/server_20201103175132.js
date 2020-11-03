@@ -194,7 +194,7 @@ io.on('connection', (socket) => {
     // const receiver = users.get(data.to);
     // console.log("id while receiving",id)
     // if (receiver) {
-    io.broadcast.emit('request',  data );
+      globalVariable.io.emit('request',  data );
     // }
   })
 

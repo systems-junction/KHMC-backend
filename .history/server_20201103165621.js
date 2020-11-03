@@ -168,11 +168,8 @@ app.listen(
   PORT,
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
-
 const serverSocket = http.createServer(app);
 const io = socketIO(serverSocket);
-
-
 io.origins('*:*');
 io.on('connection', (socket) => {
   console.log("connected")
@@ -188,16 +185,6 @@ io.on('connection', (socket) => {
     });
   });
 
-
-  io.on('request1', (data) => {
-    console.log("data in request function", data)
-    // const receiver = users.get(data.to);
-    // console.log("id while receiving",id)
-    // if (receiver) {
-    io.broadcast.emit('request',  data );
-    // }
-  })
-
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
@@ -208,12 +195,10 @@ process.on('unhandledRejection', (err, promise) => {
 global.globalVariable = { io: io };
 
 serverSocket.listen(port, () => {
-  webRTCSocket(serverSocket);
+  webRTCSocket(serverSocket, io);
   console.log(`Socket is listening on port ${port}`)
 });
-
 var todayDate = moment().utc().toDate();
-
 cron.schedule('0 0 0 * * *', () => {
   WHInventoryModel.aggregate([
     {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},

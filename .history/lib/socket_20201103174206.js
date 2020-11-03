@@ -10,7 +10,6 @@ const users = require('./users');
 
 function initSocket(socket) {
   let id;
-
   socket
     .on('init', async () => {
       console.log("init called")
@@ -18,14 +17,14 @@ function initSocket(socket) {
       socket.emit('init', { id });
     })
 
-    // .on('request1', (data) => {
-    //   console.log("data in request function", data)
-    //   const receiver = users.get(data.to);
-    //   // console.log("id while receiving",id)
-    //   // if (receiver) {
-    //     globalVariable.io.emit('request',  data );
-    //   // }
-    // })
+    .on('request1', (data) => {
+      console.log("data in request function", data)
+      const receiver = users.get(data.to);
+      // console.log("id while receiving",id)
+      // if (receiver) {
+        socket.emit('request',  data );
+      // }
+    })
     .on('call', (data) => {
       console.log("data in call function", data)
       const receiver = users.get(data.to);

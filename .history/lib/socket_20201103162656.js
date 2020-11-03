@@ -5,29 +5,22 @@ const users = require('./users');
  * Initialize when a connection is made
  * @param {SocketIO.Socket} socket
  */
-
-
-
 function initSocket(socket) {
   let id;
-
   socket
     .on('init', async () => {
-      console.log("init called")
       id = await users.create(socket);
       socket.emit('init', { id });
     })
-
-    // .on('request1', (data) => {
-    //   console.log("data in request function", data)
-    //   const receiver = users.get(data.to);
-    //   // console.log("id while receiving",id)
-    //   // if (receiver) {
-    //     globalVariable.io.emit('request',  data );
-    //   // }
-    // })
+    .on('request', (data) => {
+      console.log("data in request function", data)
+      const receiver = users.get(data.to);
+      console.log("id while receiving",id)
+      // if (receiver) {
+        receiver.emit('request', { from: '5f28fbeac179170dfc2b1416' });
+      // }
+    })
     .on('call', (data) => {
-      console.log("data in call function", data)
       const receiver = users.get(data.to);
       if (receiver) {
         receiver.emit('call', { ...data, from: id });
@@ -47,12 +40,8 @@ function initSocket(socket) {
     });
 }
 
-
-
-
 module.exports = (server) => {
   // io({ path: '/bridge', serveClient: false })
   io.listen(server, { log: true })
-    .on('connection', initSocket)
-
+    .on('connection', initSocket);
 };

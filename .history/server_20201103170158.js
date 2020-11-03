@@ -188,16 +188,6 @@ io.on('connection', (socket) => {
     });
   });
 
-
-  io.on('request1', (data) => {
-    console.log("data in request function", data)
-    // const receiver = users.get(data.to);
-    // console.log("id while receiving",id)
-    // if (receiver) {
-    io.broadcast.emit('request',  data );
-    // }
-  })
-
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
@@ -211,9 +201,7 @@ serverSocket.listen(port, () => {
   webRTCSocket(serverSocket);
   console.log(`Socket is listening on port ${port}`)
 });
-
 var todayDate = moment().utc().toDate();
-
 cron.schedule('0 0 0 * * *', () => {
   WHInventoryModel.aggregate([
     {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},

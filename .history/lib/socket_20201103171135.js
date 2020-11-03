@@ -10,7 +10,6 @@ const users = require('./users');
 
 function initSocket(socket) {
   let id;
-
   socket
     .on('init', async () => {
       console.log("init called")
@@ -23,7 +22,7 @@ function initSocket(socket) {
     //   const receiver = users.get(data.to);
     //   // console.log("id while receiving",id)
     //   // if (receiver) {
-    //     globalVariable.io.emit('request',  data );
+    //     socket.emit('request',  data );
     //   // }
     // })
     .on('call', (data) => {
@@ -47,12 +46,16 @@ function initSocket(socket) {
     });
 }
 
-
-
-
 module.exports = (server) => {
   // io({ path: '/bridge', serveClient: false })
   io.listen(server, { log: true })
     .on('connection', initSocket)
-
+    .on('request1', (data) => {
+      console.log("data in request function", data)
+      const receiver = users.get(data.to);
+      // console.log("id while receiving",id)
+      // if (receiver) {
+        io.emit('request',  data );
+      // }
+    })
 };

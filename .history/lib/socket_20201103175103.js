@@ -11,6 +11,7 @@ const users = require('./users');
 function initSocket(socket) {
   let id;
 
+  console.log("global", globalVariable)
   socket
     .on('init', async () => {
       console.log("init called")
