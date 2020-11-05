@@ -10,7 +10,7 @@ const moment = require('moment');
 const cron = require('node-cron');
 dotenv.config({ path: './config/.env' });
 const username = require('username-generator');
-
+const webRTCSocket = require('./lib/socket');
 connectDB();
 const ChatModel = require('./models/chatRoom');
 const WHInventoryModel = require('./models/warehouseInventory');
@@ -171,7 +171,6 @@ const serverSocket1 = http.createServer(app);
 const io1 = socketIO(serverSocket1);
 
 const serverSocket2 = http.createServer(app);
-const io2 = socketIO(serverSocket2);
 
 io1.origins('*:*');
 io1.on('connection', (socket) => {
@@ -192,43 +191,6 @@ io1.on('connection', (socket) => {
   });
 });
 
-io2.origins('*:*');
-const users = {};
-
-io2.on('connection', (socket) => {
-  //generate username against a socket connection and store it
-  const userid = username.generateUsername('-');
-  if (!users[userid]) {
-    users[userid] = socket.id;
-  }
-  //send back username
-  socket.emit('yourID', userid);
-  io2.sockets.emit('allUsers', users);
-
-  socket.on('disconnect', () => {
-    delete users[userid];
-  });
-
-  socket.on('callUser', (data) => {
-    io2.to(users[data.userToCall]).emit('hey', {
-      signal: data.signalData,
-      from: data.from,
-    });
-  });
-
-  socket.on('acceptCall', (data) => {
-    io2.to(users[data.to]).emit('callAccepted', data.signal);
-  });
-
-  socket.on('close', (data) => {
-    io2.to(users[data.to]).emit('close');
-  });
-
-  socket.on('rejected', (data) => {
-    io2.to(users[data.to]).emit('rejected');
-  });
-});
-
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
@@ -241,9 +203,10 @@ global.globalVariable = { io: io1 };
 serverSocket1.listen(portChat, () =>
   console.log(`Socket for chat is listening on port ${portChat}`)
 );
-serverSocket2.listen(portWebRtc, () =>
-  console.log(`Socket for webrtc is listening on port ${portWebRtc}`)
-);
+serverSocket2.listen(portWebRtc, () => {
+  webRTCSocket(serverSocket2);
+  console.log(`Socket for webrtc is listening on port ${portWebRtc}`);
+});
 
 var todayDate = moment().utc().toDate();
 cron.schedule('0 0 0 * * *', () => {
