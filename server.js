@@ -17,7 +17,7 @@ const WHInventoryModel = require('./models/warehouseInventory');
 const FUInventoryModel = require('./models/fuInventory');
 const ExpiredItemsWHModel = require('./models/expiredItemsWH');
 const ExpiredItemsFUModel = require('./models/expiredItemsFU');
-// const notification = require('./components/notification');
+const notification = require('./components/notification');
 // const pOrderModel = require('./models/purchaseOrder');
 // const MaterialRecievingModel = require('./models/materialReceiving');
 
