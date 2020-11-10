@@ -6,7 +6,7 @@ const StaffType = require('../models/staffType');
 // Protect routes
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
-  console.log('REQUEST URL', req.url);
+
   // Skip authentication when url 'login', 'logout', 'register'
   if (
     req.url === '/api/auth/login' ||

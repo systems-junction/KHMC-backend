@@ -120,7 +120,6 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               itemId: account.mrId.prId[i].id.item[j].itemId,
             }).populate('prId');
 
-            console.log('receive', receive);
             // let obj = {
             //   batchNumber: receive.batchNumber,
             //   expiryDate: receive.expiryDate,
@@ -141,11 +140,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               },
               { new: true }
             );
-
-            console.log(afterUpdateQty);
-
             let arr = afterUpdateQty.batchArray;
-
             for (let i = 0; i < receive.batchArray.length; i++) {
               let obj = receive.batchArray[i];
               let found = false;
@@ -158,6 +153,7 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
                   arr[j] = {
                     batchNumber: obj.batchNumber,
                     expiryDate: obj.expiryDate,
+                    price: obj.price,
                     quantity:
                       parseInt(afterUpdateQty.batchArray[j].quantity) +
                       parseInt(obj.quantity),
@@ -169,8 +165,6 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
                 arr.push(obj);
               }
             }
-
-            console.log('arr', arr);
 
             let quantityUpdated;
             // if (found === false) {
@@ -207,8 +201,6 @@ exports.updateAccount = asyncHandler(async (req, res, next) => {
               },
               { new: true }
             );
-
-            console.log('after updated warehouse with sorted', abc);
 
             await PurchaseRequest.updateOne(
               { _id: account.mrId.prId[i].id },

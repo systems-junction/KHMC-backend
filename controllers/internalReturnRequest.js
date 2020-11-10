@@ -201,8 +201,6 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
         _id,
       });
 
-      // console.log(internalRequest)
-
       let newBatchArray = fuWithUpdatedQty.batchArray;
       for (let i = 0; i < internalRequest.returnBatchArray.length; i++) {
         for (let j = 0; j < fuWithUpdatedQty.batchArray.length; j++) {
@@ -214,6 +212,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
               _id: fuWithUpdatedQty.batchArray[j].batchNumber._id,
               batchNumber: fuWithUpdatedQty.batchArray[j].batchNumber,
               expiryDate: fuWithUpdatedQty.batchArray[j].expiryDate,
+              price:fuWithUpdatedQty.batchArray[j].price,
               quantity:
                 fuWithUpdatedQty.batchArray[j].quantity -
                 internalRequest.returnBatchArray[i].returnedQtyPerBatch,
@@ -222,15 +221,11 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
         }
       }
 
-      console.log(newBatchArray);
-
       let fuWithUpdatedBatchArray = await FUInventory.findOneAndUpdate(
         { itemId: req.body.itemId, fuId: req.body.fuId },
         { $set: { batchArray: newBatchArray } },
         { new: true }
       );
-
-      console.log(fuWithUpdatedBatchArray);
 
       await ReplenishmentRequest.findOneAndUpdate(
         {

@@ -142,7 +142,6 @@ exports.addReplenishmentRequestBU = asyncHandler(async (req, res) => {
       req.body.item[i].secondStatus = 'Can be fulfilled';
 
       // newBatch.sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
-      // console.log(newBatch);
       // req.body.item[i].batchArray = newBatch;
     }
   }
@@ -393,12 +392,14 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
             quantity: wh.batchArray[i].quantity - remainingQty,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
+            price:wh.batchArray[i].price,
             _id: wh.batchArray[i]._id,
           };
           newBatch[counterForBatchArray] = {
             quantity: remainingQty,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
+            price:wh.batchArray[i].price,
             _id: wh.batchArray[i]._id,
           };
           counterForBatchArray++;
@@ -412,6 +413,7 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
             quantity: wh.batchArray[i].quantity,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
+            price:wh.batchArray[i].price,
             _id: wh.batchArray[i]._id,
           };
           counterForBatchArray++;
@@ -420,6 +422,7 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
             quantity: 0,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
+            price:wh.batchArray[i].price,
             _id: wh.batchArray[i]._id,
           };
         }
@@ -435,9 +438,6 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
           removedWithZeroQty.push(updatedBatchArray[i]);
         }
       }
-      console.log('removedWithZeroQty', removedWithZeroQty);
-      console.log('updatedBatchArray', updatedBatchArray);
-      console.log('newBatch', newBatch);
 
       // const pr = await WHInventory.findOneAndUpdate(
       //   { itemId: req.body.items[i].itemId },

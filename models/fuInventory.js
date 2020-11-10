@@ -38,6 +38,7 @@ const fuInventorySchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 
@@ -48,6 +49,7 @@ const fuInventorySchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 });

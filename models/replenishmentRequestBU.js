@@ -81,6 +81,7 @@ const replenishmentRequestBUSchema = new mongoose.Schema({
             type: Date,
           },
           quantity: Number,
+          price: Number
         },
       ],
 
@@ -91,6 +92,7 @@ const replenishmentRequestBUSchema = new mongoose.Schema({
             type: Date,
           },
           quantity: Number,
+          price: Number
         },
       ],
     },

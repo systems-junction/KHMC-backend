@@ -50,6 +50,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
     replenishmentRequestStatus,
     fuId,
     replenishmentRequestItemId,
+    qualityRate
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
@@ -88,12 +89,14 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         quantity: wh.tempBatchArray[i].quantity - remainingQty,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       newBatch[counterForBatchArray] = {
         quantity: remainingQty,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       counterForBatchArray++;
@@ -107,6 +110,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         quantity: wh.tempBatchArray[i].quantity,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       counterForBatchArray++;
@@ -115,6 +119,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
         quantity: 0,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
     }
@@ -130,9 +135,6 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
       removedWithZeroQty.push(updatedBatchArray[i]);
     }
   }
-  console.log('removedWithZeroQty', removedWithZeroQty);
-  console.log('updatedBatchArray', updatedBatchArray);
-  console.log('newBatch', newBatch);
 
   const rrId = await ReplenishmentRequestBU.findOne({
     _id: replenishmentRequestId,
@@ -161,6 +163,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
     dateInvoice,
     dateReceived,
     notes,
+    qualityRate,
     replenishmentRequestId,
     replenishmentRequestItemId,
     batchArray: newBatch,

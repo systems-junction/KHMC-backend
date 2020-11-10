@@ -92,6 +92,9 @@ const ReceiveItemBUSchema = new mongoose.Schema({
   replenishmentRequestItemId: {
     type: mongoose.Schema.ObjectId,
   },
+  qualityRate:{
+    type:Number
+  },
   batchArray: [
     {
       batchNumber: String,
@@ -99,6 +102,7 @@ const ReceiveItemBUSchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 });

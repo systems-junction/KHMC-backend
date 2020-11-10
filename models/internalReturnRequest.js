@@ -96,6 +96,7 @@ const internalReturnRequestSchema = new mongoose.Schema({
       expiryDatePerBatch: { type: Date },
       receivedQtyPerBatch: { type: Number },
       returnedQtyPerBatch: { type: Number },
+      price: Number
     },
   ],
 });

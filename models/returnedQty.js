@@ -32,6 +32,7 @@ const ReturnedQuantitySchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 });

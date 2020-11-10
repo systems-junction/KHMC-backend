@@ -100,6 +100,7 @@ const ReceiveItemSchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 });

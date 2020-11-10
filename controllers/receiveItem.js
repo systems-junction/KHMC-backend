@@ -436,9 +436,6 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     }
   }
 
-  console.log("return array",returnedBatchArray);
-  console.log("without return array",withOutReturnBatchArray);
-
   returnedBatchArray.sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
   withOutReturnBatchArray.sort((a, b) =>
     a.expiryDate > b.expiryDate ? 1 : -1

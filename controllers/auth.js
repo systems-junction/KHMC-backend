@@ -165,9 +165,6 @@ exports.changePassword = asyncHandler(async (req, res, next) => {
   const password = req.body.password;
   const salt = await bcrypt.genSalt(12);
   const passwordhashed = await bcrypt.hash(password, salt);
-  console.log('email', req.body.email);
-  console.log('password', req.body.password);
-  console.log('passwordhashed', passwordhashed);
   const staff = await Staff.findOneAndUpdate(
     { email: req.body.email },
     {

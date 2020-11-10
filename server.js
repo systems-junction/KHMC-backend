@@ -183,7 +183,6 @@ io1.on('connection', (socket) => {
     console.log('chat user disconnected');
   });
   socket.on('chat_sent', function (msg) {
-    console.log('msg', msg);
     ChatModel.findOneAndUpdate(
       { _id: msg.obj2.chatId },
       {

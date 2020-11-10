@@ -309,12 +309,14 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
               quantity: wh.batchArray[i].quantity - remainingQty,
               batchNumber: wh.batchArray[i].batchNumber,
               expiryDate: wh.batchArray[i].expiryDate,
+              price:wh.batchArray[i].price,
               _id: wh.batchArray[i]._id,
             };
             newBatch[counterForBatchArray] = {
               quantity: remainingQty,
               batchNumber: wh.batchArray[i].batchNumber,
               expiryDate: wh.batchArray[i].expiryDate,
+              price:wh.batchArray[i].price,
               _id: wh.batchArray[i]._id,
             };
             counterForBatchArray++;
@@ -328,6 +330,7 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
               quantity: wh.batchArray[i].quantity,
               batchNumber: wh.batchArray[i].batchNumber,
               expiryDate: wh.batchArray[i].expiryDate,
+              price:wh.batchArray[i].price,
               _id: wh.batchArray[i]._id,
             };
             counterForBatchArray++;
@@ -336,6 +339,7 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
               quantity: 0,
               batchNumber: wh.batchArray[i].batchNumber,
               expiryDate: wh.batchArray[i].expiryDate,
+              price:wh.batchArray[i].price,
               _id: wh.batchArray[i]._id,
             };
           }
@@ -351,10 +355,6 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
             removedWithZeroQty.push(updatedBatchArray[i]);
           }
         }
-
-        console.log('removedWithZeroQty', removedWithZeroQty);
-        console.log('updatedBatchArray', updatedBatchArray);
-        console.log('newBatch', newBatch);
 
         var todayDate = moment().utc().toDate();
 
@@ -378,7 +378,6 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
 
         req.body.items[i].batchArray = newBatch;
 
-        console.log('Pr', pr);
         //code for generating PR after WH inventory update
         if (pr.qty <= pr.reorderLevel) {
           const j = await Item.findOne({ _id: req.body.items[i].itemId });
@@ -420,11 +419,11 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
 
           let PO = await PurchaseOrder.create({
             purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
-            purchaseRequestId: [purchase._id],
+            purchaseRequestId: [purchaseRequest._id],
             generated: 'System',
             generatedBy: 'System',
             date: moment().toDate(),
-            vendorId: purchase.vendorId,
+            vendorId: purchaseRequest.vendorId,
             status: 'po_sent',
             committeeStatus: 'po_sent',
             sentAt: moment().toDate(),
@@ -476,7 +475,7 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
           await MaterialRecieving.create({
             prId: [
               {
-                id: purchase._id,
+                id: purchaseRequest._id,
                 status: 'not recieved',
               },
             ],

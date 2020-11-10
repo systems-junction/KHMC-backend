@@ -34,6 +34,7 @@ const WarehouseInventorySchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 
@@ -44,6 +45,7 @@ const WarehouseInventorySchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
+      price: Number
     },
   ],
 });

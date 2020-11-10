@@ -105,12 +105,14 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         quantity: wh.tempBatchArray[i].quantity - remainingQty,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       newBatch[counterForBatchArray] = {
         quantity: remainingQty,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       counterForBatchArray++;
@@ -124,6 +126,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         quantity: wh.tempBatchArray[i].quantity,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       counterForBatchArray++;
@@ -132,6 +135,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         quantity: 0,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
+        price:wh.tempBatchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
     }
@@ -147,9 +151,6 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       removedWithZeroQty.push(updatedBatchArray[i]);
     }
   }
-  // console.log('removedWithZeroQty', removedWithZeroQty);
-  //   console.log('updatedBatchArray', updatedBatchArray);
-  // console.log('newBatch', newBatch);
 
   if (pRequest && fuTest) {
     await ReceiveItemFU.create({
@@ -211,6 +212,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       let obj = {
         batchNumber: newBatch[i].batchNumber,
         expiryDate: newBatch[i].expiryDate,
+        price:newBatch[i].price,
         quantity: newBatch[i].quantity,
       };
 
@@ -220,6 +222,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
           arr[j] = {
             batchNumber: arr[j].batchNumber,
             expiryDate: arr[j].expiryDate,
+            price:arr[j].price,
             quantity:
               parseInt(arr[j].quantity) + parseInt(newBatch[i].quantity),
           };
@@ -241,8 +244,6 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    console.log('Batch array for FU Inv', quantityUpdated);
-
     quantityUpdated.batchArray.sort((a, b) =>
       a.expiryDate > b.expiryDate ? 1 : -1
     );
@@ -252,8 +253,6 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       { $set: { batchArray: quantityUpdated.batchArray } },
       { new: true }
     );
-
-    // console.log('FU Inventory after update', abc);
 
     //updating the batch array in WH inventory
     // const pr = await WHInventory.findOneAndUpdate(
