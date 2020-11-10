@@ -10,7 +10,6 @@ const moment = require('moment');
 const cron = require('node-cron');
 const notification = require('./components/notification');
 dotenv.config({ path: './config/.env' });
-const username = require('username-generator');
 const webRTCSocket = require('./lib/socket');
 connectDB();
 const ChatModel = require('./models/chatRoom')
