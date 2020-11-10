@@ -8,6 +8,7 @@ const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 const moment = require('moment');
 const cron = require('node-cron');
+const notification = require('./components/notification');
 dotenv.config({ path: './config/.env' });
 connectDB();
 const ChatModel = require('./models/chatRoom')
@@ -15,32 +16,35 @@ const WHInventoryModel = require('./models/warehouseInventory')
 const FUInventoryModel = require('./models/fuInventory')
 const ExpiredItemsWHModel = require('./models/expiredItemsWH')
 const ExpiredItemsFUModel = require('./models/expiredItemsFU')
-// const notification = require('./components/notification');
-// const pOrderModel = require('./models/purchaseOrder');
-// const MaterialRecievingModel = require('./models/materialReceiving');
+const ReplenishmentRequestModel = require('./models/replenishmentRequest');
+const ItemModel = require('./models/item');
+const PurchaseRequestModel = require('./models/purchaseRequest');
+const PurchaseOrderModel = require('./models/purchaseOrder');
+const MaterialRecievingModel = require('./models/materialReceiving');
 
+var now = new Date();
+var start = new Date(now.getFullYear(), 0, 0);
+var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+var oneDay = 1000 * 60 * 60 * 24;
+var day = Math.floor(diff / oneDay);
+const requestNoFormat = require('dateformat');
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'pmdevteam0@gmail.com',
+    pass: 'SysJunc#@!',
+  },
+});
 
-// var nodemailer = require('nodemailer');
-// const requestNoFormat = require('dateformat');
 //  const db = require('monk')(
 //   'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/stagingdb?retryWrites=true&w=majority'
 //  );
-// var now = new Date();
-// var start = new Date(now.getFullYear(), 0, 0);
-// var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
-// var oneDay = 1000 * 60 * 60 * 24;
-// var day = Math.floor(diff / oneDay);
 // const db = require('monk')(
 // 'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
 // );
 
-// var transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: 'pmdevteam0@gmail.com',
-//     pass: 'SysJunc#@!',
-//   },
-// });
+
 
 
 // Route files
@@ -201,7 +205,7 @@ cron.schedule('0 0 0 * * *', () => {
     {$unwind:'$itemId'},
     {$unwind:'$batchArray'},
     {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
-    {$project:{_id:1, itemId: 1,batchArray:1,qty:1}}
+    {$project:{_id:1, itemId: 1,batchArray:1,qty:1,maximumLevel:1}}
 ]).then((docs)=>{
   for(let i=0;i<docs.length;i++)
   {
@@ -213,15 +217,132 @@ cron.schedule('0 0 0 * * *', () => {
         $pull: { batchArray : { _id : docs[i].batchArray._id } },
         $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
       },{new:true}).then((response)=>{
+        if(response.qty<response.reorderLevel){
+          ItemModel.findOne({ _id: docs[i].itemId }).then((item)=>{
+             PurchaseRequestModel.create({
+              requestNo: 'PR' + day + requestNoFormat(new Date(), 'yyHHMM'),
+              generated: 'System',
+              generatedBy: 'System',
+              committeeStatus: 'completed',
+              status: 'pending',
+              commentNotes: 'System',
+              reason: 'System',
+              item: [
+                {
+                  itemId: docs[i].itemId,
+                  currQty: docs[i].qty,
+                  reqQty: docs[i].maximumLevel - docs[i].qty,
+                  comments: 'System',
+                  name: item.name,
+                  description: item.description,
+                  itemCode: item.itemCode,
+                  status: 'pending',
+                  secondStatus: 'pending',
+                },
+              ],
+              vendorId: item.vendorId,
+              requesterName: 'System',
+              department: 'System',
+              orderType: 'System',
+            }).then((not)=>{
+              notification(
+                'Purchase Request',
+                'A new Purchase Request ' +
+                  not.requestNo +
+                  ' has been generated at ' +
+                  not.createdAt,
+                'admin'
+              );
+            PurchaseOrderModel.create({
+              purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
+              purchaseRequestId: [not._id],
+              generated: 'System',
+              generatedBy: 'System',
+              date: moment().toDate(),
+              vendorId: not.vendorId,
+              status: 'po_sent',
+              committeeStatus: 'po_sent',
+              sentAt: moment().toDate(),
+              createdAt: moment().toDate(),
+              updatedAt: moment().toDate(),
+            }).then((PO)=>{
+        PO.populate('vendorId')
+        .populate({
+          path: 'purchaseRequestId',
+          populate: [
+            {
+              path: 'item.itemId',
+            },
+          ],
+        }).execPopulate().then((PurchaseOrder)=>{
+          const vendorEmail = PurchaseOrder.vendorId.contactEmail; 
+          var prArray = PurchaseOrder.purchaseRequestId.reduce(function (a, b) {
+            return b;
+          }, '');
+          var content = prArray.item.reduce(function (a, b) {
+            return (
+              a +
+              '<tr><td>' +
+              b.itemId.itemCode +
+              '</a></td><td>' +
+              b.itemId.name +
+              '</td><td>' +
+              b.reqQty +
+              '</td></tr>'
+            );
+          }, '');
+          var mailOptions = {
+            from: 'pmdevteam0@gmail.com',
+            to: vendorEmail,
+            subject: 'Request for items',
+            html:
+              '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+              content +
+              '</tbody></table></div>',
+          };
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          });
+          MaterialRecievingModel.create({
+            prId: [
+              {
+                id: not._id,
+                status: 'not recieved',
+              },
+            ],
+            poId: PurchaseOrder._id,
+            vendorId: PurchaseOrder.vendorId._id,
+            status: 'pending_receipt',
+          });
+          notification(
+            'Purchase Order',
+            'A new Purchase Order ' +
+            PurchaseOrder.purchaseOrderNo +
+              ' has been generated at ' +
+              PurchaseOrder.createdAt +
+              ' by System',
+            'admin'
+          );         
+        });
+            });
+            })
+          });
+        }
     })
   }
 })
+var stFU;
+var st2FU;
 FUInventoryModel.aggregate([
   {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
   {$unwind:'$itemId'},
   {$unwind:'$batchArray'},
   {$match:{'batchArray.expiryDate':{$lte: todayDate}}},
-  {$project:{_id:1, itemId: 1,batchArray:1,qty:1,fuId:1}}
+  {$project:{_id:1, itemId: 1,batchArray:1,qty:1,fuId:1,maximumLevel:1}}
 ]).then((docs)=>{
 for(let i=0;i<docs.length;i++)
 {
@@ -234,12 +355,65 @@ for(let i=0;i<docs.length;i++)
       $pull: { batchArray : { _id : docs[i].batchArray._id } },
       $set:{ qty:docs[i].qty-docs[i].batchArray.quantity},
     },{new:true}).then((response)=>{
+      if(response.qty<response.reorderLevel){
+        ItemModel.findOne({ _id: docs[i].itemId }).then((item)=>{
+          WHInventoryModel.findOne({itemId: docs[i].itemId}).then((whInv)=>{
+            if (whInv.qty < docs[i].maximumLevel - docs[i].qty) {
+              stFU = 'pending';
+              st2FU = 'Cannot be fulfilled';
+            } else {
+              stFU = 'pending';
+              st2FU = 'Can be fulfilled';
+            } 
+          })
+           ReplenishmentRequestModel.create({
+            requestNo: 'RR' + day + requestNoFormat(new Date(), 'yyHHMM'),
+            generated: 'System',
+            generatedBy: 'System',
+            reason: 'reactivated_items',
+            fuId: docs[i].fuId,
+            items: [
+              {
+                itemId: docs[i].itemId,
+                currentQty: docs[i].qty,
+                requestedQty: docs[i].maximumLevel - docs[i].qty,
+                recieptUnit: item.receiptUnit,
+                issueUnit: item.issueUnit,
+                fuItemCost: 0,
+                description: item.description,
+                status: "pending",
+                secondStatus: "Can be fulfilled",
+                batchArray: [],
+              },
+            ],
+            comments: 'System generated Replenishment Request',
+            status: stFU,
+            secondStatus: st2FU,
+            requesterName: 'System',
+            orderType: '',
+            to: 'Warehouse',
+            from: 'FU',
+            department: '',
+          }).then((not)=>{
+            notification(
+              'Replenishment Request Generated',
+              'New Replenishment Request Generated',
+              'Warehouse Member'
+            );
+            notification(
+              'Replenishment Request Generated',
+              'New Replenishment Request Generated',
+              'FU Member'
+            );
+          })
+        });
+      }
   })
 }
 })
 
 });
-//automated but reamin in receiveItemBU
+//automated but remain in receiveItemBU
 
 // const pRequest = db.get('purchaserequests');
 // const pOrder = db.get('purchaseorders');
