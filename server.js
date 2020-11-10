@@ -10,6 +10,8 @@ const moment = require('moment');
 const cron = require('node-cron');
 const notification = require('./components/notification');
 dotenv.config({ path: './config/.env' });
+const username = require('username-generator');
+const webRTCSocket = require('./lib/socket');
 connectDB();
 const ChatModel = require('./models/chatRoom')
 const WHInventoryModel = require('./models/warehouseInventory')
@@ -43,7 +45,6 @@ var transporter = nodemailer.createTransport({
 // const db = require('monk')(
 // 'mongodb+srv://khmc:khmc12345@khmc-r3oxo.mongodb.net/test?retryWrites=true&w=majority'
 // );
-
 
 
 
@@ -87,7 +88,7 @@ const radiologyService = require('./routes/radiologyService');
 const laboratoryService = require('./routes/laboratoryService');
 const surgeryService = require('./routes/surgeryService');
 const nurseService = require('./routes/nurseService');
-const dischargeRequest = require('./routes/dischargeRequest')
+const dischargeRequest = require('./routes/dischargeRequest');
 const EDR = require('./routes/EDR');
 const IPR = require('./routes/IPR');
 const ECR = require('./routes/ECR');
@@ -154,36 +155,45 @@ app.use('/api/ipr', IPR);
 app.use('/api/ecr', ECR);
 app.use('/api/opr', OPR);
 app.use('/api/par', PAR);
-app.use('/api/reimbursementclaim', RC)
-app.use('/api/dischargerequest',dischargeRequest)
-app.use('/api/patientclearance',patientClearance)
-app.use('/api/codes',codes)
-app.use('/api/notifications',notifications)
-app.use('/api/reports',reports)
-app.use('/api/chatroom',chatRooms)
+app.use('/api/reimbursementclaim', RC);
+app.use('/api/dischargerequest', dischargeRequest);
+app.use('/api/patientclearance', patientClearance);
+app.use('/api/codes', codes);
+app.use('/api/notifications', notifications);
+app.use('/api/reports', reports);
+app.use('/api/chatroom', chatRooms);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
-const port = 4001;
+const portChat = 4001;
+const portWebRtc = 4002;
+
 app.listen(
   PORT,
-  console.log(`Server running in ${process  .env.NODE_ENV} mode on port ${PORT}`)
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
-const serverSocket = http.createServer(app);
-const io = socketIO(serverSocket);
-io.origins('*:*');
-io.on('connection', (socket) => {
-  console.log("connected")
-   socket.on('disconnect', () => {
-    console.log('user disconnected');
+const serverSocket1 = http.createServer(app);
+const io1 = socketIO(serverSocket1);
+
+const serverSocket2 = http.createServer(app);
+
+io1.origins('*:*');
+io1.on('connection', (socket) => {
+  console.log('chat user connected');
+  socket.on('disconnect', () => {
+    console.log('chat user disconnected');
   });
-  socket.on("chat_sent", function(msg) {
-    ChatModel.findOneAndUpdate({_id:msg.obj2.chatId},{
-              $push: { chat: msg.obj1 }
-            }).then((docs)=>{
-             io.emit("chat_receive", { message: msg.obj1  });
-          });
+  socket.on('chat_sent', function (msg) {
+    console.log('msg', msg);
+    ChatModel.findOneAndUpdate(
+      { _id: msg.obj2.chatId },
+      {
+        $push: { chat: msg.obj1 },
+      }
+    ).then((docs) => {
+      io1.emit('chat_receive', { message: msg.obj1 });
     });
+  });
 });
 
 // Handle unhandled promise rejections
@@ -193,11 +203,16 @@ process.on('unhandledRejection', (err, promise) => {
   // server.close(() => process.exit(1));
 });
 
-global.globalVariable = { io: io };
+global.globalVariable = { io: io1 };
 
-serverSocket.listen(port, () =>
-  console.log(`Socket is listening on port ${port}`)
+serverSocket1.listen(portChat, () =>
+  console.log(`Socket for chat is listening on port ${portChat}`)
 );
+serverSocket2.listen(portWebRtc, () => {
+  webRTCSocket(serverSocket2);
+  console.log(`Socket for webrtc is listening on port ${portWebRtc}`);
+});
+
 var todayDate = moment().utc().toDate();
 cron.schedule('0 0 0 * * *', () => {
   WHInventoryModel.aggregate([
@@ -418,115 +433,115 @@ for(let i=0;i<docs.length;i++)
 // const pRequest = db.get('purchaserequests');
 // const pOrder = db.get('purchaseorders');
 // cron.schedule('*/10 * * * * *', () => {
-  // cron.schedule('* 7 * * *', () => {
-  // pRequest
-  //   .find({ committeeStatus: 'approved', generated: 'System' })
-  //   .then((docs) => {
-      // var temp = [];
-      // for (let i = 0; i < docs.length; i++) {
-      //   temp.push(docs[i]);
-      // }
-      // while (temp.length > 0) {
-        // var c = [];
-        // var temp2 = temp[0];
-        // if (temp2) {
-        //   c = temp.filter(
-        //     (i) => i.vendorId.toString() === temp2.vendorId.toString()
-        //   );
-        // }
-        // if (c.length > 0) {
-          // var abc = [];
-          // c.map((u) => {
-          //   abc.push(u._id);
-          // });
-          // pOrder.insert({
-          //   purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
-          //   purchaseRequestId: abc,
-          //   generated: 'System',
-          //   generatedBy: 'System',
-          //   date: moment().toDate(),
-          //   vendorId: c[0].vendorId,
-          //   status: 'pending_receipt',
-          //   committeeStatus: 'approved',
-          //   sentAt: moment().toDate(),
-          //   createdAt: moment().toDate(),
-          //   updatedAt: moment().toDate(),
-          // });
-          // pOrderModel
-          //   .findOneAndUpdate(
-          //     { committeeStatus: 'approved', generated: 'System' },
-          //     { $set: { committeeStatus: 'po_sent', status: 'po_sent' } },
-          //     { new: true }
-          //   )
-          //   .populate({
-          //     path: 'purchaseRequestId',
-          //     populate: [
-          //       {
-          //         path: 'item.itemId',
-          //       },
-          //     ],
-          //   })
-          //   .populate('vendorId')
-          //   .then(function (data, err) {
-          //     notification(
-          //       'Purchase Order',
-          //       'A new Purchase Order ' +
-          //         data.purchaseOrderNo +
-          //         ' has been generated at ' +
-          //         data.createdAt +
-          //         ' by System',
-          //       'admin'
-          //     );
-              // const vendorEmail = data.vendorId.contactEmail;
-              // var content = data.purchaseRequestId.reduce(function (a, b) {
-              //   return (
-              //     a +
-              //     '<tr><td>' +
-              //     b.item.itemId.itemCode +
-              //     '</a></td><td>' +
-              //     b.item.itemId.name +
-              //     '</td><td>' +
-              //     b.item.reqQty +
-              //     '</td></tr>'
-              //   );
-              // }, '');
-              // var mailOptions = {
-              //   from: 'pmdevteam0@gmail.com',
-              //   to: vendorEmail,
-              //   subject: 'Request for items',
-              //   html:
-              //     '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
-              //     content +
-              //     '</tbody></table></div>',
-              // };
-              // transporter.sendMail(mailOptions, function (error, info) {
-              //   if (error) {
-              //     console.log(error);
-              //   } else {
-              //     console.log('Email sent: ' + info.response);
-              //   }
-              // });
-              // var work = [];
-              // for (let q = 0; q < abc.length; q++) {
-              //   work.push({ id: abc[q]._id, status: 'not recieved' });
-              // }
-              // MaterialRecievingModel.create({
-              //   prId: work,
-              //   poId: data._id,
-              //   vendorId: data.vendorId._id,
-              //   status: 'pending_receipt',
-              // }).then(function (data, err) {});
-            // });
-          // temp = temp.filter(
-          //   (i) => i.vendorId.toString() != c[0].vendorId.toString()
-          // );
-        // }
-      // }
-      // for (let i = 0; i < docs.length; i++) {
-      //   pRequest.update(
-      //     { _id: docs[i]._id },
-      //     { $set: { committeeStatus: 'completed' } }
-      //   );
-      // }
-    // });
+// cron.schedule('* 7 * * *', () => {
+// pRequest
+//   .find({ committeeStatus: 'approved', generated: 'System' })
+//   .then((docs) => {
+// var temp = [];
+// for (let i = 0; i < docs.length; i++) {
+//   temp.push(docs[i]);
+// }
+// while (temp.length > 0) {
+// var c = [];
+// var temp2 = temp[0];
+// if (temp2) {
+//   c = temp.filter(
+//     (i) => i.vendorId.toString() === temp2.vendorId.toString()
+//   );
+// }
+// if (c.length > 0) {
+// var abc = [];
+// c.map((u) => {
+//   abc.push(u._id);
+// });
+// pOrder.insert({
+//   purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+//   purchaseRequestId: abc,
+//   generated: 'System',
+//   generatedBy: 'System',
+//   date: moment().toDate(),
+//   vendorId: c[0].vendorId,
+//   status: 'pending_receipt',
+//   committeeStatus: 'approved',
+//   sentAt: moment().toDate(),
+//   createdAt: moment().toDate(),
+//   updatedAt: moment().toDate(),
+// });
+// pOrderModel
+//   .findOneAndUpdate(
+//     { committeeStatus: 'approved', generated: 'System' },
+//     { $set: { committeeStatus: 'po_sent', status: 'po_sent' } },
+//     { new: true }
+//   )
+//   .populate({
+//     path: 'purchaseRequestId',
+//     populate: [
+//       {
+//         path: 'item.itemId',
+//       },
+//     ],
+//   })
+//   .populate('vendorId')
+//   .then(function (data, err) {
+//     notification(
+//       'Purchase Order',
+//       'A new Purchase Order ' +
+//         data.purchaseOrderNo +
+//         ' has been generated at ' +
+//         data.createdAt +
+//         ' by System',
+//       'admin'
+//     );
+// const vendorEmail = data.vendorId.contactEmail;
+// var content = data.purchaseRequestId.reduce(function (a, b) {
+//   return (
+//     a +
+//     '<tr><td>' +
+//     b.item.itemId.itemCode +
+//     '</a></td><td>' +
+//     b.item.itemId.name +
+//     '</td><td>' +
+//     b.item.reqQty +
+//     '</td></tr>'
+//   );
+// }, '');
+// var mailOptions = {
+//   from: 'pmdevteam0@gmail.com',
+//   to: vendorEmail,
+//   subject: 'Request for items',
+//   html:
+//     '<div><table><thead><tr><th>Item Code</th><th>Item Name</th><th>Quantity</th></tr></thead><tbody>' +
+//     content +
+//     '</tbody></table></div>',
+// };
+// transporter.sendMail(mailOptions, function (error, info) {
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Email sent: ' + info.response);
+//   }
+// });
+// var work = [];
+// for (let q = 0; q < abc.length; q++) {
+//   work.push({ id: abc[q]._id, status: 'not recieved' });
+// }
+// MaterialRecievingModel.create({
+//   prId: work,
+//   poId: data._id,
+//   vendorId: data.vendorId._id,
+//   status: 'pending_receipt',
+// }).then(function (data, err) {});
+// });
+// temp = temp.filter(
+//   (i) => i.vendorId.toString() != c[0].vendorId.toString()
+// );
+// }
+// }
+// for (let i = 0; i < docs.length; i++) {
+//   pRequest.update(
+//     { _id: docs[i]._id },
+//     { $set: { committeeStatus: 'completed' } }
+//   );
+// }
+// });
 // });
