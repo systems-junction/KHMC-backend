@@ -100,6 +100,7 @@ const notifications = require('./routes/notification');
 const reports = require('./routes/reports');
 const chatRooms = require('./routes/chatRoom');
 const loginRecords = require('./routes/loginRecord');
+const margins = require('./routes/margin')
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -163,7 +164,7 @@ app.use('/api/notifications', notifications);
 app.use('/api/reports', reports);
 app.use('/api/chatroom', chatRooms);
 app.use('/api/loginRecord', loginRecords);
-
+app.use('/api/margin', margins)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
