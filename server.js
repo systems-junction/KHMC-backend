@@ -99,6 +99,7 @@ const codes = require('./routes/codes');
 const notifications = require('./routes/notification');
 const reports = require('./routes/reports');
 const chatRooms = require('./routes/chatRoom');
+const loginRecords = require('./routes/loginRecord');
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
@@ -161,6 +162,8 @@ app.use('/api/codes', codes);
 app.use('/api/notifications', notifications);
 app.use('/api/reports', reports);
 app.use('/api/chatroom', chatRooms);
+app.use('/api/loginRecord', loginRecords);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
