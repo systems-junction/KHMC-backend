@@ -407,6 +407,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     prId,
     status,
     batchArray,
+    returnedQty
   } = req.body;
   //   batchArray.sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
 
@@ -504,6 +505,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
       prId,
       status,
       batchArray: withOutReturnBatchArray,
+      returnedQty
     });
     //this should not be here i.e receive item
   }
@@ -536,6 +538,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         prId,
         status,
         batchArray: batchArray,
+        returnedQty
       });
       var now = new Date();
       var start = new Date(now.getFullYear(), 0, 0);
@@ -598,6 +601,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         status,
         // batchArray: batchArray,
         batchArray: status === 'rejected' ? [] : withOutReturnBatchArray,
+        returnedQty
       });
     }
   }

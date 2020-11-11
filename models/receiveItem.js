@@ -92,7 +92,9 @@ const ReceiveItemSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-
+  returnedQty:{
+    type:Number
+  },
   batchArray: [
     {
       batchNumber: String,

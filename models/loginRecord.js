@@ -14,8 +14,7 @@ const loginRecordSchema = new mongoose.Schema({
         },
         logout: {
             type: Date,
-        }
-
+        },
     }]
 
 });
