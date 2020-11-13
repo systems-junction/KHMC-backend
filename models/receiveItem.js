@@ -102,9 +102,13 @@ const ReceiveItemSchema = new mongoose.Schema({
         type: Date,
       },
       quantity: Number,
-      price: Number
+      price: Number,
+      qrCode:String,
     },
   ],
+  unitPrice:{
+    type:Number
+  }
 });
 
 module.exports = mongoose.model('ReceiveItem', ReceiveItemSchema);

@@ -86,14 +86,15 @@ exports.getFuInventoryByFUKeyword = asyncHandler(async (req, res) => {
 });
 
 exports.addFuInventory = asyncHandler(async (req, res) => {
-    const { fuId, itemId, qty, maximumLevel, reorderLevel, minimumLevel } = req.body;
+    const { fuId, itemId, qty, maximumLevel, reorderLevel, minimumLevel,batchArray } = req.body;
     const fuInventory = await FuInventory.create({
         fuId,
         itemId,
         qty,
         maximumLevel,
         reorderLevel,
-        minimumLevel
+        minimumLevel,
+        batchArray
     });
     res.status(200).json({ success: true, data: fuInventory });
 });

@@ -6,9 +6,12 @@ const ReceiveItem = require('../models/receiveItem');
 const MaterialReceiving = require('../models/materialReceiving');
 const PurchaseRequest = require('../models/purchaseRequest');
 const PurchaseOrder = require('../models/purchaseOrder');
+const Item = require('../models/item');
 const Account = require('../models/account');
 const moment = require('moment');
 const requestNoFormat = require('dateformat');
+var QRCode = require('qrcode');
+var base64ToImage = require('base64-to-image');
 exports.getReceiveItems = asyncHandler(async (req, res) => {
   const receiveItems = await ReceiveItem.find()
     .populate('itemId')
@@ -379,6 +382,9 @@ exports.updateReceiveItem = asyncHandler(async (req, res, next) => {
 });
 
 exports.addReceiveItem = asyncHandler(async (req, res) => {
+  const itemData = await Item.findOne({_id:req.body.itemId}) 
+  const pathU = [];
+  var response;
   const {
     itemId,
     currentQty,
@@ -407,16 +413,15 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     prId,
     status,
     batchArray,
-    returnedQty
+    returnedQty,
+    unitPrice
   } = req.body;
   //   batchArray.sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
-
   let returnedBatchArray = [];
   let withOutReturnBatchArray = [];
-
   var receivedQuantity = receivedQty;
-
   for (let k = 0; k < batchArray.length; k++) {
+
     var isafter = moment(req.body.dateReceived).isAfter(
       batchArray[k].expiryDate
     );
@@ -429,12 +434,14 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     var oneDay = 1000 * 60 * 60 * 24;
     var day = Math.floor(diff / oneDay);
 
-    if (isafter) {
-      returnedBatchArray.push(batchArray[k]);
-      receivedQuantity = receivedQuantity - batchArray[k].quantity;
-    } else {
-      withOutReturnBatchArray.push(batchArray[k]);
-    }
+  if (isafter) {
+    returnedBatchArray.push(batchArray[k]);
+    receivedQuantity = receivedQuantity - batchArray[k].quantity;
+  } else {
+    withOutReturnBatchArray.push(batchArray[k]);
+
+  }  
+
   }
 
   returnedBatchArray.sort((a, b) => (a.expiryDate > b.expiryDate ? 1 : -1));
@@ -479,7 +486,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
     );
     const send = await ExternalReturnRequest.find().populate('itemId');
     globalVariable.io.emit('get_data', send);
-    await ReceiveItem.create({
+    response = await ReceiveItem.create({
       itemId,
       currentQty,
       requestedQty,
@@ -505,14 +512,15 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
       prId,
       status,
       batchArray: withOutReturnBatchArray,
-      returnedQty
+      returnedQty,
+      unitPrice
     });
     //this should not be here i.e receive item
   }
   if (withOutReturnBatchArray.length > 0 || status === 'rejected') {
     if (req.body.receivedQty > req.body.requestedQty) {
       var qty = req.body.receivedQty - req.body.requestedQty;
-      await ReceiveItem.create({
+      response = await ReceiveItem.create({
         itemId,
         currentQty,
         requestedQty,
@@ -538,7 +546,8 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         prId,
         status,
         batchArray: batchArray,
-        returnedQty
+        returnedQty,
+        unitPrice
       });
       var now = new Date();
       var start = new Date(now.getFullYear(), 0, 0);
@@ -574,7 +583,7 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
       const send = await ExternalReturnRequest.find().populate('itemId');
       globalVariable.io.emit('get_data', send);
     } else {
-      await ReceiveItem.create({
+     response =  await ReceiveItem.create({
         itemId,
         currentQty,
         requestedQty,
@@ -601,7 +610,8 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
         status,
         // batchArray: batchArray,
         batchArray: status === 'rejected' ? [] : withOutReturnBatchArray,
-        returnedQty
+        returnedQty,
+        unitPrice
       });
     }
   }
@@ -680,5 +690,26 @@ exports.addReceiveItem = asyncHandler(async (req, res) => {
       { new: true }
     );
   }
+  if(response){
+  for(let i = 0 ; i<response.batchArray.length; i++)
+  {
+    var obj = {}
+    obj.name = itemData.name;
+    obj.unit = req.body.unit;
+    obj.price = response.batchArray[i].price;
+    obj.expiry = response.batchArray[i].expiryDate;
+    obj.batchNo = response.batchArray[i].batchNumber;
+  await QRCode.toDataURL(JSON.stringify(obj), async  function (err,url) {
+      var base64Str = url;
+      var path = './uploads/';
+      var pathFormed = base64ToImage(base64Str, path)
+      pathU.push('/uploads/' + pathFormed.fileName)
+      await ReceiveItem.findOneAndUpdate({_id:response._id,'batchArray._id':response.batchArray[i]._id},
+      {$set:{'batchArray.$.qrCode':pathU[i]}})
+    });
+  }
+
+
+}
   res.status(200).json({ success: true });
 });
