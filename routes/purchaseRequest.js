@@ -8,7 +8,7 @@ const {
     deletePurchaseRequest,
     updatePurchaseRequest,
     getPurchaseRequestVendors,
-    getCurrentItemQuantity
+    getCurrentItemQuantity,
 } = require('../controllers/purchaseRequest');
 const router = express.Router();
 router.get('/getprvendor/:_id',getPurchaseRequestVendors)

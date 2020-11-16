@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/async');
 const PurchaseOrder = require('../models/purchaseOrder')
+const PurchaseRequest = require('../models/purchaseRequest')
 const WHInventory = require('../models/warehouseInventory')
 const FUInventory = require('../models/fuInventory')
 const ExpiredItemsWH = require('../models/expiredItemsWH')
@@ -49,7 +50,7 @@ exports.expiredItemsWH = asyncHandler(async (req, res) => {
 
 exports.expiredItemsFU = asyncHandler(async (req, res) => {
     var todayDate = moment().utc().toDate();
-    const exp = await ExpiredItemsWH.find({fuId:req.params.id,'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    const exp = await ExpiredItemsFU.find({fuId:req.params.id,'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
     res.status(200).json({ success: true, data: exp });
 });
 
@@ -75,4 +76,11 @@ exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
         {$project:{_id:1, itemId: 1,batchArray:1}}
     ])
     res.status(200).json({ success: true, data: fui });
+});
+
+exports.prpoDashboard = asyncHandler(async (req, res) => {
+    const prApproved = await PurchaseRequest.find({committeeStatus:"approved"}).countDocuments();
+    const prRejected = await PurchaseRequest.find({committeeStatus:"rejected"}).countDocuments();
+    const prPending = await PurchaseRequest.find({committeeStatus:"pending"}).countDocuments();
+    res.status(200).json({ success: true, approved: prApproved, rejected: prRejected, pending: prPending });
 });
