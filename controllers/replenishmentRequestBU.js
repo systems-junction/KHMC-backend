@@ -9,7 +9,7 @@ const BUInventory = require('../models/buInventory');
 const WHInventory = require('../models/warehouseInventory');
 const ReplenishmentRequest = require('../models/replenishmentRequest');
 const PurchaseRequest = require('../models/purchaseRequest');
-
+const Margin = require('../models/margin');
 const Item = require('../models/item');
 const IPR = require('../models/IPR');
 const EDR = require('../models/EDR');
@@ -388,18 +388,22 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
 
       for (let i = 0; i < wh.batchArray.length; i++) {
         if (wh.batchArray[i].quantity >= remainingQty) {
+          const margin = await Margin.findOne().limit(1).sort({ $natural: -1 })
+          const marginPrice = (wh.batchArray[i].price+(wh.batchArray[i].price*(margin.ftp/100)))
           updatedBatchArray[i] = {
             quantity: wh.batchArray[i].quantity - remainingQty,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
             price:wh.batchArray[i].price,
+            // price:marginPrice,
             _id: wh.batchArray[i]._id,
           };
           newBatch[counterForBatchArray] = {
             quantity: remainingQty,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
-            price:wh.batchArray[i].price,
+            // price:wh.batchArray[i].price,
+            price:marginPrice,
             _id: wh.batchArray[i]._id,
           };
           counterForBatchArray++;
@@ -408,12 +412,15 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
           wh.batchArray[i].quantity < remainingQty &&
           wh.batchArray[i].quantity !== '0'
         ) {
+          const margin = await Margin.findOne().limit(1).sort({ $natural: -1 })
+          const marginPrice = (wh.batchArray[i].price+(wh.batchArray[i].price*(margin.ftp/100)))
           remainingQty = remainingQty - wh.batchArray[i].quantity;
           newBatch[counterForBatchArray] = {
             quantity: wh.batchArray[i].quantity,
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
-            price:wh.batchArray[i].price,
+            // price:wh.batchArray[i].price,
+            price:marginPrice,
             _id: wh.batchArray[i]._id,
           };
           counterForBatchArray++;
@@ -423,6 +430,7 @@ exports.updateReplenishmentRequestBU = asyncHandler(async (req, res, next) => {
             batchNumber: wh.batchArray[i].batchNumber,
             expiryDate: wh.batchArray[i].expiryDate,
             price:wh.batchArray[i].price,
+            // price:marginPrice,
             _id: wh.batchArray[i]._id,
           };
         }

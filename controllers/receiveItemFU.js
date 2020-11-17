@@ -105,14 +105,16 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         quantity: wh.tempBatchArray[i].quantity - remainingQty,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
-        price:wh.tempBatchArray[i].price,
+        // price:wh.tempBatchArray[i].price,
+        price:wh.batchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       newBatch[counterForBatchArray] = {
         quantity: remainingQty,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
-        price:wh.tempBatchArray[i].price,
+        // price:wh.tempBatchArray[i].price,
+        price:wh.batchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       counterForBatchArray++;
@@ -126,16 +128,17 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
         quantity: wh.tempBatchArray[i].quantity,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
-        price:wh.tempBatchArray[i].price,
+        // price:wh.tempBatchArray[i].price,
+        price:wh.batchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
       counterForBatchArray++;
-
       updatedBatchArray[i] = {
         quantity: 0,
         batchNumber: wh.tempBatchArray[i].batchNumber,
         expiryDate: wh.tempBatchArray[i].expiryDate,
-        price:wh.tempBatchArray[i].price,
+        // price:wh.tempBatchArray[i].price,
+        price:wh.batchArray[i].price,
         _id: wh.tempBatchArray[i]._id,
       };
     }

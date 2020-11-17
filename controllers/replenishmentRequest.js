@@ -9,6 +9,7 @@ const PurchaseRequest = require('../models/purchaseRequest');
 const PurchaseOrder = require('../models/purchaseOrder');
 const Item = require('../models/item');
 const MaterialRecieving = require('../models/materialReceiving');
+const Margin = require('../models/margin');
 const requestNoFormat = require('dateformat');
 const moment = require('moment');
 var nodemailer = require('nodemailer');
@@ -312,11 +313,13 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
               price:wh.batchArray[i].price,
               _id: wh.batchArray[i]._id,
             };
+            const margin = await Margin.findOne().limit(1).sort({ $natural: -1 })
+            const marginPrice = (wh.batchArray[i].price+(wh.batchArray[i].price*(margin.wtf/100)))
             newBatch[counterForBatchArray] = {
               quantity: remainingQty,
               batchNumber: wh.batchArray[i].batchNumber,
               expiryDate: wh.batchArray[i].expiryDate,
-              price:wh.batchArray[i].price,
+              price:marginPrice,
               _id: wh.batchArray[i]._id,
             };
             counterForBatchArray++;
@@ -325,12 +328,14 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
             wh.batchArray[i].quantity < remainingQty &&
             wh.batchArray[i].quantity !== '0'
           ) {
+            const margin = await Margin.findOne().limit(1).sort({ $natural: -1 })
+            const marginPrice = (wh.batchArray[i].price+(wh.batchArray[i].price*(margin.wtf/100)))
             remainingQty = remainingQty - wh.batchArray[i].quantity;
             newBatch[counterForBatchArray] = {
               quantity: wh.batchArray[i].quantity,
               batchNumber: wh.batchArray[i].batchNumber,
               expiryDate: wh.batchArray[i].expiryDate,
-              price:wh.batchArray[i].price,
+              price:marginPrice,
               _id: wh.batchArray[i]._id,
             };
             counterForBatchArray++;

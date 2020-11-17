@@ -85,6 +85,9 @@ const EDRSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: 'LaboratoryService',
         },
+        price:{
+            type:Number
+        },
         requesterName: {
             type: String,
         },
@@ -125,6 +128,9 @@ const EDRSchema = new mongoose.Schema({
         serviceId: {
             type: mongoose.Schema.ObjectId,
             ref: 'RadiologyService',
+        },
+        price:{
+            type:Number
         },
         serviceCode: {
             type: String,

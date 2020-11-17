@@ -8,7 +8,8 @@ const {
     expiredItemsWH,
     expiredItemsFU,
     nearlyExpiredItemsWH,
-    nearlyExpiredItemsFU
+    nearlyExpiredItemsFU,
+    prpoDashboard
 } = require('../controllers/reports');
 
 const router = express.Router();
@@ -22,4 +23,5 @@ router.get('/expireditemswarehouse',expiredItemsWH)
 router.get('/expireditemsfunctionalunit/:id',expiredItemsFU)
 router.post('/nearlyexpireditemswarehouse/:id',nearlyExpiredItemsWH)
 router.post('/nearlyexpireditemsfunctionalunit/:id',nearlyExpiredItemsFU)
+router.get('/prdashboard', prpoDashboard);
 module.exports = router;
