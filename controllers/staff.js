@@ -6,7 +6,8 @@ const StaffType = require('../models/staffType');
 const SystemAdmin = require('../models/systemAdmin');
 const User = require('../models/user');
 const FU = require('../models/functionalUnit')
-
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 exports.updateSuper = asyncHandler(async (req, res) => {
   const { _id } = req.body;
   const user = await User.findOne({ _id: "5ed4c193c14d663bb2125a87" });
@@ -65,7 +66,20 @@ exports.getStaff = asyncHandler(async (req, res) => {
 exports.getExternalConsultant = asyncHandler(async (req, res) => {
   const staff = await Staff.find({staffTypeId:'5f28f500b0d678b22fd9cafb'})
     .populate('systemAdminId')
-    .populate('staffTypeId');
+    .populate('staffTypeId')
+    .select();
+  res.status(200).json({ success: true, data: staff });
+});
+exports.getExternalConsultantName = asyncHandler(async (req, res) => {
+  const staff = await Staff.aggregate([
+    {$match:{staffTypeId:ObjectId('5f28f500b0d678b22fd9cafb')}},
+    {
+        $project: {
+          name: { $concat: ['$firstName', ' ', '$lastName'] },
+        },
+      },
+
+])
   res.status(200).json({ success: true, data: staff });
 });
 exports.addStaff = asyncHandler(async (req, res) => {

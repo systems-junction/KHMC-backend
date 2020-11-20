@@ -477,6 +477,7 @@ exports.searchPatient = asyncHandler(async (req, res) => {
     var edr = await EDR.findOne({ patientId: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
+      .populate('consultationNote.specialist')
       .populate({
         path: 'pharmacyRequest',
         populate: [
@@ -505,6 +506,7 @@ exports.searchPatient = asyncHandler(async (req, res) => {
     var ipr = await IPR.findOne({ patientId: req.params._id })
       .populate('patientId')
       .populate('consultationNote.requester')
+      .populate('consultationNote.specialist')
       .populate({
         path: 'pharmacyRequest',
         populate: [
@@ -579,6 +581,7 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
         {
           $set: {
             'consultationNote.$.consultationNotes': parsed.consultationNotes,
+            'consultationNote.$.completedTime': parsed.completedTime
           },
         },
         { new: true }
@@ -586,13 +589,14 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
 
       await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path,'consultationNote.$.completedTime': parsed.completedTime}, },
         { new: true }
       );
 
       not = await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status } },
+        { $set: { 'consultationNote.$.status': parsed.status,
+        'consultationNote.$.completedTime': parsed.completedTime } },
         { new: true }
       ).populate('patientId');
       notification(
@@ -613,6 +617,7 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
         {
           $set: {
             'consultationNote.$.consultationNotes': parsed.consultationNotes,
+            'consultationNote.$.completedTime': parsed.completedTime
           },
         },
         { new: true }
@@ -620,13 +625,15 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
 
       await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.audioNotes': req.file.path } },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path,'consultationNote.$.completedTime': parsed.completedTime },
+         },
         { new: true }
       );
 
       not = await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status } },
+        { $set: { 'consultationNote.$.status': parsed.status,
+        'consultationNote.$.completedTime': parsed.completedTime, } },
         { new: true }
       ).populate('patientId');
       notification(
@@ -649,13 +656,15 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
         {
           $set: {
             'consultationNote.$.consultationNotes': parsed.consultationNotes,
+            'consultationNote.$.completedTime': parsed.completedTime
           },
         },
         { new: true }
       );
       not = await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status } },
+        { $set: { 'consultationNote.$.status': parsed.status,'consultationNote.$.completedTime': parsed.completedTime },
+         },
         { new: true }
       ).populate('patientId');
       notification(
@@ -676,13 +685,16 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
         {
           $set: {
             'consultationNote.$.consultationNotes': parsed.consultationNotes,
+            'consultationNote.$.completedTime': parsed.completedTime
           },
         },
         { new: true }
       );
       not = await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status } },
+        { $set: { 'consultationNote.$.status': parsed.status,
+        'consultationNote.$.completedTime': parsed.completedTime },
+       },
         { new: true }
       ).populate('patientId');
       notification(

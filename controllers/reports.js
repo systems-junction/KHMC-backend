@@ -348,25 +348,146 @@ exports.pharmacistDashboard = asyncHandler(async (req, res) => {
     res.status(200).json({success:true, orderPending:final, rrtwh:rrtwh })
 });
 
-// exports.consultantDashboard = asyncHandler(async (req, res) => {
-//     var sixHour = moment().subtract(6, 'hours').utc().toDate();
-//     const edr = await EDR.find({status:"Analysis In Progress"}).countDocuments()
-//     let par = {}
-//     par.denied = denied;
-//     par.rejected = rejected;
-//     par.approved = approved;
-//     res.status(200).json({success:true, insuranceBillsPending:insuranceBillsPending, par:par })
-// });
+exports.consultantDashboard = asyncHandler(async (req, res) => {
+    let count = 0; 
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
+    const edr = await EDR.find({'consultationNote.specialist':req.params.id,'consultationNote.status':"Complete",'consultationNote.completedTime':{$gte:sixHour}})
+    for( let i = 0; i<edr.length; i++)
+    {
+        edr[i].consultationNote.forEach(element=>{
+            if(element.status=="Complete")
+            {
+                count++
+            }
+        })
+    }
+    const ipr = await IPR.find({'consultationNote.specialist':req.params.id,'consultationNote.status':"Complete",'consultationNote.completedTime':{$gte:sixHour}})
+    for( let i = 0; i<ipr.length; i++)
+    {
+        ipr[i].consultationNote.forEach(element=>{
+            if(element.status=="Complete")
+            {
+                count++
+            }
+        })
+    }
+    res.status(200).json({success:true, completed:count})
+});
 
-// exports.doctorDashboard = asyncHandler(async (req, res) => {
-//     var sixHour = moment().subtract(6, 'hours').utc().toDate();
-//     const edr = await EDR.find({status:"Analysis In Progress"}).countDocuments()
-//     let par = {}
-//     par.denied = denied;
-//     par.rejected = rejected;
-//     par.approved = approved;
-//     res.status(200).json({success:true, insuranceBillsPending:insuranceBillsPending, par:par })
-// });
+exports.doctorDashboard = asyncHandler(async (req, res) => {
+    let countPendingConsultation = 0; 
+    let countPendingLab = 0; 
+    let countPendingPharmacy = 0;
+    let countPendingDiagnosis = 0;
+    let countPatient = 0;
+    let countRad = 0;
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
+    const edr = await EDR.find({'consultationNote.requester':req.params.id,'consultationNote.status':"pending",'consultationNote.date':{$gte:sixHour}})
+    for( let i = 0; i<edr.length; i++)
+    {
+        edr[i].consultationNote.forEach(element=>{
+            if(element.status=="pending")
+            {
+                countPendingConsultation++
+            }
+        })
+    }
+    const ipr = await IPR.find({'consultationNote.requester':req.params.id,'consultationNote.status':"pending",'consultationNote.date':{$gte:sixHour}})
+    for( let i = 0; i<ipr.length; i++)
+    {
+        ipr[i].consultationNote.forEach(element=>{
+            if(element.status=="pending")
+            {
+                countPendingConsultation++
+            }
+        })
+    }
+    const edrMain = await EDR.find({status:"pending"})
+    for( let i = 0; i<edrMain.length; i++)
+    {
+        if(edrMain[i].labRequest.length==0)
+        {
+            countPendingLab++
+        }
+        else if(edrMain[i].pharmacyRequest.length==0)
+        {
+            countPendingPharmacy++
+        }
+        else if(edrMain[i].residentNotes.length==0)
+        {
+            countPendingDiagnosis++
+        }
+    }
+    const iprMain = await IPR.find({status:"pending"})
+    for( let i = 0; i<iprMain.length; i++)
+    {
+        if(iprMain[i].labRequest.length==0)
+        {
+            countPendingLab++
+        }
+        else if(iprMain[i].pharmacyRequest.length==0)
+        {
+            countPendingPharmacy++
+        }
+        else if(iprMain[i].residentNotes.length==0)
+        {
+            countPendingDiagnosis++
+        }
+    }
+ 
+    const edrHour = await EDR.find({'residentNotes.doctor':req.params.id,'residentNotes.date':{$gte:sixHour}})
+    for( let i = 0; i<edrHour.length; i++)
+    {
+        edrHour[i].residentNotes.forEach(element=>{
+            if(element.date>sixHour)
+            {
+                countPatient++
+            }
+
+        })
+    }
+    const iprHour = await IPR.find({'residentNotes.doctor':req.params.id,'residentNotes.date':{$gte:sixHour}})
+    for( let i = 0; i<iprHour.length; i++)
+    {
+        iprHour[i].residentNotes.forEach(element=>{
+            if(element.date>sixHour)
+            {
+                countPatient++
+            }
+
+        })
+    }
+    let perHour = countPatient/6
+    const edrRad = await EDR.find({status:"pending",radiologyRequest:{$ne:[]}})
+    for(let i=0; i<edrRad.length;i++)
+    {
+        edrRad[i].radiologyRequest.forEach(element=>{
+            if(element.comments)
+            {
+                countRad++
+            }
+        })
+    }
+    const iprRad = await IPR.find({status:"pending",radiologyRequest:{$ne:[]} })
+    for(let i=0; i<iprRad.length;i++)
+    {
+        iprRad[i].radiologyRequest.forEach(element=>{
+            if(!element.comments)
+            {
+                countRad++
+            }
+        })
+    }    
+    res.status(200).json({
+        success:true,
+        pendingConsultations:countPendingConsultation,
+        pendingLab:countPendingLab,
+        pendingPharmacy:countPendingPharmacy,
+        countPendingDiagnosis:countPendingDiagnosis,
+        patientPerHour:perHour,
+        radConsult:countRad
+     })
+});
 
 exports.nurseDashboard = asyncHandler(async (req, res) => {
     const edrTriage = await EDR.find({status:"pending",triageAssessment:{$ne:[]}}).countDocuments()

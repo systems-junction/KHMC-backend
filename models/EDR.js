@@ -45,6 +45,9 @@ const EDRSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: 'staff',
         },
+        completedTime:{
+            type:Date
+        }
     }, ],
     residentNotes: [{
         residentNoteNo: {

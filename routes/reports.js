@@ -18,8 +18,8 @@ const {
     rtDashboard,
     ltDashboard,
     pharmacistDashboard,
-    // consultantDashboard,
-    // doctorDashboard,
+    consultantDashboard,
+    doctorDashboard,
     nurseDashboard,
     roDashboard
 } = require('../controllers/reports');
@@ -44,8 +44,8 @@ router.get('/icmdashboard', icmDashboard);
 router.get('/rtdashboard', rtDashboard);
 router.get('/ltdashboard', ltDashboard);
 router.get('/pharmacistdashboard', pharmacistDashboard);
-// router.get('/consultantdashboard', consultantDashboard);
-// router.get('/doctordashboard', doctorDashboard);
+router.get('/consultantdashboard/:id', consultantDashboard);
+router.get('/doctordashboard/:id', doctorDashboard);
 router.get('/nursedashboard', nurseDashboard);
 router.get('/rodashboard', roDashboard);
 module.exports = router;
