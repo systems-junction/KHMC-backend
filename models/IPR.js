@@ -39,7 +39,8 @@ const IPRSchema = new mongoose.Schema({
             type: String,
         },
         specialist: {
-            type: String,
+            type: mongoose.Schema.ObjectId,
+            ref: 'staff',
         },
         requester: {
             type: mongoose.Schema.ObjectId,
