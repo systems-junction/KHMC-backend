@@ -266,9 +266,11 @@ const EDRSchema = new mongoose.Schema({
         pulseOX: {
             type: String,
         },
-        triageLevel: {
-            type: String,
-        },
+        triageLevel: [
+            {
+                type: String,
+            }
+        ],
         generalAppearance: {
             type: String,
         },
