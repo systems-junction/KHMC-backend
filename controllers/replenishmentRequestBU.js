@@ -48,11 +48,11 @@ exports.getReplenishmentRequestsBUMKeyword = asyncHandler(async (req, res) => {
       (replenishmentRequest[i].requestNo &&
         replenishmentRequest[i].requestNo
           .toLowerCase()
-          .match(req.params.keyword.toLowerCase())) ||
+          .startsWith(req.params.keyword.toLowerCase())) ||
       (replenishmentRequest[i].patientReferenceNo &&
         replenishmentRequest[i].patientReferenceNo
           .toLowerCase()
-          .match(req.params.keyword.toLowerCase()))
+          .startsWith(req.params.keyword.toLowerCase()))
     ) {
       arr.push(replenishmentRequest[i]);
     }
@@ -82,7 +82,7 @@ exports.getReplenishmentRequestsBUNMKeyword = asyncHandler(async (req, res) => {
       replenishmentRequest[i].requestNo &&
       replenishmentRequest[i].requestNo
         .toLowerCase()
-        .match(req.params.keyword.toLowerCase())
+        .startsWith(req.params.keyword.toLowerCase())
     ) {
       arr.push(replenishmentRequest[i]);
     }

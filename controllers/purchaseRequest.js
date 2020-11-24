@@ -45,8 +45,8 @@ exports.getPurchaseRequestKeyword = asyncHandler(async (req, res) => {
     for(let i=0; i<purchaseRequest.length; i++)
     {
         if(
-            (purchaseRequest[i].requestNo && purchaseRequest[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-            ||(purchaseRequest[i].vendorId.englishName && purchaseRequest[i].vendorId.englishName.toLowerCase().match(req.params.keyword.toLowerCase()))
+            (purchaseRequest[i].requestNo && purchaseRequest[i].requestNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
+            ||(purchaseRequest[i].vendorId.englishName && purchaseRequest[i].vendorId.englishName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
             )
             {
               arr.push(purchaseRequest[i])

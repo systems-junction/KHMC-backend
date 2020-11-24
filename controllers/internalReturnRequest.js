@@ -36,7 +36,7 @@ exports.getInternalReturnRequestsFUByKeyword = asyncHandler(
         internalRequestFU[i].returnRequestNo &&
         internalRequestFU[i].returnRequestNo
           .toLowerCase()
-          .match(req.params.keyword.toLowerCase())
+          .startsWith(req.params.keyword.toLowerCase())
       ) {
         arr.push(internalRequestFU[i]);
       }

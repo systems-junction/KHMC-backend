@@ -39,13 +39,13 @@ exports.getIPRKeyword = asyncHandler(async (req, res) => {
     {
        var fullName = ipr[i].patientId.firstName+" "+ipr[i].patientId.lastName
        if(
-      (ipr[i].patientId.profileNo && ipr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ipr[i].patientId.firstName && ipr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ipr[i].patientId.lastName && ipr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ipr[i].patientId.phoneNumber && ipr[i].patientId.phoneNumber.match(req.params.keyword))||
-      (ipr[i].patientId.SIN && ipr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ipr[i].patientId.mobileNumber && ipr[i].patientId.mobileNumber.match(req.params.keyword))||
-      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      (ipr[i].patientId.profileNo && ipr[i].patientId.profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.firstName && ipr[i].patientId.firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.lastName && ipr[i].patientId.lastName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.phoneNumber && ipr[i].patientId.phoneNumber.startsWith(req.params.keyword))||
+      (ipr[i].patientId.SIN && ipr[i].patientId.SIN.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ipr[i].patientId.mobileNumber && ipr[i].patientId.mobileNumber.startsWith(req.params.keyword))||
+      (fullName.toLowerCase().startsWith( req.params.keyword.toLowerCase()) )
       )
       {
         arr.push(ipr[i])
@@ -264,13 +264,13 @@ exports.getDischargeKeyword = asyncHandler(async (req, res) => {
   {
      var fullName = data[i].patientId.firstName+" "+data[i].patientId.lastName
      if(
-    (data[i].patientId.profileNo && data[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientId.firstName && data[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientId.lastName && data[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientId.phoneNumber && data[i].patientId.phoneNumber.match(req.params.keyword))||
-    (data[i].patientId.SIN && data[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientId.mobileNumber && data[i].patientId.mobileNumber.match(req.params.keyword))||
-    (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+    (data[i].patientId.profileNo && data[i].patientId.profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.firstName && data[i].patientId.firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.lastName && data[i].patientId.lastName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.phoneNumber && data[i].patientId.phoneNumber.startsWith(req.params.keyword))||
+    (data[i].patientId.SIN && data[i].patientId.SIN.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientId.mobileNumber && data[i].patientId.mobileNumber.startsWith(req.params.keyword))||
+    (fullName.toLowerCase().startsWith( req.params.keyword.toLowerCase()) )
     )
     {
       arr.push(data[i])
@@ -460,13 +460,13 @@ exports.getRRPatientKeyword = asyncHandler(async (req, res) => {
   {
      var fullName = data[i].patientData.firstName+" "+data[i].patientData.lastName
      if(
-    (data[i].patientData.profileNo && data[i].patientData.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.firstName && data[i].patientData.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.lastName && data[i].patientData.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.phoneNumber && data[i].patientData.phoneNumber.match(req.params.keyword))||
-    (data[i].patientData.SIN && data[i].patientData.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.mobileNumber && data[i].patientData.mobileNumber.match(req.params.keyword))||
-    (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+    (data[i].patientData.profileNo && data[i].patientData.profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.firstName && data[i].patientData.firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.lastName && data[i].patientData.lastName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.phoneNumber && data[i].patientData.phoneNumber.startsWith(req.params.keyword))||
+    (data[i].patientData.SIN && data[i].patientData.SIN.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.mobileNumber && data[i].patientData.mobileNumber.startsWith(req.params.keyword))||
+    (fullName.toLowerCase().startsWith( req.params.keyword.toLowerCase()) )
     )
     {
       arr.push(data[i])
@@ -857,13 +857,13 @@ exports.getLRPatientKeyword = asyncHandler(async (req, res) => {
   {
      var fullName = data[i].patientData.firstName+" "+data[i].patientData.lastName
      if(
-    (data[i].patientData.profileNo && data[i].patientData.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.firstName && data[i].patientData.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.lastName && data[i].patientData.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.phoneNumber && data[i].patientData.phoneNumber.match(req.params.keyword))||
-    (data[i].patientData.SIN && data[i].patientData.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
-    (data[i].patientData.mobileNumber && data[i].patientData.mobileNumber.match(req.params.keyword))||
-    (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+    (data[i].patientData.profileNo && data[i].patientData.profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.firstName && data[i].patientData.firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.lastName && data[i].patientData.lastName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.phoneNumber && data[i].patientData.phoneNumber.startsWith(req.params.keyword))||
+    (data[i].patientData.SIN && data[i].patientData.SIN.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+    (data[i].patientData.mobileNumber && data[i].patientData.mobileNumber.startsWith(req.params.keyword))||
+    (fullName.toLowerCase().startsWith( req.params.keyword.toLowerCase()) )
     )
     {
       arr.push(data[i])

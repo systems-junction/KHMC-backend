@@ -21,9 +21,9 @@ exports.getExternalReturnRequestsKeyword = asyncHandler(async (req, res) => {
       (externalRequest[i].returnRequestNo &&
         externalRequest[i].returnRequestNo
           .toLowerCase()
-          .match(req.params.keyword.toLowerCase())) ||
+          .startsWith(req.params.keyword.toLowerCase())) ||
       (externalRequest[i].itemId.itemCode &&
-        externalRequest[i].itemId.itemCode.match(req.params.keyword))
+        externalRequest[i].itemId.itemCode.startsWith(req.params.keyword))
     ) {
       arr.push(externalRequest[i]);
     }

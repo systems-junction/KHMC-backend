@@ -223,9 +223,9 @@ exports.getItems = asyncHandler(async (req, res) => {
 exports.getSearchedItems = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
     ],
   }).limit(100).populate('vendorId');
   const data = {
@@ -236,9 +236,9 @@ exports.getSearchedItems = asyncHandler(async (req, res) => {
 exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
     ],
     cls: 'Non-Medical',
   }).limit(100).populate('vendorId');
@@ -250,9 +250,9 @@ exports.getSearchedItemsNM = asyncHandler(async (req, res) => {
 exports.getSearchedItemsP = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
     ],
     cls: 'Medical',
     medClass: 'Pharmaceutical',
@@ -265,9 +265,9 @@ exports.getSearchedItemsP = asyncHandler(async (req, res) => {
 exports.getSearchedItemsNP = asyncHandler(async (req, res) => {
   const items = await Item.find({
     $or: [
-      { tradeName: { $regex: req.params.keyword, $options: 'i' } },
-      { scientificName: { $regex: req.params.keyword, $options: 'i' } },
-      { itemCode: { $regex: req.params.keyword, $options: 'i' } },
+      { tradeName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { scientificName: { $regex: "^"+req.params.keyword, $options: 'i' } },
+      { itemCode: { $regex: "^"+req.params.keyword, $options: 'i' } },
     ],
     cls: 'Medical',
     medClass: 'Non Pharmaceutical',

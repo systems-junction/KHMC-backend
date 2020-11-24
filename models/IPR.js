@@ -348,29 +348,27 @@ const IPRSchema = new mongoose.Schema({
         pulseOX: {
             type: String
         },
-        triageLevel: [
-            {
+        triageLevel: [{
                 type: String,
-            }
-        ],
-        generalAppearance: {
+            }],
+        generalAppearance:[{
             type: String,
-        },
-        headNeck: {
+        }],
+        headNeck: [{
             type: String,
-        },
-        respiratory: {
+        }],
+        respiratory: [{
             type: String,
-        },
-        cardiac: {
+        }],
+        cardiac: [{
             type: String,
-        },
-        abdomen: {
+        }],
+        abdomen: [{
             type: String,
-        },
-        neurological: {
+        }],
+        neurological: [{
             type: String,
-        },
+        }],
         requester: {
             type: mongoose.Schema.ObjectId,
             ref: 'staff',

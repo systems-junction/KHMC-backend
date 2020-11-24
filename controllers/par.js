@@ -110,8 +110,8 @@ exports.getEDRandIPRKeyword = asyncHandler(async (req, res) => {
     for(let i = 0; i<data.length; i++)
     {
        if(
-      (data[i].patientId.profileNo && data[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-       data[i].requestNo && data[i].requestNo.toLowerCase().match(req.params.keyword.toLowerCase())
+      (data[i].patientId.profileNo && data[i].patientId.profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+       data[i].requestNo && data[i].requestNo.toLowerCase().startsWith(req.params.keyword.toLowerCase())
       )
       {
         arr.push(data[i])

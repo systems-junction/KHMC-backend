@@ -50,7 +50,20 @@ exports.login = asyncHandler(async (req, res, next) => {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-  } else {
+  }
+  else if (email == 'admin@khmc.com') {
+    data = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      staffTypeId: user.staffTypeId,
+      staffId: user.staffId,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+   else {
     const staff = await Staff.findOne({ _id: user.staffId }).populate(
       'functionalUnit'
     );

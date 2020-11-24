@@ -54,8 +54,8 @@ exports.getMaterialReceivingsKeyword = asyncHandler(async (req, res) => {
     for(let i=0; i<materialReceivings.length; i++)
     {
         if(
-            (materialReceivings[i].poId.purchaseOrderNo && materialReceivings[i].poId.purchaseOrderNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-            ||(materialReceivings[i].vendorId.englishName && materialReceivings[i].vendorId.englishName.toLowerCase().match(req.params.keyword.toLowerCase()))
+            (materialReceivings[i].poId.purchaseOrderNo && materialReceivings[i].poId.purchaseOrderNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
+            ||(materialReceivings[i].vendorId.englishName && materialReceivings[i].vendorId.englishName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
             )
             {
               arr.push(materialReceivings[i])

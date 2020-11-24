@@ -330,15 +330,18 @@ exports.addPatient = asyncHandler(async (req, res) => {
     var pathFormed = base64ToImage(base64Str, path);
     Patient.findOneAndUpdate(
       { _id: patient._id },
-      { $set: { QR: '/uploads/' + pathFormed.fileName } }
-    ).then((docs) => {});
+      { $set: { QR: '/uploads/' + pathFormed.fileName }},
+      { new: true }
+    ).then((docs) => {
+      res.status(200).json({ success: true, data: docs });
+    });
   });
   const pat = await Patient.find()
     .populate('receivedBy')
     .sort({ $natural: -1 })
     .limit(100);
   globalVariable.io.emit('get_data', pat);
-  res.status(200).json({ success: true, data: patient });
+
 });
 exports.qrGenerator = asyncHandler(async (req, res) => {
   const pat = await Patient.findOne({ _id: req.params.id });
