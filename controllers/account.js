@@ -50,9 +50,9 @@ exports.getAccountKeyword = asyncHandler(async (req, res) => {
       (account[i].mrId.poId.purchaseOrderNo &&
         account[i].mrId.poId.purchaseOrderNo
           .toLowerCase()
-          .match(req.params.keyword.toLowerCase())) ||
+          .startsWith(req.params.keyword.toLowerCase())) ||
       (account[i].vendorId.englishName &&
-        account[i].vendorId.englishName.match(req.params.keyword))
+        account[i].vendorId.englishName.startsWith(req.params.keyword))
     ) {
       arr.push(account[i]);
     }

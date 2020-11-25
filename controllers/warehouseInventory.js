@@ -32,10 +32,10 @@ exports.getWhInventoryKeyword = asyncHandler(async(req,res)=>{
    for(let i = 0; i<ware.length; i++)
     {
         if(
-      (ware[i].itemId.itemCode && ware[i].itemId.itemCode.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ware[i].itemId.name && ware[i].itemId.name.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ware[i].itemId.tradeName && ware[i].itemId.tradeName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (ware[i].itemId.scientificName && ware[i].itemId.scientificName.match(req.params.keyword))
+      (ware[i].itemId.itemCode && ware[i].itemId.itemCode.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ware[i].itemId.name && ware[i].itemId.name.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ware[i].itemId.tradeName && ware[i].itemId.tradeName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (ware[i].itemId.scientificName && ware[i].itemId.scientificName.startsWith(req.params.keyword))
       )
       {
         arr.push(ware[i])

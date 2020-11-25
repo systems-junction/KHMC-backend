@@ -266,27 +266,27 @@ const EDRSchema = new mongoose.Schema({
         pulseOX: {
             type: String,
         },
-        triageLevel: {
+        triageLevel: [{
+                type: String,
+            }],
+        generalAppearance:[{
+                type: String,
+            }],
+        headNeck: [{
             type: String,
-        },
-        generalAppearance: {
+        }],
+        respiratory: [{
             type: String,
-        },
-        headNeck: {
+        }],
+        cardiac: [{
             type: String,
-        },
-        respiratory: {
+        }],
+        abdomen: [{
             type: String,
-        },
-        cardiac: {
+        }],
+        neurological: [{
             type: String,
-        },
-        abdomen: {
-            type: String,
-        },
-        neurological: {
-            type: String,
-        },
+        }],
         requester: {
             type: mongoose.Schema.ObjectId,
             ref: 'staff',

@@ -44,10 +44,10 @@ exports.getFuInventoryKeyword = asyncHandler(async (req, res) => {
   for(let i = 0; i<fuInventory.length; i++)
    {
        if(
-     (fuInventory[i].itemId.itemCode && fuInventory[i].itemId.itemCode.toLowerCase().match(req.params.keyword.toLowerCase()))||
-     (fuInventory[i].itemId.name && fuInventory[i].itemId.name.toLowerCase().match(req.params.keyword.toLowerCase()))||
-     (fuInventory[i].itemId.tradeName && fuInventory[i].itemId.tradeName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-     (fuInventory[i].itemId.scientificName && fuInventory[i].itemId.scientificName.match(req.params.keyword))
+     (fuInventory[i].itemId.itemCode && fuInventory[i].itemId.itemCode.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.name && fuInventory[i].itemId.name.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.tradeName && fuInventory[i].itemId.tradeName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.scientificName && fuInventory[i].itemId.scientificName.startsWith(req.params.keyword))
      )
      {
        arr.push(fuInventory[i])
@@ -73,10 +73,10 @@ exports.getFuInventoryByFUKeyword = asyncHandler(async (req, res) => {
   for(let i = 0; i<fuInventory.length; i++)
    {
        if(
-     (fuInventory[i].itemId.itemCode && fuInventory[i].itemId.itemCode.toLowerCase().match(req.params.keyword.toLowerCase()))||
-     (fuInventory[i].itemId.name && fuInventory[i].itemId.name.toLowerCase().match(req.params.keyword.toLowerCase()))||
-     (fuInventory[i].itemId.tradeName && fuInventory[i].itemId.tradeName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-     (fuInventory[i].itemId.scientificName && fuInventory[i].itemId.scientificName.match(req.params.keyword))
+     (fuInventory[i].itemId.itemCode && fuInventory[i].itemId.itemCode.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.name && fuInventory[i].itemId.name.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.tradeName && fuInventory[i].itemId.tradeName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+     (fuInventory[i].itemId.scientificName && fuInventory[i].itemId.scientificName.startsWith(req.params.keyword))
      )
      {
        arr.push(fuInventory[i])

@@ -19,6 +19,20 @@ exports.getPatient = asyncHandler(async (req, res) => {
     .limit(100);
   res.status(200).json({ success: true, data: patient });
 });
+exports.getPatientActive = asyncHandler(async (req, res) => {
+  const arr =[]
+  const edr = await EDR.find({status:"pending"}).populate("patientId").select({patientId:1,status:1})
+  for(let i =0; i<edr.length; i++)
+  {
+    arr.push(edr[i]);
+  }
+  const ipr = await IPR.find({status:"pending"}).populate("patientId").select({patientId:1,status:1})
+  for(let i =0; i<ipr.length; i++)
+  {
+    arr.push(ipr[i]);
+  }
+  res.status(200).json({ success: true, data: arr });
+});
 exports.getPatientHistoryPre = asyncHandler(async (req, res) => {
   const patient = await Patient.findOne({ _id: req.params.id });
   const edr = await EDR.find({ patientId: patient._id })
@@ -330,15 +344,18 @@ exports.addPatient = asyncHandler(async (req, res) => {
     var pathFormed = base64ToImage(base64Str, path);
     Patient.findOneAndUpdate(
       { _id: patient._id },
-      { $set: { QR: '/uploads/' + pathFormed.fileName } }
-    ).then((docs) => {});
+      { $set: { QR: '/uploads/' + pathFormed.fileName }},
+      { new: true }
+    ).then((docs) => {
+      res.status(200).json({ success: true, data: docs });
+    });
   });
   const pat = await Patient.find()
     .populate('receivedBy')
     .sort({ $natural: -1 })
     .limit(100);
   globalVariable.io.emit('get_data', pat);
-  res.status(200).json({ success: true, data: patient });
+
 });
 exports.qrGenerator = asyncHandler(async (req, res) => {
   const pat = await Patient.findOne({ _id: req.params.id });
@@ -396,28 +413,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
   }
   if (req.file) {
     patientQR = await Patient.findOne({ _id: _id });
-
-    if (!patientQR.QR) {
-      let obj = {}
-      obj.profileNo = patient.profileNo
-      obj.age = patient.age
-      obj.paymentMethod = patient.paymentMethod
-      obj.createdAt = patient.createdAt
-      QRCode.toDataURL(JSON.stringify(obj), function (
-        err,
-        url
-      ) {
-        var base64Str = url;
-        var path = './uploads/';
-        var pathFormed = base64ToImage(base64Str, path);
-        Patient.findOneAndUpdate(
-          { _id: patientQR._id },
-          { $set: { QR: '/uploads/' + pathFormed.fileName } }
-        ).then((docs) => {});
-      });
-    }
-
-    patient = await Patient.findOneAndUpdate(
+   patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
       { new: true }
@@ -427,9 +423,6 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       { $set: { depositSlip: req.file.path } },
       { new: true }
     );
-  } else {
-    patientQR = await Patient.findOne({ _id: _id });
-
     if (!patientQR.QR) {
       let obj = {}
       obj.profileNo = patient.profileNo
@@ -445,18 +438,50 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         var pathFormed = base64ToImage(base64Str, path);
         Patient.findOneAndUpdate(
           { _id: patientQR._id },
-          { $set: { QR: '/uploads/' + pathFormed.fileName } }
-        ).then((docs) => {});
+          { $set: { QR: '/uploads/' + pathFormed.fileName } },
+          {new:true}
+        ).then((docs) => {
+          res.status(200).json({ success: true, data: docs });
+        });
       });
     }
-
+    else{
+      res.status(200).json({ success: true, data: patient });
+    }
+  } else {
+    patientQR = await Patient.findOne({ _id: _id });
     patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
       { new: true }
     );
+    if (!patientQR.QR) {
+      let obj = {}
+      obj.profileNo = patient.profileNo
+      obj.age = patient.age
+      obj.paymentMethod = patient.paymentMethod
+      obj.createdAt = patient.createdAt
+      QRCode.toDataURL(JSON.stringify(obj), function (
+        err,
+        url
+      ) {
+        var base64Str = url;
+        var path = './uploads/';
+        var pathFormed = base64ToImage(base64Str, path);
+        Patient.findOneAndUpdate(
+          { _id: patientQR._id },
+          { $set: { QR: '/uploads/' + pathFormed.fileName } },
+          {new:true}
+        ).then((docs) => {
+          res.status(200).json({ success: true, data: docs });
+        });
+      });
+    }
+    else{
+      res.status(200).json({ success: true, data: patient });
+    }
   }
-  res.status(200).json({ success: true, data: patient });
+
 });
 exports.updatePatientFHIR = asyncHandler(async (req, res, next) => {
   var { _id } = req.body;

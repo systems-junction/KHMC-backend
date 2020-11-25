@@ -75,8 +75,8 @@ exports.getPurchaseOrdersKeyword = asyncHandler(async (req, res) => {
     for(let i=0; i<purchaseOrder.length; i++)
     {
         if(
-            (purchaseOrder[i].purchaseOrderNo && purchaseOrder[i].purchaseOrderNo.toLowerCase().match(req.params.keyword.toLowerCase()))
-            ||(purchaseOrder[i].vendorId.englishName && purchaseOrder[i].vendorId.englishName.toLowerCase().match(req.params.keyword.toLowerCase()))
+            (purchaseOrder[i].purchaseOrderNo && purchaseOrder[i].purchaseOrderNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
+            ||(purchaseOrder[i].vendorId.englishName && purchaseOrder[i].vendorId.englishName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
             )
             {
               arr.push(purchaseOrder[i])

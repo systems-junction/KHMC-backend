@@ -36,13 +36,13 @@ exports.getEDRKeyword = asyncHandler(async (req, res) => {
     {
        var fullName = edr[i].patientId.firstName+" "+edr[i].patientId.lastName
        if(
-      (edr[i].patientId.profileNo && edr[i].patientId.profileNo.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (edr[i].patientId.firstName && edr[i].patientId.firstName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (edr[i].patientId.lastName && edr[i].patientId.lastName.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (edr[i].patientId.phoneNumber && edr[i].patientId.phoneNumber.match(req.params.keyword))||
-      (edr[i].patientId.SIN && edr[i].patientId.SIN.toLowerCase().match(req.params.keyword.toLowerCase()))||
-      (edr[i].patientId.mobileNumber && edr[i].patientId.mobileNumber.match(req.params.keyword))||
-      (fullName.toLowerCase().match( req.params.keyword.toLowerCase()) )
+      (edr[i].patientId.profileNo && edr[i].patientId.profileNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.firstName && edr[i].patientId.firstName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.lastName && edr[i].patientId.lastName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.phoneNumber && edr[i].patientId.phoneNumber.startsWith(req.params.keyword))||
+      (edr[i].patientId.SIN && edr[i].patientId.SIN.toLowerCase().startsWith(req.params.keyword.toLowerCase()))||
+      (edr[i].patientId.mobileNumber && edr[i].patientId.mobileNumber.startsWith(req.params.keyword))||
+      (fullName.toLowerCase().startsWith( req.params.keyword.toLowerCase()) )
       )
       {
         arr.push(edr[i])

@@ -38,7 +38,7 @@ exports.getReplenishmentRequestsFUByKeyword = asyncHandler(async (req, res) => {
       replenishmentRequest[i].requestNo &&
       replenishmentRequest[i].requestNo
         .toLowerCase()
-        .match(req.params.keyword.toLowerCase())
+        .startsWith(req.params.keyword.toLowerCase())
     ) {
       arr.push(replenishmentRequest[i]);
     }
