@@ -637,7 +637,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging',
-        '/home/rcm/sr/rr/ipr'
+        '/home/rcm/sr/rr/ipr',
+        not.patientId._id
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -665,7 +666,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging',
-        '/home/rcm/sr/rr/ipr'
+        '/home/rcm/sr/rr/ipr',
+        not.patientId._id
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -707,7 +709,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging',
-        '/home/rcm/sr/rr/ipr'
+        '/home/rcm/sr/rr/ipr',
+        not.patientId._id
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -735,7 +738,8 @@ exports.putRRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Radiology/Imaging',
-        '/home/rcm/sr/rr/ipr'
+        '/home/rcm/sr/rr/ipr',
+        not.patientId._id
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -982,7 +986,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician',
-        '/home/rcm/sr/lr/ipr'
+        '/home/rcm/sr/lr/ipr',
+        not.patientId._id
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -1010,7 +1015,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician',
-        '/home/rcm/sr/lr/ipr'
+        '/home/rcm/sr/lr/ipr',
+        not.patientId._id
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -1051,7 +1057,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician',
-        '/home/rcm/sr/lr/ipr'
+        '/home/rcm/sr/lr/ipr',
+        not.patientId._id
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -1079,7 +1086,8 @@ exports.putLRById = asyncHandler(async (req, res) => {
           ' updated for Patient MRN ' +
           not.patientId.profileNo,
         'Lab Technician',
-        '/home/rcm/sr/lr/ipr'
+        '/home/rcm/sr/lr/ipr',
+        not.patientId._id
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
