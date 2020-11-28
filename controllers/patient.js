@@ -20,15 +20,13 @@ exports.getPatient = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: patient });
 });
 exports.getPatientActive = asyncHandler(async (req, res) => {
-  const arr =[]
-  const edr = await EDR.find({status:"pending"}).populate("patientId").select({patientId:1,status:1})
-  for(let i =0; i<edr.length; i++)
-  {
+  const arr = []
+  const edr = await EDR.find({ status: "pending" }).populate("patientId").select({ patientId: 1, status: 1 })
+  for (let i = 0; i < edr.length; i++) {
     arr.push(edr[i]);
   }
-  const ipr = await IPR.find({status:"pending"}).populate("patientId").select({patientId:1,status:1})
-  for(let i =0; i<ipr.length; i++)
-  {
+  const ipr = await IPR.find({ status: "pending" }).populate("patientId").select({ patientId: 1, status: 1 })
+  for (let i = 0; i < ipr.length; i++) {
     arr.push(ipr[i]);
   }
   res.status(200).json({ success: true, data: arr });
@@ -182,7 +180,7 @@ exports.getPatientByMRN = asyncHandler(async (req, res) => {
 exports.getPaitentKeyword = asyncHandler(async (req, res) => {
 
   const patient = await Patient.aggregate([
-  {
+    {
       $project: {
         name: { $concat: ['$firstName', ' ', '$lastName'] },
         profileNo: 1,
@@ -194,7 +192,7 @@ exports.getPaitentKeyword = asyncHandler(async (req, res) => {
       },
     },
     {
-    $match: {
+      $match: {
         $or: [
           { name: { $regex: req.params.keyword, $options: 'i' } },
           { profileNo: { $regex: req.params.keyword, $options: 'i' } },
@@ -204,26 +202,26 @@ exports.getPaitentKeyword = asyncHandler(async (req, res) => {
         ],
       },
     }
-    ]).limit(50)
-//     const patient = await Patient.find({
-//       $or: [
-//         { firstName: { $regex: req.params.keyword, $options: 'i' } },
-//         { lastName: { $regex: req.params.keyword, $options: 'i' } },
-//         { profileNo: { $regex: req.params.keyword, $options: 'i' } },
-//         { SIN: { $regex: req.params.keyword, $options: 'i' } },
-//         { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
-//         { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
-//       ],
-// }).limit(50).select({
-//       firstName:1,
-//       lastName:1,
-//       profileNo: 1,
-//       SIN: 1,
-//       age: 1,
-//       gender: 1,
-//       phoneNumber: 1,
-//       mobileNumber: 1,
-// })
+  ]).limit(50)
+  //     const patient = await Patient.find({
+  //       $or: [
+  //         { firstName: { $regex: req.params.keyword, $options: 'i' } },
+  //         { lastName: { $regex: req.params.keyword, $options: 'i' } },
+  //         { profileNo: { $regex: req.params.keyword, $options: 'i' } },
+  //         { SIN: { $regex: req.params.keyword, $options: 'i' } },
+  //         { phoneNumber: { $regex: req.params.keyword, $options: 'i' } },
+  //         { mobileNumber: { $regex: req.params.keyword, $options: 'i' } },
+  //       ],
+  // }).limit(50).select({
+  //       firstName:1,
+  //       lastName:1,
+  //       profileNo: 1,
+  //       SIN: 1,
+  //       age: 1,
+  //       gender: 1,
+  //       phoneNumber: 1,
+  //       mobileNumber: 1,
+  // })
   res.status(200).json({ success: true, data: patient });
 });
 
@@ -281,7 +279,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
-      otherCity:parsed.otherCity
+      otherCity: parsed.otherCity
     });
   } else {
     patient = await Patient.create({
@@ -324,14 +322,15 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
-      otherCity:parsed.otherCity
+      otherCity: parsed.otherCity
     });
   }
   notification(
     'Patient Registered',
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
     'Registered Nurse',
-    '/home/rcm/patientAssessment'
+    '/home/rcm/patientAssessment',
+    patient._id
   );
   let obj = {}
   obj.profileNo = patient.profileNo
@@ -344,7 +343,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     var pathFormed = base64ToImage(base64Str, path);
     Patient.findOneAndUpdate(
       { _id: patient._id },
-      { $set: { QR: '/uploads/' + pathFormed.fileName }},
+      { $set: { QR: '/uploads/' + pathFormed.fileName } },
       { new: true }
     ).then((docs) => {
       res.status(200).json({ success: true, data: docs });
@@ -413,7 +412,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
   }
   if (req.file) {
     patientQR = await Patient.findOne({ _id: _id });
-   patient = await Patient.findOneAndUpdate(
+    patient = await Patient.findOneAndUpdate(
       { _id: _id },
       JSON.parse(req.body.data),
       { new: true }
@@ -439,13 +438,13 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         Patient.findOneAndUpdate(
           { _id: patientQR._id },
           { $set: { QR: '/uploads/' + pathFormed.fileName } },
-          {new:true}
+          { new: true }
         ).then((docs) => {
           res.status(200).json({ success: true, data: docs });
         });
       });
     }
-    else{
+    else {
       res.status(200).json({ success: true, data: patient });
     }
   } else {
@@ -471,13 +470,13 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
         Patient.findOneAndUpdate(
           { _id: patientQR._id },
           { $set: { QR: '/uploads/' + pathFormed.fileName } },
-          {new:true}
+          { new: true }
         ).then((docs) => {
           res.status(200).json({ success: true, data: docs });
         });
       });
     }
-    else{
+    else {
       res.status(200).json({ success: true, data: patient });
     }
   }
@@ -614,24 +613,29 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
 
       await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.audioNotes': req.file.path,'consultationNote.$.completedTime': parsed.completedTime}, },
+        { $set: { 'consultationNote.$.audioNotes': req.file.path, 'consultationNote.$.completedTime': parsed.completedTime }, },
         { new: true }
       );
 
       not = await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status,
-        'consultationNote.$.completedTime': parsed.completedTime } },
+        {
+          $set: {
+            'consultationNote.$.status': parsed.status,
+            'consultationNote.$.completedTime': parsed.completedTime
+          }
+        },
         { new: true }
       ).populate('patientId');
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          parsed.consultationNo +
-          ' received for Patient MRN ' +
-          not.patientId.profileNo,
+        parsed.consultationNo +
+        ' received for Patient MRN ' +
+        not.patientId.profileNo,
         'Doctor/Physician',
-        '/home/rcm/rd/consultationrequest'
+        '/home/rcm/rd/consultationrequest',
+        not.patientId._id
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -650,25 +654,31 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
 
       await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.audioNotes': req.file.path,'consultationNote.$.completedTime': parsed.completedTime },
-         },
+        {
+          $set: { 'consultationNote.$.audioNotes': req.file.path, 'consultationNote.$.completedTime': parsed.completedTime },
+        },
         { new: true }
       );
 
       not = await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status,
-        'consultationNote.$.completedTime': parsed.completedTime, } },
+        {
+          $set: {
+            'consultationNote.$.status': parsed.status,
+            'consultationNote.$.completedTime': parsed.completedTime,
+          }
+        },
         { new: true }
       ).populate('patientId');
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          parsed.consultationNo +
-          ' received for Patient MRN ' +
-          not.patientId.profileNo,
+        parsed.consultationNo +
+        ' received for Patient MRN ' +
+        not.patientId.profileNo,
         'Doctor/Physician',
-        '/home/rcm/rd/consultationrequest'
+        '/home/rcm/rd/consultationrequest',
+        not.patientId._id
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -688,18 +698,20 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
       );
       not = await EDR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status,'consultationNote.$.completedTime': parsed.completedTime },
-         },
+        {
+          $set: { 'consultationNote.$.status': parsed.status, 'consultationNote.$.completedTime': parsed.completedTime },
+        },
         { new: true }
       ).populate('patientId');
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          parsed.consultationNo +
-          ' received for Patient MRN ' +
-          not.patientId.profileNo,
+        parsed.consultationNo +
+        ' received for Patient MRN ' +
+        not.patientId.profileNo,
         'Doctor/Physician',
-        '/home/rcm/rd/consultationrequest'
+        '/home/rcm/rd/consultationrequest',
+        not.patientId._id
       );
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -717,19 +729,23 @@ exports.updateEdrIprItem = asyncHandler(async (req, res) => {
       );
       not = await IPR.findOneAndUpdate(
         { 'consultationNote._id': parsed.itemID, _id: parsed.id },
-        { $set: { 'consultationNote.$.status': parsed.status,
-        'consultationNote.$.completedTime': parsed.completedTime },
-       },
+        {
+          $set: {
+            'consultationNote.$.status': parsed.status,
+            'consultationNote.$.completedTime': parsed.completedTime
+          },
+        },
         { new: true }
       ).populate('patientId');
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          parsed.consultationNo +
-          ' received for Patient MRN ' +
-          not.patientId.profileNo,
+        parsed.consultationNo +
+        ' received for Patient MRN ' +
+        not.patientId.profileNo,
         'Doctor/Physician',
-        '/home/rcm/rd/consultationrequest'
+        '/home/rcm/rd/consultationrequest',
+        not.patientId._id
       );
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
@@ -743,10 +759,11 @@ exports.triage = asyncHandler(async (req, res) => {
   notification(
     'Patient Triage Added',
     'A Patient with MRN ' +
-      patient.profileNo +
-      ' has been registered with Triage Level',
+    patient.profileNo +
+    ' has been registered with Triage Level',
     'Doctor/Physician',
-    '/home/rcm/rd/assessmentdiagnosis'
+    '/home/rcm/rd/assessmentdiagnosis',
+    patient._id
   );
   const pat = await Patient.find().populate('receivedBy');
   globalVariable.io.emit('get_data', pat);
@@ -773,11 +790,12 @@ exports.pharmacy = asyncHandler(async (req, res) => {
       notification(
         'Pharmacy Request',
         'Pharmacy Request number ' +
-          test.requestNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.requestNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Pharmacist',
-        '/home/rcm/sr/phr/ipr'
+        '/home/rcm/sr/phr/ipr',
+        patient._id
       );
       const pat = await EDR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -787,11 +805,12 @@ exports.pharmacy = asyncHandler(async (req, res) => {
       notification(
         'Pharmacy Request',
         'Pharmacy Request number ' +
-          test.requestNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.requestNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Pharmacist',
-        '/home/rcm/sr/phr/ipr'
+        '/home/rcm/sr/phr/ipr',
+        patient._id
       );
       const pat = await IPR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -802,11 +821,12 @@ exports.pharmacy = asyncHandler(async (req, res) => {
     notification(
       'Pharmacy Request',
       'Pharmacy Request number ' +
-        test.requestNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.requestNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Pharmacist',
-      '/home/rcm/sr/phr/ipr'
+      '/home/rcm/sr/phr/ipr',
+      patient._id
     );
     const pat = await EDR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -816,11 +836,12 @@ exports.pharmacy = asyncHandler(async (req, res) => {
     notification(
       'Pharmacy Request',
       'Pharmacy Request number ' +
-        test.requestNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.requestNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Pharmacist',
-      '/home/rcm/sr/phr/ipr'
+      '/home/rcm/sr/phr/ipr',
+      patient._id
     );
     const pat = await IPR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -851,11 +872,12 @@ exports.lab = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          test.LRrequestNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.LRrequestNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Lab Technician',
-        '/home/rcm/sr/lr/ipr'
+        '/home/rcm/sr/lr/ipr',
+        patient._id
       );
       const pat = await EDR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -865,11 +887,12 @@ exports.lab = asyncHandler(async (req, res) => {
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
-          test.LRrequestNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.LRrequestNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Lab Technician',
-        '/home/rcm/sr/lr/ipr'
+        '/home/rcm/sr/lr/ipr',
+        patient._id
       );
       const pat = await IPR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -880,11 +903,12 @@ exports.lab = asyncHandler(async (req, res) => {
     notification(
       'Laboratory Request',
       'Laboratory Request number ' +
-        test.LRrequestNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.LRrequestNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Lab Technician',
-      '/home/rcm/sr/lr/ipr'
+      '/home/rcm/sr/lr/ipr',
+      patient._id
     );
     const pat = await EDR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -894,11 +918,12 @@ exports.lab = asyncHandler(async (req, res) => {
     notification(
       'Laboratory Request',
       'Laboratory Request number ' +
-        test.LRrequestNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.LRrequestNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Lab Technician',
-      '/home/rcm/sr/lr/ipr'
+      '/home/rcm/sr/lr/ipr',
+      patient._id
     );
     const pat = await IPR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -928,11 +953,12 @@ exports.rad = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          test.RRrequestNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.RRrequestNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Radiology/Imaging',
-        '/home/rcm/sr/rr/ipr'
+        '/home/rcm/sr/rr/ipr',
+        patient._id
       );
       const pat = await EDR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -942,11 +968,12 @@ exports.rad = asyncHandler(async (req, res) => {
       notification(
         'Radiology Request',
         'Radiology Request number ' +
-          test.RRrequestNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.RRrequestNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Radiology/Imaging',
-        '/home/rcm/sr/rr/ipr'
+        '/home/rcm/sr/rr/ipr',
+        patient._id
       );
       const pat = await IPR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -957,11 +984,12 @@ exports.rad = asyncHandler(async (req, res) => {
     notification(
       'Radiology Request',
       'Radiology Request number ' +
-        test.RRrequestNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.RRrequestNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Radiology/Imaging',
-      '/home/rcm/sr/rr/ipr'
+      '/home/rcm/sr/rr/ipr',
+      patient._id
     );
     const pat = await EDR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -971,11 +999,12 @@ exports.rad = asyncHandler(async (req, res) => {
     notification(
       'Radiology Request',
       'Radiology Request number ' +
-        test.RRrequestNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.RRrequestNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Radiology/Imaging',
-      '/home/rcm/sr/rr/ipr'
+      '/home/rcm/sr/rr/ipr',
+      patient._id
     );
     const pat = await IPR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -1006,11 +1035,12 @@ exports.consultation = asyncHandler(async (req, res) => {
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          test.consultationNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.consultationNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Consultant/Specialist',
-        '/home/rcm/ecr/cn'
+        '/home/rcm/ecr/cn',
+        patient._id
       );
       const pat = await EDR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -1020,11 +1050,12 @@ exports.consultation = asyncHandler(async (req, res) => {
       notification(
         'Consultation Request',
         'Consultation Request number ' +
-          test.consultationNo +
-          ' received for Patient MRN ' +
-          patient.profileNo,
+        test.consultationNo +
+        ' received for Patient MRN ' +
+        patient.profileNo,
         'Consultant/Specialist',
-        '/home/rcm/ecr/cn'
+        '/home/rcm/ecr/cn',
+        patient._id
       );
       const pat = await IPR.findOne({ patientId: req.params.id });
       globalVariable.io.emit('get_data', pat);
@@ -1035,11 +1066,12 @@ exports.consultation = asyncHandler(async (req, res) => {
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        test.consultationNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.consultationNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Consultant/Specialist',
-      '/home/rcm/ecr/cn'
+      '/home/rcm/ecr/cn',
+      patient._id
     );
     const pat = await EDR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -1049,11 +1081,12 @@ exports.consultation = asyncHandler(async (req, res) => {
     notification(
       'Consultation Request',
       'Consultation Request number ' +
-        test.consultationNo +
-        ' received for Patient MRN ' +
-        patient.profileNo,
+      test.consultationNo +
+      ' received for Patient MRN ' +
+      patient.profileNo,
       'Consultant/Specialist',
-      '/home/rcm/ecr/cn'
+      '/home/rcm/ecr/cn',
+      patient._id
     );
     const pat = await IPR.findOne({ patientId: req.params.id });
     globalVariable.io.emit('get_data', pat);
@@ -1068,7 +1101,8 @@ exports.discharge = asyncHandler(async (req, res) => {
     'Discharge Request',
     'Discharge Request received for Patient MRN ' + patient.profileNo,
     'Pharmacist',
-    '/home/rcm/sr/phr/dischargemedication/ipr'
+    '/home/rcm/sr/phr/dischargemedication/ipr',
+    patient._id
   );
   const a = await EDR.findOne({ patientId: req.params.id });
   if (a !== null) {
