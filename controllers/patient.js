@@ -1148,3 +1148,24 @@ exports.addNote = asyncHandler(async (req, res) => {
   });
   res.status(200).json({ success: true, data: patient });
 });
+
+exports.triageStatus = asyncHandler(async (req, res) => {
+if(req.body.requestType==="EDR")
+{
+  const edr = await EDR.findOneAndUpdate(
+    {_id:req.params.id,'triageAssessment._id':req.body.triageId},
+    {$set:{'triageAssessment.$.status':req.body.status,'triageAssessment.$.reason':req.body.reason}},
+    {new:true}
+    )
+    res.status(200).json({success:true, data:edr})
+  }
+else if(req.body.requestType==="IPR")
+{
+  const ipr = await IPR.findOneAndUpdate(
+    {_id:req.params.id,'triageAssessment._id':req.body.triageId},
+    {$set:{'triageAssessment.$.status':req.body.status,'triageAssessment.$.reason':req.body.reason}},
+    {new:true}
+    )
+    res.status(200).json({success:true, data:ipr})
+}
+});

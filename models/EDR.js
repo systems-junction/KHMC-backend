@@ -239,6 +239,9 @@ const EDRSchema = new mongoose.Schema({
         type: String,
     },
     triageAssessment: [{
+        status:{type:String,
+        default:"pending"},
+        reason:{type:String},
         triageRequestNo: {
             type: String,
         },
