@@ -1169,3 +1169,13 @@ else if(req.body.requestType==="IPR")
     res.status(200).json({success:true, data:ipr})
 }
 });
+// exports.createView = asyncHandler(async(req,res)=>{
+//   const test = await EDR.createView("first",[
+//     {$project:{"requestType":1}}
+//   ])
+//   console.log(test)
+// })
+exports.createView = async(req,res)=>{
+  const abc =await EDR.find().limit(50)
+  res.status(200).json({data:abc})
+}

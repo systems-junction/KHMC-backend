@@ -9,6 +9,11 @@ const {
     expiredItemsFU,
     nearlyExpiredItemsWH,
     nearlyExpiredItemsFU,
+    disposedItems,
+    consumptionBalance,
+    slowMovingWH,
+    slowMovingFU,
+    whTransfer,
     acmDashboard,
     purchasingOfficerDashboard,
     whikDashboard,
@@ -31,10 +36,16 @@ router.post('/trackingpocount/:status',trackingPOCount);
 router.post('/stocklevelswh',stockLevelsWH)
 router.post('/stocklevelsfu/:id',stockLevelsFU)
 router.post('/supplierfulfillmentpo',supplierFulfillmentPO)
-router.get('/expireditemswarehouse',expiredItemsWH)
-router.get('/expireditemsfunctionalunit/:id',expiredItemsFU)
-router.post('/nearlyexpireditemswarehouse/:id',nearlyExpiredItemsWH)
-router.post('/nearlyexpireditemsfunctionalunit/:id',nearlyExpiredItemsFU)
+router.get('/expireditemswh',expiredItemsWH)
+router.get('/expireditemsfu/:id',expiredItemsFU)
+router.post('/nearlyexpireditemswh',nearlyExpiredItemsWH)
+router.post('/nearlyexpireditemsfu/:id',nearlyExpiredItemsFU)
+router.post('/disposeditems',disposedItems)
+router.post('/consumptionBalance',consumptionBalance)
+router.post('/slowmovingwh',slowMovingWH)
+router.post('/slowmovingfu/:id',slowMovingFU)
+router.post('/whtransfer/:id',whTransfer)
+//dashboard
 router.get('/acmdashboard', acmDashboard);
 router.get('/purchasingofficerdashboard', purchasingOfficerDashboard);
 router.get('/whikdashboard', whikDashboard);

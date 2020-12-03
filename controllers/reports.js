@@ -1,8 +1,13 @@
 const asyncHandler = require('../middleware/async');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 const PurchaseOrder = require('../models/purchaseOrder')
 const PurchaseRequest = require('../models/purchaseRequest')
 const ReplenishmentRequest = require('../models/replenishmentRequest')
 const ReplenishmentRequestBU = require('../models/replenishmentRequestBU')
+const ReturnedQty = require('../models/returnedQty')
+const ReceiveItemFU = require('../models/receiveItemFU')
+const ReceiveItemBU = require('../models/receiveItemBU')
 const WHInventory = require('../models/warehouseInventory')
 const FUInventory = require('../models/fuInventory')
 const ExpiredItemsWH = require('../models/expiredItemsWH')
@@ -78,7 +83,7 @@ exports.nearlyExpiredItemsWH = asyncHandler(async (req, res) => {
 exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
     var selectedDate = moment(req.body.selectedDate).utc().toDate();
     const fui = await FUInventory.aggregate([
-        {$match:{fuId:req.params.id}},
+        {$match:{fuId:ObjectId(req.params.id)}},
         {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
         {$unwind:'$itemId'},
         {$unwind:'$batchArray'},
@@ -86,6 +91,88 @@ exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
         {$project:{_id:1, itemId: 1,batchArray:1}}
     ])
     res.status(200).json({ success: true, data: fui });
+});
+
+exports.disposedItems = asyncHandler(async (req, res) => {
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    const disposed = await ReturnedQty.find({reason:"damaged",createdAt:{$gte: startDate, $lte: endDate}}).populate({
+        path: 'fuiId',
+        populate: [
+          {
+            path: 'fuId',
+          },
+        ],
+      })
+    res.status(200).json({ success: true, data: disposed });
+});
+
+exports.consumptionBalance = asyncHandler(async (req, res) => {
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    const balance = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name")
+    .populate({
+        path: 'replenishmentRequestId',
+        select:'dateGenerated fuId',
+        populate: [
+          {
+            path: 'fuId',
+            select:'fuName',
+          },
+        ],
+      }).select({currentQty:1,requestedQty:1,receivedQty:1,subTotal:1})
+    res.status(200).json({ success: true, data: balance });
+});
+
+exports.slowMovingWH = asyncHandler(async (req, res) => {
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    var items = []
+    const receive = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","_id").select({itemId:1,receivedQty:1})
+    for(let  i=0; i<receive.length; i++)
+    {
+      await items.push(receive[i].itemId._id)
+    }
+    const slow = await WHInventory.find({itemId:{$nin:items}}).populate("itemId","itemCode name").select({itemId:1, qty:1})
+    res.status(200).json({ success: true, data: slow });
+});
+
+exports.slowMovingFU = asyncHandler(async (req, res) => {
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    var items = []
+    const receive = await ReceiveItemBU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","_id").select({itemId:1,receivedQty:1})
+    for(let  i=0; i<receive.length; i++)
+    {
+      await items.push(receive[i].itemId._id)
+    }
+    const slow = await FUInventory.find({fuId:req.params.id,itemId:{$nin:items}}).populate("itemId","itemCode name").select({itemId:1, qty:1})
+    res.status(200).json({ success: true, data: slow });
+});
+
+exports.whTransfer = asyncHandler(async (req, res) => {
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    var items = []
+    const receive = await ReceiveItemBU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name receiptUnit")
+    .populate({
+        path: 'replenishmentRequestId',
+        select:'fuId',
+        populate: [
+          {
+            path: 'fuId',
+            select:'_id',
+          },
+        ],
+      }).select({itemId:1,batchArray:1})
+    for(let  i=0; i<receive.length; i++)
+    {
+    if(receive[i].replenishmentRequestId.fuId._id == req.params.id)
+    {
+        items.push(receive[i])
+    }
+    }
+    res.status(200).json({ success: true, data: items });
 });
 
 exports.acmDashboard = asyncHandler(async (req, res) => {
