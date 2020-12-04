@@ -242,6 +242,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
       await ReturnedQty.create({
         fuiId: fu._id,
         whiId: wh._id,
+        reason:req.body.reason,
         itemId: req.body.itemId,
         returnedQty: req.body.returnedQty,
         batchArray: internalReturn.batchArray,

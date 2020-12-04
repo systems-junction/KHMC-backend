@@ -16,6 +16,9 @@ const ReturnedQuantitySchema = new mongoose.Schema({
   returnedQty: {
     type: Number,
   },
+  reason:{
+    type:String
+  },
   createdAt: {
     type: Date,
     default: Date.now,
