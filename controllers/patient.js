@@ -85,6 +85,7 @@ exports.getPatientHistory = asyncHandler(async (req, res) => {
   if (req.params.requestType == 'EDR') {
     const edr = await EDR.findOne({ _id: req.params.id })
       .populate('consultationNote.requester')
+      .populate('consultationNote.specialist')
       .populate({
         path: 'pharmacyRequest',
         populate: [
