@@ -240,7 +240,7 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
         }
       );
       await ReturnedQty.create({
-        fuId=fu.fuId,
+        fuId: fu.fuId,
         fuiId: fu._id,
         whiId: wh._id,
         reason:req.body.reason,
