@@ -104,12 +104,12 @@ exports.updateExternalRequest = asyncHandler(async (req, res, next) => {
     );
   }
   if (req.body.status == 'approved') {
-    notification("External Return Request", "The Return Request "+req.body.returnRequestNo+" has been approved at "+req.body.updatedAt, "admin")
+    notification("External Return Request", "The Return Request "+req.body.returnRequestNo+" has been approved at "+externalReturn.updatedAt, "admin")
     const send = await ExternalReturnRequest.find().populate('itemId');
     globalVariable.io.emit("get_data", send)
   }
   if (req.body.status == 'reject') {
-    notification("External Return Request", "The Return Request "+req.body.returnRequestNo+" has been rejected at "+req.body.updatedAt, "admin")
+    notification("External Return Request", "The Return Request "+req.body.returnRequestNo+" has been rejected at "+externalReturn.updatedAt, "admin")
     const send = await ExternalReturnRequest.find().populate('itemId');
     globalVariable.io.emit("get_data", send)
   }

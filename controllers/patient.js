@@ -240,7 +240,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
   var patient;
   if (req.file) {
     patient = await Patient.create({
-      profileNo: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      profileNo: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
@@ -284,7 +284,7 @@ exports.addPatient = asyncHandler(async (req, res) => {
     });
   } else {
     patient = await Patient.create({
-      profileNo: 'khmc' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+      profileNo: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       SIN: parsed.SIN,
       title: parsed.title,
       firstName: parsed.firstName,
