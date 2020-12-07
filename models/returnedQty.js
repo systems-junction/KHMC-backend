@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const ReturnedQuantitySchema = new mongoose.Schema({
+  fuId:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'functionalUnit',  
+  },
   fuiId: {
     type: mongoose.Schema.ObjectId,
     ref: 'fuInventory',

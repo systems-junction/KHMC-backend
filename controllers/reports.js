@@ -58,37 +58,41 @@ exports.supplierFulfillmentPO = asyncHandler(async (req, res) => {
 });
 
 exports.expiredItemsWH = asyncHandler(async (req, res) => {
-    var todayDate = moment().utc().toDate();
-    const exp = await ExpiredItemsWH.find({'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    const exp = await ExpiredItemsWH.find({'batch.expiryDate':{$gte: startDate, $lte: endDate}}).populate('itemId')
     res.status(200).json({ success: true, data: exp });
 });
 
 exports.expiredItemsFU = asyncHandler(async (req, res) => {
-    var todayDate = moment().utc().toDate();
-    const exp = await ExpiredItemsFU.find({fuId:req.params.id,'batch.expiryDate':{$lte: todayDate}}).populate('itemId')
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
+    const exp = await ExpiredItemsFU.find({fuId:req.params.id,'batch.expiryDate':{$gte: startDate, $lte: endDate}}).populate('itemId')
     res.status(200).json({ success: true, data: exp });
 });
 
 exports.nearlyExpiredItemsWH = asyncHandler(async (req, res) => {
-    var selectedDate = moment(req.body.selectedDate).utc().toDate();
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
     const whi = await WHInventory.aggregate([
         {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
         {$unwind:'$itemId'},
         {$unwind:'$batchArray'},
-        {$match:{'batchArray.expiryDate':{$lte: selectedDate}}},
-        {$project:{_id:1, itemId: 1,batchArray:1}}
+        {$match:{'batchArray.expiryDate':{$gte: startDate, $lte: endDate}}},
+        {$project:{_id:1, 'itemId.itemCode': 1,'itemId.tradeName': 1,'itemId.name': 1,batchArray:1}}
     ])
     res.status(200).json({ success: true, data: whi });
 });
 exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
-    var selectedDate = moment(req.body.selectedDate).utc().toDate();
+    var startDate = moment(req.body.startDate).utc().toDate();
+    var endDate = moment(req.body.endDate).utc().toDate();
     const fui = await FUInventory.aggregate([
         {$match:{fuId:ObjectId(req.params.id)}},
         {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
         {$unwind:'$itemId'},
         {$unwind:'$batchArray'},
-        {$match:{'batchArray.expiryDate':{$lte: selectedDate}}},
-        {$project:{_id:1, itemId: 1,batchArray:1}}
+        {$match:{'batchArray.expiryDate':{$gte: startDate, $lte: endDate}}},
+        {$project:{_id:1, 'itemId.itemCode': 1,'itemId.tradeName': 1,'itemId.name': 1,batchArray:1}}
     ])
     res.status(200).json({ success: true, data: fui });
 });
@@ -96,7 +100,7 @@ exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
 exports.disposedItems = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
-    const disposed = await ReturnedQty.find({reason:"damaged",createdAt:{$gte: startDate, $lte: endDate}}).populate({
+    const disposed = await ReturnedQty.find({reason:"Damaged",createdAt:{$gte: startDate, $lte: endDate}}).populate({
         path: 'fuiId',
         populate: [
           {

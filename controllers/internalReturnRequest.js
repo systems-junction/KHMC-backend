@@ -240,12 +240,13 @@ exports.updateInternalRequest = asyncHandler(async (req, res, next) => {
         }
       );
       await ReturnedQty.create({
+        fuId=fu.fuId,
         fuiId: fu._id,
         whiId: wh._id,
         reason:req.body.reason,
         itemId: req.body.itemId,
         returnedQty: req.body.returnedQty,
-        batchArray: internalReturn.batchArray,
+        batchArray: internalReturn.returnBatchArray,
       });
     }
   }
