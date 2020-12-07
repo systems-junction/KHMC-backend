@@ -182,7 +182,6 @@ const serverSocket2 = http.createServer(app);
 
 io1.origins('*:*');
 io1.on('connection', (socket) => {
-  console.log('chat user connected');
   socket.on('disconnect', () => {
     console.log('chat user disconnected');
   });
