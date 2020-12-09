@@ -33,14 +33,13 @@ const ReturnedQuantitySchema = new mongoose.Schema({
   },
 
   batchArray: [
-    {
-      batchNumber: String,
-      expiryDate: {
-        type: Date,
-      },
-      quantity: Number,
-      price: Number
-    },
+{   
+    batchNumber: String,
+    expiryDatePerBatch: { type: Date },
+    receivedQtyPerBatch: { type: Number },
+    returnedQtyPerBatch: { type: Number },
+    price: Number
+  }
   ],
 });
 

@@ -100,21 +100,20 @@ exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
 exports.disposedItems = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
-    const disposed = await ReturnedQty.find({reason:"Damaged",createdAt:{$gte: startDate, $lte: endDate}}).populate({
-        path: 'fuiId',
-        populate: [
-          {
-            path: 'fuId',
-          },
-        ],
-      })
+    const disposed = await ReturnedQty.aggregate([
+        {$match:{fuId:ObjectId(req.params.id),reason:"Damaged",createdAt:{$gte: startDate, $lte: endDate}}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$project:{_id:1, 'itemId.itemCode': 1,'itemId.name': 1,batchArray:1}}
+    ])
     res.status(200).json({ success: true, data: disposed });
 });
 
 exports.consumptionBalance = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
-    const balance = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name")
+    const bal = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name")
     .populate({
         path: 'replenishmentRequestId',
         select:'dateGenerated fuId',
@@ -124,7 +123,17 @@ exports.consumptionBalance = asyncHandler(async (req, res) => {
             select:'fuName',
           },
         ],
-      }).select({currentQty:1,requestedQty:1,receivedQty:1,subTotal:1})
+      }).select({currentQty:1,requestedQty:1,receivedQty:1,totalPrice:1})
+      let balance=[]
+      for (i=0;i< bal.length;i++)
+      {
+        let temp = JSON.parse(JSON.stringify(bal[i]));
+        var obj = {
+          ...temp,
+          fuId: bal[i].replenishmentRequestId.fuId
+        };
+        balance.push(obj)
+      }
     res.status(200).json({ success: true, data: balance });
 });
 
@@ -158,25 +167,37 @@ exports.whTransfer = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
     var items = []
-    const receive = await ReceiveItemBU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name receiptUnit")
-    .populate({
-        path: 'replenishmentRequestId',
-        select:'fuId',
-        populate: [
-          {
-            path: 'fuId',
-            select:'_id',
-          },
-        ],
-      }).select({itemId:1,batchArray:1})
-    for(let  i=0; i<receive.length; i++)
-    {
-    if(receive[i].replenishmentRequestId.fuId._id == req.params.id)
-    {
-        items.push(receive[i])
-    }
-    }
-    res.status(200).json({ success: true, data: items });
+    const receive = await ReceiveItemFU.aggregate([
+        {$match:{createdAt:{$gte: startDate, $lte: endDate}}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$lookup:{from:'replenishmentrequests',localField:'replenishmentRequestId',foreignField:'_id',as:'replenishmentRequestId'}},
+        {$unwind:'$replenishmentRequestId'},
+        {$lookup:{from:'functionalunits',localField:'replenishmentRequestId.fuId',foreignField:'_id',as:'replenishmentRequestId.fuId'}},  
+        {$unwind:'$batchArray'},
+        {$unwind:'$itemId'},
+        {$unwind:'$replenishmentRequestId.fuId'},
+        {$match:{'replenishmentRequestId.fuId._id':ObjectId(req.params.id)}},
+        {$project:{_id:1, 'itemId.itemCode': 1,'itemId.name': 1,'itemId.receiptUnit': 1,createdAt:1,batchArray:1}}
+    ])
+    // const receive = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name receiptUnit")
+    // .populate({
+    //     path: 'replenishmentRequestId',
+    //     select:'fuId',
+    //     populate: [
+    //       {
+    //         path: 'fuId',
+    //         select:'_id',
+    //       },
+    //     ],
+    //   }).select({itemId:1,batchArray:1})
+    // for(let  i=0; i<receive.length; i++)
+    // {
+    // if(receive[i].replenishmentRequestId.fuId._id == req.params.id)
+    // {
+    //     items.push(receive[i])
+    // }
+    // }
+    res.status(200).json({ success: true, data: receive });
 });
 
 exports.acmDashboard = asyncHandler(async (req, res) => {
