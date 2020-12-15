@@ -1170,13 +1170,147 @@ else if(req.body.requestType==="IPR")
     res.status(200).json({success:true, data:ipr})
 }
 });
-// exports.createView = asyncHandler(async(req,res)=>{
-//   const test = await EDR.createView("first",[
-//     {$project:{"requestType":1}}
-//   ])
-//   console.log(test)
-// })
 exports.createView = async(req,res)=>{
   const abc =await EDR.find().limit(50)
   res.status(200).json({data:abc})
 }
+exports.getPatientIHISearch = asyncHandler(async(req,res)=>{
+  const getpatientihi = await Patient.aggregate([
+    {
+      $project: {
+        name: { $concat: ['$firstName', ' ', '$lastName'] },
+        profileNo: 1,
+        SIN: 1,
+        dob: 1,
+        gender: 1,
+        phoneNumber: 1,
+        userProfile:1,
+        patientMedicalProfile:1
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { profileNo: req.params.keyword },
+          { SIN: req.params.keyword },
+        ],
+      },
+    }
+  ])
+  if(getpatientihi.length>0)
+  {
+    res.status(200).json({success:true , data:getpatientihi})
+  }
+else if(getpatientihi.length==0)
+{
+  res.status(200).json({success:false , data:"No Patient Exists"})
+}
+})
+exports.postPatientIHI = asyncHandler(async(req,res)=>{
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var diff = now - start + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
+  const exists = await Patient.findOne({_id:req.body.patientId})
+  if(exists)
+  {
+     var { _id } = req.body;
+    var parsed = req.body;
+      patientQR = await Patient.findOne({ _id: req.body.patientId });
+      patient = await Patient.findOneAndUpdate({_id:req.body.patientId},
+        {$set:{
+          firstName: parsed.userProfile.firstName,
+          lastName: parsed.userProfile.lastName,
+          gender: parsed.userProfile.gender,
+          dob: parsed.userProfile.dob,
+          bloodGroup: parsed.patientMedicalProfile.bloodGroup,
+          phoneNumber: parsed.userProfile.contact,
+          mobileNumber: parsed.userProfile.contact,
+          email: parsed.userProfile.email,
+          address: parsed.userProfile.address,
+          userProfile:parsed.userProfile,
+          patientMedicalProfile:parsed.patientMedicalProfile
+        }},
+      {new:true})
+      if (!patientQR.QR) {
+        let obj = {}
+        obj.profileNo = patient.profileNo
+        obj.age = patient.age
+        obj.paymentMethod = patient.paymentMethod
+        obj.createdAt = patient.createdAt
+        QRCode.toDataURL(JSON.stringify(obj), function (
+          err,
+          url
+        ) {
+          var base64Str = url;
+          var path = './uploads/';
+          var pathFormed = base64ToImage(base64Str, path);
+          Patient.findOneAndUpdate(
+            { _id: patientQR._id },
+            { $set: { QR: '/uploads/' + pathFormed.fileName } },
+            { new: true }
+          ).then((docs) => {
+            res.status(200).json({ success: true, data: docs , msg:"Patient Already Existed, Updated Successfully" });
+          });
+        });
+      }
+      else {
+        res.status(200).json({ success: true, data: patient, msg:"Patient Already Existed, Updated Successfully" });
+      }
+  }
+  else if(!exists)
+  {
+    var parsed = req.body;
+    var patient;
+    // if (req.file) {
+    //   patient = await Patient.create({
+    //     profileNo: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+    //     SIN: parsed.SIN,
+    //     firstName: parsed.userProfile.firstName,
+    //     lastName: parsed.userProfile.lastName,
+    //     gender: parsed.userProfile.gender,
+    //     dob: parsed.userProfile.dob,
+    //     bloodGroup: parsed.patientMedicalProfile.bloodGroup,
+    //     phoneNumber: parsed.userProfile.contact,
+    //     mobileNumber: parsed.userProfile.contact,
+    //     email: parsed.userProfile.email,
+    //     address: parsed.userProfile.address,
+    //     userProfile:parsed.userProfile,
+    //     patientMedicalProfile:parsed.patientMedicalProfile
+    //   });
+    // } else {
+      patient = await Patient.create({
+        profileNo: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
+        SIN: parsed.SIN,
+        firstName: parsed.userProfile.firstName,
+        lastName: parsed.userProfile.lastName,
+        gender: parsed.userProfile.gender,
+        dob: parsed.userProfile.dob,
+        bloodGroup: parsed.patientMedicalProfile.bloodGroup,
+        phoneNumber: parsed.userProfile.contact,
+        mobileNumber: parsed.userProfile.contact,
+        email: parsed.userProfile.email,
+        address: parsed.userProfile.address,
+        userProfile:parsed.userProfile,
+        patientMedicalProfile:parsed.patientMedicalProfile
+      });
+    // }
+    let obj = {}
+    obj.profileNo = patient.profileNo
+    obj.dob = patient.dob
+    obj.createdAt = patient.createdAt
+    QRCode.toDataURL(JSON.stringify(obj), function (err, url) {
+      var base64Str = url;
+      var path = './uploads/';
+      var pathFormed = base64ToImage(base64Str, path);
+      Patient.findOneAndUpdate(
+        { _id: patient._id },
+        { $set: { QR: '/uploads/' + pathFormed.fileName } },
+        { new: true }
+      ).then((docs) => {
+        res.status(200).json({ success: true, data: docs , msg:"New Patient Registered Successfully" });
+      });
+    }); 
+  }
+})

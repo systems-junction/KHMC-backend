@@ -140,6 +140,29 @@ const patientSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  userProfile:{
+    email:{type:String},
+    contact:{type:String},
+    firstName:{type:String},
+    lastName:{type:String},
+    userName:{type:String},
+    gender:{type:String},
+    dob:{type:Date},
+    isActive:{type:Boolean},
+    maritalStatus:{type:String},
+    address:{type:String},
+    communicationLanguage:{type:String},
+    profilePicture:{type:String},
+    geneticDisease:[{type:String}]
+  },
+  patientMedicalProfile:{
+    knownAllergies:[{type:String}],
+    currentMedication:[{type:String}],
+    surgeries:[{type:String}],
+    chronicIllness:[{type:String}],
+    bloodGroup:{type:String},
+    pregnancy:{type:Boolean},
+  }
 });
 
 module.exports = mongoose.model('patient', patientSchema);
