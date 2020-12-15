@@ -133,6 +133,7 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
   }
 
   if (req.body.committeeStatus === 'approved') {
+
     req.body.status = 'in_progress';
     notification(
       'Purchase Request',
@@ -145,6 +146,7 @@ exports.updatePurchaseRequest = asyncHandler(async (req, res, next) => {
       .populate('itemId')
       .populate('vendorId');
     globalVariable.io.emit('get_data', pr);
+    req.body.inProgressTime = Date.now();
   }
 
   purchaseRequest = await PurchaseRequest.findOneAndUpdate(

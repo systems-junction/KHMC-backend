@@ -84,6 +84,9 @@ const PurchaseRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'staff',
   },
+  inProgressTime:{
+    type:Date,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

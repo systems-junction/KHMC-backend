@@ -100,21 +100,20 @@ exports.nearlyExpiredItemsFU = asyncHandler(async (req, res) => {
 exports.disposedItems = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
-    const disposed = await ReturnedQty.find({reason:"Damaged",createdAt:{$gte: startDate, $lte: endDate}}).populate({
-        path: 'fuiId',
-        populate: [
-          {
-            path: 'fuId',
-          },
-        ],
-      })
+    const disposed = await ReturnedQty.aggregate([
+        {$match:{fuId:ObjectId(req.params.id),reason:"Damaged",createdAt:{$gte: startDate, $lte: endDate}}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$unwind:'$itemId'},
+        {$unwind:'$batchArray'},
+        {$project:{_id:1, 'itemId.itemCode': 1,'itemId.name': 1,batchArray:1}}
+    ])
     res.status(200).json({ success: true, data: disposed });
 });
 
 exports.consumptionBalance = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
-    const balance = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name")
+    const bal = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name")
     .populate({
         path: 'replenishmentRequestId',
         select:'dateGenerated fuId',
@@ -124,7 +123,17 @@ exports.consumptionBalance = asyncHandler(async (req, res) => {
             select:'fuName',
           },
         ],
-      }).select({currentQty:1,requestedQty:1,receivedQty:1,subTotal:1})
+      }).select({currentQty:1,requestedQty:1,receivedQty:1,totalPrice:1})
+      let balance=[]
+      for (i=0;i< bal.length;i++)
+      {
+        let temp = JSON.parse(JSON.stringify(bal[i]));
+        var obj = {
+          ...temp,
+          fuId: bal[i].replenishmentRequestId.fuId
+        };
+        balance.push(obj)
+      }
     res.status(200).json({ success: true, data: balance });
 });
 
@@ -158,30 +167,51 @@ exports.whTransfer = asyncHandler(async (req, res) => {
     var startDate = moment(req.body.startDate).utc().toDate();
     var endDate = moment(req.body.endDate).utc().toDate();
     var items = []
-    const receive = await ReceiveItemBU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name receiptUnit")
-    .populate({
-        path: 'replenishmentRequestId',
-        select:'fuId',
-        populate: [
-          {
-            path: 'fuId',
-            select:'_id',
-          },
-        ],
-      }).select({itemId:1,batchArray:1})
-    for(let  i=0; i<receive.length; i++)
-    {
-    if(receive[i].replenishmentRequestId.fuId._id == req.params.id)
-    {
-        items.push(receive[i])
-    }
-    }
-    res.status(200).json({ success: true, data: items });
+    const receive = await ReceiveItemFU.aggregate([
+        {$match:{createdAt:{$gte: startDate, $lte: endDate}}},
+        {$lookup:{from:'items',localField:'itemId',foreignField:'_id',as:'itemId'}},
+        {$lookup:{from:'replenishmentrequests',localField:'replenishmentRequestId',foreignField:'_id',as:'replenishmentRequestId'}},
+        {$unwind:'$replenishmentRequestId'},
+        {$lookup:{from:'functionalunits',localField:'replenishmentRequestId.fuId',foreignField:'_id',as:'replenishmentRequestId.fuId'}},  
+        {$unwind:'$batchArray'},
+        {$unwind:'$itemId'},
+        {$unwind:'$replenishmentRequestId.fuId'},
+        {$match:{'replenishmentRequestId.fuId._id':ObjectId(req.params.id)}},
+        {$project:{_id:1, 'itemId.itemCode': 1,'itemId.name': 1,'itemId.receiptUnit': 1,createdAt:1,batchArray:1}}
+    ])
+    // const receive = await ReceiveItemFU.find({createdAt:{$gte: startDate, $lte: endDate}}).populate("itemId","itemCode name receiptUnit")
+    // .populate({
+    //     path: 'replenishmentRequestId',
+    //     select:'fuId',
+    //     populate: [
+    //       {
+    //         path: 'fuId',
+    //         select:'_id',
+    //       },
+    //     ],
+    //   }).select({itemId:1,batchArray:1})
+    // for(let  i=0; i<receive.length; i++)
+    // {
+    // if(receive[i].replenishmentRequestId.fuId._id == req.params.id)
+    // {
+    //     items.push(receive[i])
+    // }
+    // }
+    res.status(200).json({ success: true, data: receive });
 });
 
 exports.acmDashboard = asyncHandler(async (req, res) => {
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
     let purchaseRequest = {}
     let purchaseOrder = {}
+    const tat = await PurchaseRequest.find({generated:"Manual",committeeStatus:"approved",status:"in_progress",createdAt:{$gte:sixHour}})
+    var time = 0
+    for(let i=0; i<tat.length; i++)
+    {
+        const mil = (tat[i].inProgressTime - tat[i].createdAt)/1000
+        time= time+mil
+    }
+    const finalTat = (time/tat.length)/60
     const prApproved = await PurchaseRequest.find({committeeStatus:"approved"}).countDocuments();
     const prRejected = await PurchaseRequest.find({committeeStatus:"rejected"}).countDocuments();
     const prPending = await PurchaseRequest.find({committeeStatus:"pending"}).countDocuments();
@@ -192,6 +222,15 @@ exports.acmDashboard = asyncHandler(async (req, res) => {
     purchaseRequest.prPending = prPending
     purchaseRequest.prModified = prModified
     purchaseRequest.prOnHold = prOnHold
+    purchaseRequest.finalTat = Math.floor(finalTat)
+    const tatpo = await PurchaseOrder.find({generated:"Manual",committeeStatus:"approved",status:"pending_receipt",createdAt:{$gte:sixHour}})
+    var timepo = 0
+    for(let i=0; i<tatpo.length; i++)
+    {
+        const milpo = (tatpo[i].inProgressTime - tatpo[i].createdAt)/1000
+        timepo= timepo+milpo
+    }
+    const finalTatpo = (timepo/tatpo.length)/60
     const poApproved = await PurchaseOrder.find({committeeStatus:"approved"}).countDocuments();
     const poRejected = await PurchaseOrder.find({committeeStatus:"rejected"}).countDocuments();
     const poPending = await PurchaseOrder.find({committeeStatus:"pending"}).countDocuments();
@@ -202,19 +241,46 @@ exports.acmDashboard = asyncHandler(async (req, res) => {
     purchaseOrder.poPending = poPending
     purchaseOrder.poModified = poModified
     purchaseOrder.poOnHold = poOnHold
+    purchaseOrder.finalTat = Math.floor(finalTatpo)
     res.status(200).json({ success: true, purchaseRequest:purchaseRequest , purchaseOrder:purchaseOrder });
 });
 
 exports.purchasingOfficerDashboard = asyncHandler(async (req, res) => {
+     var sixHour = moment().subtract(6, 'hours').utc().toDate();
      let externalReturn = {};
+     const tat = await ERRequest.find({createdAt:{$gte:sixHour}})
+     var time = 0
+     for(let i=0; i<tat.length; i++)
+     {
+         const mil = (tat[i].inProgressTime - tat[i].createdAt)/1000
+         time= time+mil
+     }
+     const finalTat = (time/tat.length)/60
      const pending = await ERRequest.find({status:"pending_approval"}).countDocuments()
      const approved = await ERRequest.find({status:"approved"}).countDocuments()
      const denied = await ERRequest.find({status:"reject"}).countDocuments()
      externalReturn.pending = pending
+     externalReturn.tat = Math.floor(finalTat) 
      externalReturn.approved = approved
      externalReturn.denied = denied
      const purchaseOrder = await PurchaseOrder.find().countDocuments();
-     res.status(200).json({ success: true, externalReturn:externalReturn , purchaseOrder:purchaseOrder });
+     const tatPo = await PurchaseOrder.find({createdAt:{$gte:sixHour}}).populate("purchaseRequestId");    
+    var semifinalTatPo = 0
+    var timePo = 0
+    for(let i=0; i<tatPo.length; i++)
+    {
+       var timePr = 0
+        timePo = 0
+        for(let j=0; j<tatPo[i].purchaseRequestId.length; j++)
+        {
+           var milPr = (tatPo[i].inProgressTime - tatPo[i].purchaseRequestId[j].createdAt)/1000
+           timePr= timePr+milPr             
+        }
+    timePo = timePr / tatPo[i].purchaseRequestId.length
+    semifinalTatPo = semifinalTatPo + timePo        
+    }
+    const finalTatPo =  (semifinalTatPo/tatPo.length)/60
+     res.status(200).json({ success: true, externalReturn:externalReturn , purchaseOrder:purchaseOrder, purchaseOrderTat:Math.floor(finalTatPo) });
 });
 
 exports.whikDashboard = asyncHandler(async (req, res) => {
@@ -441,28 +507,50 @@ exports.pharmacistDashboard = asyncHandler(async (req, res) => {
 
 exports.consultantDashboard = asyncHandler(async (req, res) => {
     let count = 0; 
+    var timeEdr = 0;
+    var timeIpr = 0;
+    var edrTime = 0;
+    var iprTime = 0;
+    var finalTime = 0; 
     var sixHour = moment().subtract(6, 'hours').utc().toDate();
     const edr = await EDR.find({'consultationNote.specialist':req.params.id,'consultationNote.status':"Complete",'consultationNote.completedTime':{$gte:sixHour}})
     for( let i = 0; i<edr.length; i++)
     {
-        edr[i].consultationNote.forEach(element=>{
+        edr[i].consultationNote.forEach((element,index)=>{
             if(element.status=="Complete")
             {
-                count++
+            const milEdr = (element.completedTime - element.date)/1000
+            timeEdr= ((timeEdr+milEdr)/(index+1))/60
+            count++
             }
         })
-    }
+     }
+     if(edr.length>0)
+     {
+        edrTime = timeEdr/edr.length
+     }
     const ipr = await IPR.find({'consultationNote.specialist':req.params.id,'consultationNote.status':"Complete",'consultationNote.completedTime':{$gte:sixHour}})
     for( let i = 0; i<ipr.length; i++)
     {
-        ipr[i].consultationNote.forEach(element=>{
+        ipr[i].consultationNote.forEach((element,index)=>{
             if(element.status=="Complete")
             {
+                const milIpr = (element.completedTime - element.date)/1000
+                timeIpr= (timeIpr+milIpr)/(index+1)
                 count++
             }
         })
     }
-    res.status(200).json({success:true, completed:count})
+    if(ipr.length>0 )
+    {
+        iprTime = timeIpr/ipr.length
+    }
+    if(edr.length>0 && ipr.length>0)
+    {
+     finalTime = (Math.floor(edrTime)+Math.floor(iprTime))/2        
+    }
+     
+    res.status(200).json({success:true, completed:count, tat:finalTime})
 });
 
 exports.doctorDashboard = asyncHandler(async (req, res) => {

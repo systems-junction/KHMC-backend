@@ -183,7 +183,7 @@ const serverSocket2 = http.createServer(app);
 io1.origins('*:*');
 io1.on('connection', (socket) => {
   socket.on('disconnect', () => {
-    console.log('chat user disconnected');
+    // console.log('chat user disconnected');
   });
   socket.on('chat_sent', function (msg) {
     ChatModel.findOneAndUpdate(
