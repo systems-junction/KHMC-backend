@@ -171,6 +171,7 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
     );
     req.body.status = 'pending_receipt';
     req.body.sentAt = Date.now();
+    req.body.inProgressTime = Date.now();
     // Sending Email to Vendor
 
     const purchaseRequest = await PurchaseOrder.findOne({ _id: _id })

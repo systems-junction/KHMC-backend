@@ -43,6 +43,9 @@ const PurchaseOrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  inProgressTime:{
+    type:Date,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
