@@ -501,6 +501,9 @@ exports.updateReplenishmentRequest = asyncHandler(async (req, res, next) => {
       }
     }
   }
+  if (req.body.status == 'Fulfillment Initiated') {
+    req.body.inProgressTime = Date.now()
+  }
   replenishmentRequest = await ReplenishmentRequest.findOneAndUpdate(
     { _id: _id },
     req.body,
