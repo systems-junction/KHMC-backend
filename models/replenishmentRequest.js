@@ -110,6 +110,9 @@ const replenishmentRequestSchema = new mongoose.Schema({
   commentNote: {
     type: String,
   },
+  inProgressTime:{
+    type:Date,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

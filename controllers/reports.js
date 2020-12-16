@@ -288,6 +288,30 @@ exports.whikDashboard = asyncHandler(async (req, res) => {
     let nonPharmaPending = 0
     let nonMedicalPending = 0
     let replenishmentRequest = {}
+    var timePh = 0
+    var timeNph = 0
+    var timeNm = 0
+    const tat = await ReplenishmentRequest.find({status:"Fulfillment Initiated"}).populate('items.itemId')
+    for(let i=0; i<tat.length; i++)
+    {
+        tat[i].items.forEach((element,index) => {
+            if(element.itemId.medClass=="Pharmaceutical")
+            {
+            var milPh = (tat[i].inProgressTime - tat[i].createdAt)/1000
+            timePh= ((timePh+milPh)/(index+1))/60
+            }
+            else if (element.itemId.medClass=="Non Pharmaceutical")
+            {
+                var milNph = (tat[i].inProgressTime - tat[i].createdAt)/1000
+                timeNph= ((timeNph+milNph)/(index+1))/60
+            }
+            else if (element.itemId.cls=="Non-Medical")
+            {
+            var milNm = (tat[i].inProgressTime - tat[i].createdAt)/1000
+            timeNm= ((timeNm+milNm)/(index+1))/60
+            }
+        }) 
+    }
     const pending = await ReplenishmentRequest.find({status:"pending"}).populate('items.itemId')
     for(let i=0; i<pending.length; i++)
     {
