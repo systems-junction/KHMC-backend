@@ -74,16 +74,16 @@ exports.addDischargeRequest = asyncHandler(async (req, res) => {
     // }
     if(dr && req.body.edrId)
     {
-      // await EDR.findOneAndUpdate({ _id: parsed.edrId},{ $set: { 'dischargeRequest.status': 'Complete' } })
+      // await EDR.findOneAndUpdate({ _id: req.body.edrId},{ $set: { 'dischargeRequest.status': 'Complete' } })
       // await EDR.findOneAndUpdate({ _id: parsed.edrId},{ $set: { 'status': 'Discharged' } })
-            await EDR.findOneAndUpdate({ _id: req.body.edrId},{ $set: { 'status': 'Discharged' } })
+      await EDR.findOneAndUpdate({ _id: req.body.edrId},{ $set: { 'status': 'Discharge Requested', 'dischargeRequest.status': 'in_process', 'dischargeRequest.inProcessDate':Date.now() } })
     }
     if (dr && req.body.iprId)
     {
 
-      // await IPR.findOneAndUpdate({ _id: parsed.iprId},{ $set: { 'dischargeRequest.status': 'Complete' } })
+      // await IPR.findOneAndUpdate({ _id: req.body.iprId},{ $set: { 'dischargeRequest.status': 'Complete' } })
       // await IPR.findOneAndUpdate({ _id: parsed.iprId},{ $set: { 'status': 'Discharged' } })
-      await IPR.findOneAndUpdate({ _id: req.body.iprId},{ $set: { 'status': 'Discharged' } })
+      await IPR.findOneAndUpdate({ _id: req.body.iprId},{ $set: { 'status': 'Discharge Requested', 'dischargeRequest.status': 'in_process', 'dischargeRequest.inProcessDate':Date.now() } })
     }
     res.status(200).json({ success: true, data: dr });
   });

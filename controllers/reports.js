@@ -418,8 +418,6 @@ let finalTatForNonMed = countOfReqContainNonMed ? timeForAllReqNonMed / countOfR
         timepo= timepo+milpo
     }
     const finalTatpo = (timepo/tatpo.length)/60
-
-console.log(finalTatpo)
     const prVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending"}).countDocuments();
     const jitPrVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending",reason:"JIT"}).countDocuments();
     const poCompletionPending = await PurchaseOrder.find({status:{$ne:"complete"}}).countDocuments()
@@ -431,6 +429,8 @@ console.log(finalTatpo)
 });
 
 exports.fuikDashboard = asyncHandler(async (req, res) => {
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
+
     let rrPharmaPending = 0
     let rrNonPharmaPending = 0
     let rrNonMedicalPending = 0
@@ -439,7 +439,72 @@ exports.fuikDashboard = asyncHandler(async (req, res) => {
     let rrbNonPharmaPending = 0
     let rrbNonMedicalPending = 0
     let replenishmentRequestBU = {}
-    const rrPending = await ReplenishmentRequest.find({status:"pending"}).populate('items.itemId')
+
+    let timeForAllReqPharma = 0
+    let timeForAllReqNonPharma = 0
+    let timeForAllReqNonMed = 0
+    let countOfReqContainPharma = 0
+    let countOfReqContainNonPharma = 0
+    let countOfReqContainNonMed = 0
+    
+    const tat = await ReplenishmentRequest.find({fuId:req.params.id,createdAt:{$gte:sixHour}}).populate('items.itemId')
+    for(let i=0; i<tat.length; i++)
+    {
+        if(tat[i].status!=='pending'){
+        var timePh = 0
+        var timeNph = 0
+        var timeNm = 0    
+        let countForPharma = 0
+        let countForNonPharma = 0
+        let countForNonMed = 0
+        let timeForSingleReqPharma = 0
+        let timeForSingleReqNonPharma = 0
+        let timeForSingleReqNonMed = 0
+        tat[i].items.forEach((element,index) => {
+            if(element.itemId.medClass=="Pharmaceutical")
+            {
+            var milPh = (tat[i].inProgressTime - tat[i].createdAt)/1000
+            timePh= timePh +  (milPh/60)
+            countForPharma++
+            }
+            else if (element.itemId.medClass=="Non Pharmaceutical")
+            {
+            var milNph = (tat[i].inProgressTime - tat[i].createdAt)/1000
+            timeNph= timeNph+  (milNph/60)
+            countForNonPharma++
+            }
+            else if (element.itemId.cls=="Non-Medical")
+            {
+            var milNm = (tat[i].inProgressTime - tat[i].createdAt)/1000
+            timeNm= timeNm + (milNm/60)
+            countForNonMed++
+            }
+        }) 
+        if(countForPharma)
+        {
+        countOfReqContainPharma++
+        timeForSingleReqPharma =  timePh / countForPharma
+        }
+        if(countForNonPharma)
+        {
+        countOfReqContainNonPharma++
+        timeForSingleReqNonPharma =  timeNph / countForNonPharma
+        }
+        if(countForNonMed)
+        {countOfReqContainNonMed++
+        timeForSingleReqNonMed =  timeNm / countForNonMed 
+        }
+        timeForAllReqPharma = timeForAllReqPharma + timeForSingleReqPharma
+        timeForAllReqNonPharma = timeForAllReqNonPharma + timeForSingleReqNonPharma
+        timeForAllReqNonMed = timeForAllReqNonMed + timeForSingleReqNonMed
+    }
+    }
+
+let finalTatForPharma = countOfReqContainPharma ? timeForAllReqPharma / countOfReqContainPharma : 0
+let finalTatForNonPharma = countOfReqContainNonPharma ? timeForAllReqNonPharma / countOfReqContainNonPharma : 0
+let finalTatForNonMed = countOfReqContainNonMed ? timeForAllReqNonMed / countOfReqContainNonMed : 0
+
+    const rrPending = await ReplenishmentRequest.find({fuId:req.params.id,status:"pending"}).populate('items.itemId')
     for(let i=0; i<rrPending.length; i++)
     {
         rrPending[i].items.forEach(element => {
@@ -460,7 +525,75 @@ exports.fuikDashboard = asyncHandler(async (req, res) => {
     replenishmentRequest.pharma = rrPharmaPending
     replenishmentRequest.nonPharma =rrNonPharmaPending
     replenishmentRequest.nonMedical = rrNonMedicalPending
-    const rrbPending = await ReplenishmentRequestBU.find({status:"pending"}).populate('item.itemId')
+    replenishmentRequest.finalTatForPharma= Math.floor(finalTatForPharma)
+    replenishmentRequest.finalTatForNonPharma =  Math.floor(finalTatForNonPharma)
+    replenishmentRequest.finalTatForNonMed=   Math.floor(finalTatForNonMed)  
+
+    let BUtimeForAllReqPharma = 0
+    let BUtimeForAllReqNonPharma = 0
+    let BUtimeForAllReqNonMed = 0
+    let BUcountOfReqContainPharma = 0
+    let BUcountOfReqContainNonPharma = 0
+    let BUcountOfReqContainNonMed = 0
+    const BUtat = await ReplenishmentRequestBU.find({fuId:req.params.id,createdAt:{$gte:sixHour}}).populate('item.itemId')
+    for(let i=0; i<BUtat.length; i++)
+    {
+        if(BUtat[i].status!=='pending'){
+        var BUtimePh = 0
+        var BUtimeNph = 0
+        var BUtimeNm = 0    
+        let BUcountForPharma = 0
+        let BUcountForNonPharma = 0
+        let BUcountForNonMed = 0
+        let BUtimeForSingleReqPharma = 0
+        let BUtimeForSingleReqNonPharma = 0
+        let BUtimeForSingleReqNonMed = 0
+        BUtat[i].item.forEach((element,index) => {
+            if(element.itemId.medClass=="Pharmaceutical")
+            {
+            var BUmilPh = (BUtat[i].deliveredTime - BUtat[i].createdAt)/1000
+            BUtimePh= BUtimePh +  (BUmilPh/60)
+            BUcountForPharma++
+            }
+            else if (element.itemId.medClass=="Non Pharmaceutical")
+            {
+            var BUmilNph = (BUtat[i].deliveredTime - BUtat[i].createdAt)/1000
+            BUtimeNph= BUtimeNph+  (BUmilNph/60)
+            BUcountForNonPharma++
+            }
+            else if (element.itemId.cls=="Non-Medical")
+            {
+            var BUmilNm = (BUtat[i].deliveredTime - BUtat[i].createdAt)/1000
+            BUtimeNm= BUtimeNm + (BUmilNm/60)
+            BUcountForNonMed++
+            }
+        }) 
+        if(BUcountForPharma)
+        {
+        BUcountOfReqContainPharma++
+        BUtimeForSingleReqPharma =  BUtimePh / BUcountForPharma
+        }
+        if(BUcountForNonPharma)
+        {
+        BUcountOfReqContainNonPharma++
+        BUtimeForSingleReqNonPharma =  BUtimeNph / BUcountForNonPharma
+        }
+        if(BUcountForNonMed)
+        {BUcountOfReqContainNonMed++
+        BUtimeForSingleReqNonMed =  BUtimeNm / BUcountForNonMed 
+        }
+        BUtimeForAllReqPharma = BUtimeForAllReqPharma + BUtimeForSingleReqPharma
+        BUtimeForAllReqNonPharma = BUtimeForAllReqNonPharma + BUtimeForSingleReqNonPharma
+        BUtimeForAllReqNonMed = BUtimeForAllReqNonMed + BUtimeForSingleReqNonMed
+    }
+    }
+
+    let BUfinalTatForPharma = BUcountOfReqContainPharma ? BUtimeForAllReqPharma / BUcountOfReqContainPharma : 0
+    let BUfinalTatForNonPharma = BUcountOfReqContainNonPharma ? BUtimeForAllReqNonPharma / BUcountOfReqContainNonPharma : 0
+    let BUfinalTatForNonMed = BUcountOfReqContainNonMed ? BUtimeForAllReqNonMed / BUcountOfReqContainNonMed : 0
+
+
+    const rrbPending = await ReplenishmentRequestBU.find({fuId:req.params.id,status:"pending"}).populate('item.itemId')
     for(let i=0; i<rrbPending.length; i++)
     {
         rrbPending[i].item.forEach(element => {
@@ -481,27 +614,84 @@ exports.fuikDashboard = asyncHandler(async (req, res) => {
     replenishmentRequestBU.pharma = rrbPharmaPending
     replenishmentRequestBU.nonPharma =rrbNonPharmaPending
     replenishmentRequestBU.nonMedical = rrbNonMedicalPending
+    replenishmentRequestBU.finalTatForPharma= Math.floor(BUfinalTatForPharma)
+    replenishmentRequestBU.finalTatForNonPharma =  Math.floor(BUfinalTatForNonPharma)
+    replenishmentRequestBU.finalTatForNonMed=   Math.floor(BUfinalTatForNonMed)  
 
-    const jitRrVerificationPending = await ReplenishmentRequest.find({generated:"Manual",committeeStatus:"pending",reason:"JIT"}).countDocuments();
+    const jitTat = await ReplenishmentRequest.find({fuId:req.params.id,reason:"JIT",createdAt:{$gte:sixHour}})
+    var timeForJit= 0
+    for(let i=0; i<jitTat.length; i++)
+    {
+        const milJit = (jitTat[i].inProgressTime - jiTtat[i].createdAt)/1000
+        if(jitTat[i].status!=="pending"){
+        timeForJit= timeForJit + milJit
+    }
+    }
+    const finalTatForJit = (timeForJit/jitTat.length)/60
+
+    const jitRrVerificationPending = await ReplenishmentRequest.find({fuId:req.params.id,generated:"Manual",committeeStatus:"pending",reason:"JIT"}).countDocuments();
    
-    res.status(200).json({success:true, fulfillmentPending:replenishmentRequest , orderPending:replenishmentRequestBU, jitRrVerificationPending:jitRrVerificationPending})
+    res.status(200).json({success:true, fulfillmentPending:replenishmentRequest , orderPending:replenishmentRequestBU, jitRrVerificationPending:jitRrVerificationPending , tatForJit:finalTatForJit})
 });
 
 exports.cashierDashboard = asyncHandler(async (req, res) => {
     var sixHour = moment().subtract(6, 'hours').utc().toDate();
     let payment = 0
+    let timeEdr = 0
+    let timeIpr = 0
+    let finalTimeEdr = 0;
+    let finalTimeIpr = 0;
+    let final = 0;    
     const edr = await EDR.find({status:"pending",'dischargeRequest.status':"pending"}).countDocuments()
     const ipr = await IPR.find({status:"pending",'dischargeRequest.status':"pending"}).countDocuments()
     const dischargePending = edr + ipr;
+    const edrTat = await EDR.find({'dischargeRequest.inProcessDate':{$gte: sixHour},'dischargeRequest.status':{$ne:"pending"}})
+    if(edrTat.length>0)
+    {
+    for(let i=0; i<edrTat.length;i++)
+    {
+        const timeEd = (edrTat[i].dischargeRequest.completionDate - edrTat[i].dischargeRequest.inProcessDate)/1000        
+        timeEdr= timeEdr +  (timeEd/60)
+    }
+    finalTimeEdr = timeEdr/edrTat.length
+    }
+    const iprTat = await IPR.find({'dischargeRequest.inProcessDate':{$gte: sixHour},'dischargeRequest.status':{$ne:"pending"}})
+    if(iprTat.length>0)
+    {
+    for(let i=0; i<iprTat.length;i++)
+    {
+        const timeIp = (iprTat[i].dischargeRequest.completionDate - iprTat[i].dischargeRequest.inProcessDate)/1000        
+        timeIpr= timeIpr +  (timeIp/60)
+    }
+     finalTimeIpr = timeIpr/iprTat.length
+}
+    if(edrTat.length>0 && iprTat.length>0)
+    {
+        final = Math.floor(((finalTimeEdr+finalTimeIpr)/2))
+    }
+    else
+    {
+        final = Math.floor(finalTimeEdr+finalTimeIpr)
+    }
     const pc = await PatientClearance.find({createdAt:{$gte: sixHour}})
     for(let i=0; i<pc.length; i++)
     {
         payment = payment + pc[i].total
     }
-    res.status(200).json({success:true, dischargePending:dischargePending, payment:payment })
+    res.status(200).json({success:true, dischargePending:dischargePending, payment:payment, tat:final })
 });
 
 exports.icmDashboard = asyncHandler(async (req, res) => {
+    let icmTat = 0;
+    let final = 0;
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
+    const tat = await RClaim.find({createdAt:{$gte: sixHour},status:{$ne:"pending"}})
+    for(let i=0; i<tat.length; i++)
+    {
+    const timeIcm = (tat[i].inProcessTime - tat[i].createdAt)/1000        
+    icmTat= icmTat +  (timeIcm/60)
+    }
+    final = Math.floor(icmTat/tat.length)
     const insuranceBillsPending = await RClaim.find({status:"Analysis In Progress"}).countDocuments()
     const denied = await PAR.find({status:"Partial Approved"}).countDocuments()
     const rejected = await PAR.find({status:"Rejected"}).countDocuments()
@@ -510,12 +700,91 @@ exports.icmDashboard = asyncHandler(async (req, res) => {
     par.denied = denied;
     par.rejected = rejected;
     par.approved = approved;
-    res.status(200).json({success:true, insuranceBillsPending:insuranceBillsPending, par:par })
+    res.status(200).json({success:true, insuranceBillsPending:insuranceBillsPending, par:par, tat:final })
 });
 
 exports.rtDashboard = asyncHandler(async (req, res) => {
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
     let countActive = 0;
     let countPending = 0;
+    var edrPending = 0;
+    var iprPending = 0;
+    var semiEdrPendingAdd = 0;
+    var semiEdrPending = 0;
+    var semiIprPending = 0;
+    var semiIprPendingAdd = 0;
+    let countForEdrPending = 0
+    let countForIprPending = 0
+    let finalPending = 0
+    var edrActive = 0;
+    var iprActive = 0;
+    var semiEdrActiveAdd = 0;
+    var semiEdrActive = 0;
+    var semiIprActive = 0;
+    var semiIprActiveAdd = 0;
+    let countForEdrActive = 0
+    let countForIprActive = 0
+    let finalActive = 0
+    const edrTat = await EDR.find({'radiologyRequest.date':{$gte: sixHour}}).select({radiologyRequest:1})
+    if(edrTat.length>0)
+    {
+    for(let i=0; i<edrTat.length; i++)
+    {
+       edrTat[i].radiologyRequest.forEach(element=>{
+        if(element.status!=="pending")
+        {
+            countForEdrPending++
+            const PendingEdr = (element.activeDate - element.date)/1000 
+            edrPending= edrPending +  (PendingEdr/60)
+        }
+        if(element.status=="completed")
+        {
+            countForEdrActive++
+            const ActiveEdr = (element.completedDate - element.activeDate)/1000 
+            edrActive= edrActive +  (ActiveEdr/60)
+        }
+    })
+     semiEdrPendingAdd = semiEdrPendingAdd + (edrPending/countForEdrPending)
+     semiEdrActiveAdd = semiEdrActiveAdd + (edrActive/countForEdrActive)
+    }
+    semiEdrPending = (semiEdrPendingAdd)/edrTat.length
+    semiEdrActive = (semiEdrActiveAdd)/edrTat.length
+    }
+    const iprTat = await IPR.find({'radiologyRequest.date':{$gte: sixHour}})
+    if(iprTat.length>0)
+    {
+    for(let i=0; i<iprTat.length; i++)
+    {
+       iprTat[i].radiologyRequest.forEach(element=>{
+        if(element.status!=="pending")
+        {
+            countForIprPending++
+            const PendingIpr = (element.activeDate - element.date)/1000 
+            iprPending= iprPending +  (PendingIpr/60)
+        }
+        if(element.status=="completed")
+        {
+            countForIprActive++
+            const ActiveIpr = (element.completedDate - element.activeDate)/1000 
+            IprActive= IprActive +  (ActiveIpr/60)
+        }
+    })
+     semiIprPendingAdd = semiIprPendingAdd + (iprPending/countForIprPending)
+     semiIprActiveAdd = semiIprActiveAdd + (iprActive/countForIprActive)
+    }
+     semiIprPending = (semiIprPendingAdd)/iprTat.length
+     semiIprActive = (semiIprActiveAdd)/iprTat.length
+    }
+     if(edrTat.length>0 && iprTat.length>0)
+    {
+        finalPending = Math.floor(((semiEdrPending+semiIprPending)/2))
+        finalActive = Math.floor(((semiEdrActive+semiIprActive)/2))
+    }
+    else
+    {
+        finalPending = Math.floor(semiEdrPending+semiIprPending)
+        finalActive = Math.floor(((semiEdrActive+semiIprActive)))
+    }
     const edr = await EDR.find({status:"pending",radiologyRequest:{$ne:[]}})
     for(let i=0; i<edr.length; i++)
     {
@@ -558,12 +827,92 @@ exports.rtDashboard = asyncHandler(async (req, res) => {
             }
         })
     }
-    res.status(200).json({success:true, resultPending:countActive, imagePending:countPending })
+    res.status(200).json({success:true, resultPending:countActive, imagePending:countPending, tatPending:finalPending, tatActive:finalActive })
 });
 
 exports.ltDashboard = asyncHandler(async (req, res) => {
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
     let countActive = 0;
     let countPending = 0;
+    var edrPending = 0;
+    var iprPending = 0;
+    var semiEdrPendingAdd = 0;
+    var semiEdrPending = 0;
+    var semiIprPending = 0;
+    var semiIprPendingAdd = 0;
+    let countForEdrPending = 0
+    let countForIprPending = 0
+    let finalPending = 0
+    var edrActive = 0;
+    var iprActive = 0;
+    var semiEdrActiveAdd = 0;
+    var semiEdrActive = 0;
+    var semiIprActive = 0;
+    var semiIprActiveAdd = 0;
+    let countForEdrActive = 0
+    let countForIprActive = 0
+    let finalActive = 0
+    const edrTat = await EDR.find({'labRequest.date':{$gte: sixHour}}).select({labRequest:1})
+    if(edrTat.length>0)
+    {
+    for(let i=0; i<edrTat.length; i++)
+    {
+       edrTat[i].labRequest.forEach(element=>{
+        if(element.status!=="pending")
+        {
+            countForEdrPending++
+            const PendingEdr = (element.activeDate - element.date)/1000 
+            edrPending= edrPending +  (PendingEdr/60)
+        }
+        if(element.status=="completed")
+        {
+            countForEdrActive++
+            const ActiveEdr = (element.completedDate - element.activeDate)/1000 
+            edrActive= edrActive +  (ActiveEdr/60)
+        }
+    })
+     semiEdrPendingAdd = semiEdrPendingAdd + (edrPending/countForEdrPending)
+     semiEdrActiveAdd = semiEdrActiveAdd + (edrActive/countForEdrActive)
+    }
+    semiEdrPending = (semiEdrPendingAdd)/edrTat.length
+    semiEdrActive = (semiEdrActiveAdd)/edrTat.length
+    }
+    const iprTat = await IPR.find({'labRequest.date':{$gte: sixHour}})
+    if(iprTat.length>0)
+    {
+    for(let i=0; i<iprTat.length; i++)
+    {
+       iprTat[i].labRequest.forEach(element=>{
+        if(element.status!=="pending")
+        {
+            countForIprPending++
+            const PendingIpr = (element.activeDate - element.date)/1000 
+            iprPending= iprPending +  (PendingIpr/60)
+        }
+        if(element.status=="completed")
+        {
+            countForIprActive++
+            const ActiveIpr = (element.completedDate - element.activeDate)/1000 
+            IprActive= IprActive +  (ActiveIpr/60)
+        }
+    })
+     semiIprPendingAdd = semiIprPendingAdd + (iprPending/countForIprPending)
+     semiIprActiveAdd = semiIprActiveAdd + (iprActive/countForIprActive)
+    }
+     semiIprPending = (semiIprPendingAdd)/iprTat.length
+     semiIprActive = (semiIprActiveAdd)/iprTat.length
+    }
+     if(edrTat.length>0 && iprTat.length>0)
+    {
+        finalPending = Math.floor(((semiEdrPending+semiIprPending)/2))
+        finalActive = Math.floor(((semiEdrActive+semiIprActive)/2))
+    }
+    else
+    {
+        finalPending = Math.floor(semiEdrPending+semiIprPending)
+        finalActive = Math.floor(((semiEdrActive+semiIprActive)))
+    }
+
     const edr = await EDR.find({status:"pending",labRequest:{$ne:[]}})
     for(let i=0; i<edr.length; i++)
     {
@@ -606,18 +955,43 @@ exports.ltDashboard = asyncHandler(async (req, res) => {
             }
         })
     }
-    res.status(200).json({success:true, resultPending:countActive, imagePending:countPending })
+    res.status(200).json({success:true, resultPending:countActive, imagePending:countPending ,tatPending:finalPending, tatActive:finalActive  })
 });
 
 exports.pharmacistDashboard = asyncHandler(async (req, res) => {
+    var request = 0;
+    var request2 =0;
+    var finalReq =0;
+    var finalReq2 =0;
     var sixHour = moment().subtract(6, 'hours').utc().toDate();
+    const tatRRBU = await ReplenishmentRequestBU.find({status:"Completed",createdAt:{$gte:sixHour}})
+    if(tatRRBU.length>0)
+    {
+        for(let i=0; i<tatRRBU.length; i++)
+        {
+             const tatReq = (tatRRBU[i].deliveredTime - tatRRBU[i].createdAt)/1000 
+            request= request +  (tatReq/60)           
+        }
+        finalReq = request/tatRRBU.length;
+    }
+
     const orderPending = await ReplenishmentRequestBU.find({status:"pending",fuId:"5f6073fbce542e161a57017a",createdAt:{$gte:sixHour}}).countDocuments()
     const edrCount = await EDR.find({status:"pending",'dischargeRequest.status':"pending",createdAt:{$gte:sixHour}}).countDocuments()
     const iprCount = await IPR.find({status:"pending",'dischargeRequest.status':"pending",createdAt:{$gte:sixHour}}).countDocuments()
     dischargeCount = edrCount + iprCount;
     final = dischargeCount + orderPending
-    const rrtwh = await ReplenishmentRequest.find({status:"pending" , rrB:{$exists:true}}).countDocuments()
-    res.status(200).json({success:true, orderPending:final, rrtwh:rrtwh })
+    const rrtwh = await ReplenishmentRequest.find({status:"pending" ,fuId:"5f6073fbce542e161a57017a"}).countDocuments()
+    const tatRR = await ReplenishmentRequest.find({status:"completed",fuId:"5f6073fbce542e161a57017a",createdAt:{$gte:sixHour}})
+    if(tatRR.length>0)
+    {
+    for(let i=0; i<tatRR.length; i++)
+    {
+         const tatReq2 = (tatRR[i].completedTime - tatRR[i].createdAt)/1000 
+        request2= request2 +  (tatReq2/60)           
+    }
+    finalReq2 = request2/tatRR.length;
+    }
+    res.status(200).json({success:true, orderPending:final, rrtwh:rrtwh, tat1:Math.floor(finalReq), tat2:Math.floor(finalReq2) })
 });
 
 exports.consultantDashboard = asyncHandler(async (req, res) => {

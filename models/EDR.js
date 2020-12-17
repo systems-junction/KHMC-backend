@@ -120,6 +120,12 @@ const EDRSchema = new mongoose.Schema({
         serviceType: {
             type: String,
         },
+        activeDate:{
+            type:Date
+        },
+        completedDate:{
+            type:Date
+        },
         date: {
             type: Date,
             default: Date.now,
@@ -160,6 +166,12 @@ const EDRSchema = new mongoose.Schema({
         },
         serviceType: {
             type: String,
+        },
+        activeDate:{
+            type:Date
+        },
+        completedDate:{
+            type:Date
         },
         date: {
             type: Date,
@@ -233,6 +245,8 @@ const EDRSchema = new mongoose.Schema({
             type: String,
             default: 'pending',
         },
+        inProcessDate:{type:Date},
+        completionDate:{type:Date},
     },
     inPatientRequest: {},
     status: {

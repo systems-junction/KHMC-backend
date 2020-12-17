@@ -326,7 +326,7 @@ exports.addReceiveItemFU = asyncHandler(async (req, res) => {
       if (count == stat.items.length) {
         await ReplenishmentRequest.findOneAndUpdate(
           { _id: replenishmentRequestId },
-          { $set: { status: 'Received', secondStatus: 'Received' } },
+          { $set: { status: 'Received', secondStatus: 'Received',completedTime:Date.now() } },
           { new: true }
         );
       } else {

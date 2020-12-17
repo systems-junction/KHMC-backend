@@ -49,7 +49,7 @@ router.post('/whtransfer/:id',whTransfer)
 router.get('/acmdashboard', acmDashboard);
 router.get('/purchasingofficerdashboard', purchasingOfficerDashboard);
 router.get('/whikdashboard', whikDashboard);
-router.get('/fuikdashboard', fuikDashboard);
+router.get('/fuikdashboard/:id', fuikDashboard);
 router.get('/cashierdashboard', cashierDashboard);
 router.get('/icmdashboard', icmDashboard);
 router.get('/rtdashboard', rtDashboard);

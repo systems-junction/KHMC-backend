@@ -193,7 +193,7 @@ exports.addReceiveItemBU = asyncHandler(async (req, res) => {
           if (count == pror.item.length) {
             await ReplenishmentRequestBU.findOneAndUpdate(
               { _id: replenishmentRequestId },
-              { $set: { status: 'Completed', secondStatus: 'Completed' } },
+              { $set: { status: 'Completed', secondStatus: 'Completed',deliveredTime:Date.now() } },
               { new: true }
             );
           } else {

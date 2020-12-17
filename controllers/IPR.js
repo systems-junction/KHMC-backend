@@ -630,6 +630,20 @@ exports.putRRById = asyncHandler(async (req, res) => {
           request=not.radiologyRequest[i].RRrequestNo
         }
       }
+      if(data.status=="active")
+      {
+        await IPR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.activeDate': Date.now() } },
+          { new: true })
+      }
+      else if (data.status=="completed")
+      {
+        await IPR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { new: true })
+      }
       notification(
         'Radiology Request',
         'Radiology Request number ' +
@@ -658,6 +672,20 @@ exports.putRRById = asyncHandler(async (req, res) => {
         {
           request=not.radiologyRequest[i].RRrequestNo
         }
+      }
+      if(data.status=="active")
+      {
+        await IPR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.activeDate': Date.now() } },
+          { new: true })
+      }
+      else if (data.status=="completed")
+      {
+        await IPR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { new: true })
       }
       notification(
         'Radiology Request',
@@ -702,6 +730,20 @@ exports.putRRById = asyncHandler(async (req, res) => {
           request=not.radiologyRequest[i].RRrequestNo
         }
       }
+      if(data.status=="active")
+      {
+        await IPR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.activeDate': Date.now() } },
+          { new: true })
+      }
+      else if (data.status=="completed")
+      {
+        await IPR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { new: true })
+      }
       notification(
         'Radiology Request',
         'Radiology Request number ' +
@@ -730,6 +772,20 @@ exports.putRRById = asyncHandler(async (req, res) => {
         {
           request=not.radiologyRequest[i].RRrequestNo
         }
+      }
+      if(data.status=="active")
+      {
+         await EDR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.activeDate': Date.now() } },
+          { new: true })
+        }
+      else if (data.status=="completed")
+      {
+        await EDR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { new: true })
       }
       notification(
         'Radiology Request',
@@ -979,6 +1035,20 @@ exports.putLRById = asyncHandler(async (req, res) => {
           request=not.labRequest[i].LRrequestNo
         }
       }
+      if(data.status=="active")
+      {
+         await IPR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { $set: { 'labRequest.$.activeDate': Date.now() } },
+          { new: true })
+        }
+      else if (data.status=="completed")
+      {
+        await IPR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { $set: { 'labRequest.$.completedDate': Date.now() } },
+          { new: true })
+      }
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
@@ -1007,6 +1077,20 @@ exports.putLRById = asyncHandler(async (req, res) => {
         {
           request=not.labRequest[i].LRrequestNo
         }
+      }
+      if(data.status=="active")
+      {
+         await IPR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { $set: { 'labRequest.$.activeDate': Date.now() } },
+          { new: true })
+        }
+      else if (data.status=="completed")
+      {
+        await IPR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { $set: { 'labRequest.$.completedDate': Date.now() } },
+          { new: true })
       }
       notification(
         'Laboratory Request',
@@ -1050,6 +1134,20 @@ exports.putLRById = asyncHandler(async (req, res) => {
           request=not.labRequest[i].LRrequestNo
         }
       }
+      if(data.status=="active")
+      {
+         await EDR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { $set: { 'labRequest.$.activeDate': Date.now() } },
+          { new: true })
+        }
+      else if (data.status=="completed")
+      {
+        await EDR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { $set: { 'labRequest.$.completedDate': Date.now() } },
+          { new: true })
+      }
       notification(
         'Laboratory Request',
         'Laboratory Request number ' +
@@ -1078,6 +1176,20 @@ exports.putLRById = asyncHandler(async (req, res) => {
           {
             request=not.labRequest[i].LRrequestNo
           }
+        }
+        if(data.status=="active")
+        {
+           await EDR.findOneAndUpdate(
+            { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+            { $set: { 'labRequest.$.activeDate': Date.now() } },
+            { new: true })
+          }
+        else if (data.status=="completed")
+        {
+          await EDR.findOneAndUpdate(
+            { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+            { $set: { 'labRequest.$.completedDate': Date.now() } },
+            { new: true })
         }
       notification(
         'Laboratory Request',

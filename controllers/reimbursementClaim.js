@@ -131,12 +131,12 @@ exports.getPatientInsurance = asyncHandler(async (req, res) => {
 exports.getPatientDischarged = asyncHandler(async (req, res) => {
   var array=[]
   var secondArray=[]
-  const ipr = await IPR.find({functionalUnit:req.params.id, status: "Discharged" }).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender amountReceived QR insuranceVendor insuranceNo weight').select({patientId:1})
-    for(let i = 0; i<ipr.length; i++)
+  const ipr = await IPR.find({functionalUnit:req.params.id, status: "Discharge Requested" }).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender amountReceived QR insuranceVendor insuranceNo weight').select({patientId:1})
+  for(let i = 0; i<ipr.length; i++)
     {
         array.push(ipr[i].patientId) 
     }
-  const edr = await EDR.find({ status: "Discharged" }).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender amountReceived QR insuranceVendor insuranceNo weight').select({patientId:1})
+  const edr = await EDR.find({ status: "Discharge Requested" }).populate('patientId','profileNo firstName lastName SIN mobileNumber phoneNumber age gender amountReceived QR insuranceVendor insuranceNo weight').select({patientId:1})
     for(let i = 0; i<edr.length; i++)
     {
         array.push(edr[i].patientId)
@@ -549,7 +549,7 @@ else{
 });
 
 exports.updateClaims = asyncHandler(async (req, res, next) => {
-  var { _id } = JSON.parse(req.body.data);
+   var { _id } = JSON.parse(req.body.data);
 
   var rc = await RC.findById(_id);
   if (!rc) {
@@ -566,12 +566,13 @@ exports.updateClaims = asyncHandler(async (req, res, next) => {
     await RC.updateOne({ _id: _id }, JSON.parse(req.body.data));
     rc = await RC.findOneAndUpdate(
       { _id: _id },
-      { $set: { document: arr } },
+      { $set: { document: arr, inProcessTime: Date.now()}},
       JSON.parse(req.body.data)
     );
 
   } else {
     rc = await RC.findOneAndUpdate({ _id: _id }, JSON.parse(req.body.data));
+    await RC.findByIdAndUpdate({_id:_id},{$set:{inProcessTime: Date.now()}})
   }
   res.status(200).json({ success: true, data: rc });
 });

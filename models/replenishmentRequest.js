@@ -113,6 +113,9 @@ const replenishmentRequestSchema = new mongoose.Schema({
   inProgressTime:{
     type:Date,
   },
+  completedTime:{
+    type:Date
+  },
   createdAt: {
     type: Date,
     default: Date.now,

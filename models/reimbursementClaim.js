@@ -28,6 +28,9 @@ const reimbursementClaimSchema = new mongoose.Schema({
         responseCode:{
             type:String
         },
+        inProcessTime:{
+          type:Date
+        },
         createdAt: {
             type: Date,
             default: Date.now

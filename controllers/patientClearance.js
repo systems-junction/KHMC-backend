@@ -1,6 +1,8 @@
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const PatientClearance = require('../models/patientClearance');
+const EDR = require('../models/EDR')
+const IPR = require('../models/IPR')
 const requestNoFormat = require('dateformat');
 
 exports.getPatientClearance = asyncHandler(async (req, res) => {
@@ -28,6 +30,14 @@ exports.addPatientClearance = asyncHandler(async (req, res) => {
   var diff = now - start + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
+  if(edrId)
+  {
+    await EDR.findOneAndUpdate({_id:edrId},{ $set: { status:"Discharged",'dischargeRequest.status': 'Complete', 'dischargeRequest.completionDate':Date.now() } })
+  }
+  else if(iprId)
+  {
+    await IPR.findOneAndUpdate({_id:iprId},{ $set: { status:"Discharged",'dischargeRequest.status': 'Complete', 'dischargeRequest.completionDate':Date.now() } })
+  }
    const patient = await PatientClearance.create({
       clearanceNo: 'PC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
       patientId,edrId,iprId,generatedBy,consultantFee,residentFee,subTotal,total,returnedAmount
