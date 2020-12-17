@@ -284,34 +284,89 @@ exports.purchasingOfficerDashboard = asyncHandler(async (req, res) => {
 });
 
 exports.whikDashboard = asyncHandler(async (req, res) => {
+    
+    var sixHour = moment().subtract(6, 'hours').utc().toDate();
+
+
     let pharmaPending = 0
     let nonPharmaPending = 0
     let nonMedicalPending = 0
     let replenishmentRequest = {}
-    var timePh = 0
-    var timeNph = 0
-    var timeNm = 0
-    const tat = await ReplenishmentRequest.find({status:"Fulfillment Initiated"}).populate('items.itemId')
+
+    let timeForAllReqPharma = 0
+    let timeForAllReqNonPharma = 0
+    let timeForAllReqNonMed = 0
+
+    let countOfReqContainPharma = 0
+    let countOfReqContainNonPharma = 0
+    let countOfReqContainNonMed = 0
+    
+    const tat = await ReplenishmentRequest.find({createdAt:{$gte:sixHour}}).populate('items.itemId')
+    
     for(let i=0; i<tat.length; i++)
     {
+    
+        if(tat[i].status!=='pending'){
+        var timePh = 0
+        var timeNph = 0
+        var timeNm = 0
+    
+        let countForPharma = 0
+        let countForNonPharma = 0
+        let countForNonMed = 0
+    
+        let timeForSingleReqPharma = 0
+        let timeForSingleReqNonPharma = 0
+        let timeForSingleReqNonMed = 0
+      
         tat[i].items.forEach((element,index) => {
             if(element.itemId.medClass=="Pharmaceutical")
             {
             var milPh = (tat[i].inProgressTime - tat[i].createdAt)/1000
-            timePh= ((timePh+milPh)/(index+1))/60
+            timePh= timePh +  (milPh/60)
+            countForPharma++
             }
             else if (element.itemId.medClass=="Non Pharmaceutical")
             {
                 var milNph = (tat[i].inProgressTime - tat[i].createdAt)/1000
-                timeNph= ((timeNph+milNph)/(index+1))/60
+                timeNph= timeNph+  (milNph/60)
+            countForNonPharma++
             }
+
             else if (element.itemId.cls=="Non-Medical")
             {
             var milNm = (tat[i].inProgressTime - tat[i].createdAt)/1000
-            timeNm= ((timeNm+milNm)/(index+1))/60
+            timeNm= timeNm + (milNm/60)
+            countForNonMed++
             }
         }) 
+
+        if(countForPharma)
+        {
+            countOfReqContainPharma++
+          timeForSingleReqPharma =  timePh / countForPharma
+        }
+        if(countForNonPharma)
+        {
+            countOfReqContainNonPharma++
+          timeForSingleReqNonPharma =  timeNph / countForNonPharma
+        }
+        if(countForNonMed)
+        {countOfReqContainNonMed++
+          timeForSingleReqNonMed =  timeNm / countForNonMed 
+        }
+
+        timeForAllReqPharma = timeForAllReqPharma + timeForSingleReqPharma
+        timeForAllReqNonPharma = timeForAllReqNonPharma + timeForSingleReqNonPharma
+        timeForAllReqNonMed = timeForAllReqNonMed + timeForSingleReqNonMed
     }
+    }
+
+let finalTatForPharma = countOfReqContainPharma ? timeForAllReqPharma / countOfReqContainPharma : 0
+let finalTatForNonPharma = countOfReqContainNonPharma ? timeForAllReqNonPharma / countOfReqContainNonPharma : 0
+let finalTatForNonMed = countOfReqContainNonMed ? timeForAllReqNonMed / countOfReqContainNonMed : 0
+
+
     const pending = await ReplenishmentRequest.find({status:"pending"}).populate('items.itemId')
     for(let i=0; i<pending.length; i++)
     {
@@ -333,10 +388,46 @@ exports.whikDashboard = asyncHandler(async (req, res) => {
     replenishmentRequest.pharma = pharmaPending
     replenishmentRequest.nonPharma =nonPharmaPending
     replenishmentRequest.nonMedical = nonMedicalPending
+    replenishmentRequest.finalTatForPharma= Math.floor(finalTatForPharma)
+    replenishmentRequest.finalTatForNonPharma =  Math.floor(finalTatForNonPharma)
+    replenishmentRequest.finalTatForNonMed=   Math.floor(finalTatForNonMed)  
+    
+
+    const tatForPr = await PurchaseRequest.find({generated:"Manual",committeeStatus:"approved",createdAt:{$gte:sixHour}})
+    var time = 0
+    var timeForJitPr= 0
+    for(let i=0; i<tatForPr.length; i++)
+    {
+        const mil = (tatForPr[i].inProgressTime - tatForPr[i].createdAt)/1000
+        if(tatForPr[i].status!=="pending"){
+        time= time + mil
+        if( tatForPr[i].reason==='jit'){
+            timeForJitPr= timeForJitPr + mil
+            }
+    }
+    }
+    const finalTatForPr = (time/tatForPr.length)/60
+    const finalTatForJitPr = (timeForJitPr/tatForPr.length)/60
+
+
+    const tatpo = await PurchaseOrder.find({generated:"Manual",committeeStatus:"approved",status:"pending_receipt",createdAt:{$gte:sixHour}})
+    var timepo = 0
+    for(let i=0; i<tatpo.length; i++)
+    {
+        const milpo = (tatpo[i].inProgressTime - tatpo[i].createdAt)/1000
+        timepo= timepo+milpo
+    }
+    const finalTatpo = (timepo/tatpo.length)/60
+
+console.log(finalTatpo)
     const prVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending"}).countDocuments();
     const jitPrVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending",reason:"JIT"}).countDocuments();
     const poCompletionPending = await PurchaseOrder.find({status:{$ne:"complete"}}).countDocuments()
-    res.status(200).json({success:true, replenishmentRequestPending:replenishmentRequest, poCompletionPending:poCompletionPending, prVerificationPending:prVerificationPending, jitPrVerificationPending:jitPrVerificationPending})
+    res.status(200).json({success:true, replenishmentRequestPending:replenishmentRequest, poCompletionPending:poCompletionPending, prVerificationPending:prVerificationPending, jitPrVerificationPending:jitPrVerificationPending,
+        finalTatForPr: Math.floor(finalTatForPr),
+        finalTatForJitPr: Math.floor(finalTatForJitPr),
+        finalTatpo: Math.floor(finalTatpo)
+    })
 });
 
 exports.fuikDashboard = asyncHandler(async (req, res) => {
