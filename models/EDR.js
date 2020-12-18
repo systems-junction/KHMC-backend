@@ -167,6 +167,9 @@ const EDRSchema = new mongoose.Schema({
         serviceType: {
             type: String,
         },
+        consultationNote:{
+            type:String
+        },
         activeDate:{
             type:Date
         },

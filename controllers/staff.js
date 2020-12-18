@@ -72,7 +72,7 @@ exports.getExternalConsultant = asyncHandler(async (req, res) => {
 });
 exports.getExternalConsultantName = asyncHandler(async (req, res) => {
   const staff = await Staff.aggregate([
-    {$match:{staffTypeId:ObjectId('5f28f500b0d678b22fd9cafb')}},
+    {$match:{staffTypeId:ObjectId('5f508dff194c9433b03183d5')}},
     {
         $project: {
           name: { $concat: ['$firstName', ' ', '$lastName'] },

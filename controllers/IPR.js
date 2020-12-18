@@ -611,10 +611,6 @@ exports.putRRById = asyncHandler(async (req, res) => {
     if (req.file) {
       await IPR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
-        data
-      );
-      await IPR.findOneAndUpdate(
-        { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         { $set: { 'radiologyRequest.$.results': req.file.path } },
         { new: true }
       );
@@ -641,7 +637,7 @@ exports.putRRById = asyncHandler(async (req, res) => {
       {
         await IPR.findOneAndUpdate(
           { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
-          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now(),'radiologyRequest.$.consultationNote':data.consultationNote } },
           { new: true })
       }
       notification(
@@ -657,10 +653,6 @@ exports.putRRById = asyncHandler(async (req, res) => {
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
     } else {
-      await IPR.findOneAndUpdate(
-        { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
-        data
-      );
       not = await IPR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
@@ -684,7 +676,7 @@ exports.putRRById = asyncHandler(async (req, res) => {
       {
         await IPR.findOneAndUpdate(
           { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
-          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now(),'radiologyRequest.$.consultationNote':data.consultationNote } },
           { new: true })
       }
       notification(
@@ -709,10 +701,7 @@ exports.putRRById = asyncHandler(async (req, res) => {
 
   if (b !== null) {
     if (req.file) {
-      await EDR.findOneAndUpdate(
-        { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
-        data
-      );
+
       await EDR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
         { $set: { 'radiologyRequest.$.results': req.file.path } },
@@ -732,16 +721,16 @@ exports.putRRById = asyncHandler(async (req, res) => {
       }
       if(data.status=="active")
       {
-        await IPR.findOneAndUpdate(
-          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+        await EDR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
           { $set: { 'radiologyRequest.$.activeDate': Date.now() } },
           { new: true })
       }
       else if (data.status=="completed")
       {
-        await IPR.findOneAndUpdate(
-          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
-          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+        await EDR.findOneAndUpdate(
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now(),'radiologyRequest.$.consultationNote':data.consultationNote } },
           { new: true })
       }
       notification(
@@ -757,10 +746,6 @@ exports.putRRById = asyncHandler(async (req, res) => {
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
     } else {
-      await EDR.findOneAndUpdate(
-        { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
-        data
-      );
       not = await EDR.findOneAndUpdate(
         { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
         { $set: { 'radiologyRequest.$.status': data.status } },
@@ -776,15 +761,15 @@ exports.putRRById = asyncHandler(async (req, res) => {
       if(data.status=="active")
       {
          await EDR.findOneAndUpdate(
-          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
           { $set: { 'radiologyRequest.$.activeDate': Date.now() } },
           { new: true })
         }
       else if (data.status=="completed")
       {
         await EDR.findOneAndUpdate(
-          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.IPRId },
-          { $set: { 'radiologyRequest.$.completedDate': Date.now() } },
+          { 'radiologyRequest._id': data.radiologyRequestId, _id: data.EDRId },
+          { $set: { 'radiologyRequest.$.completedDate': Date.now(),'radiologyRequest.$.consultationNote':data.consultationNote } },
           { new: true })
       }
       notification(
@@ -1016,10 +1001,6 @@ exports.putLRById = asyncHandler(async (req, res) => {
     if (req.file) {
       await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        data
-      );
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
         { $set: { 'labRequest.$.results': req.file.path, 'labRequest.$.sampleId':data.sampleId } },
         { new: true }
       );
@@ -1062,10 +1043,6 @@ exports.putLRById = asyncHandler(async (req, res) => {
       const pat = await IPR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
     } else {
-      await IPR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.IPRId },
-        data
-      );
       not = await IPR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.IPRId },
         { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
@@ -1115,10 +1092,6 @@ exports.putLRById = asyncHandler(async (req, res) => {
     if (req.file) {
       await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        data
-      );
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
         { $set: { 'labRequest.$.results': req.file.path, 'labRequest.$.sampleId':data.sampleId  } },
         { new: true }
       );
@@ -1136,15 +1109,15 @@ exports.putLRById = asyncHandler(async (req, res) => {
       }
       if(data.status=="active")
       {
-         await EDR.findOneAndUpdate(
-          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+           await EDR.findOneAndUpdate(
+          { 'labRequest._id': data.labRequestId, _id: data.EDRId },
           { $set: { 'labRequest.$.activeDate': Date.now() } },
           { new: true })
         }
       else if (data.status=="completed")
       {
         await EDR.findOneAndUpdate(
-          { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+          { 'labRequest._id': data.labRequestId, _id: data.EDRId },
           { $set: { 'labRequest.$.completedDate': Date.now() } },
           { new: true })
       }
@@ -1161,10 +1134,6 @@ exports.putLRById = asyncHandler(async (req, res) => {
       const pat = await EDR.findOne({ patientId: not.patientId });
       globalVariable.io.emit('get_data', pat);
     } else {
-      await EDR.findOneAndUpdate(
-        { 'labRequest._id': data.labRequestId, _id: data.EDRId },
-        data
-      );
       not = await EDR.findOneAndUpdate(
         { 'labRequest._id': data.labRequestId, _id: data.EDRId },
         { $set: { 'labRequest.$.status': data.status, 'labRequest.$.sampleId':data.sampleId  } },
@@ -1180,14 +1149,14 @@ exports.putLRById = asyncHandler(async (req, res) => {
         if(data.status=="active")
         {
            await EDR.findOneAndUpdate(
-            { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+            { 'labRequest._id': data.labRequestId, _id: data.EDRId },
             { $set: { 'labRequest.$.activeDate': Date.now() } },
             { new: true })
           }
         else if (data.status=="completed")
         {
           await EDR.findOneAndUpdate(
-            { 'labRequest._id': data.labRequestId, _id: data.IPRId },
+            { 'labRequest._id': data.labRequestId, _id: data.EDRId },
             { $set: { 'labRequest.$.completedDate': Date.now() } },
             { new: true })
         }
