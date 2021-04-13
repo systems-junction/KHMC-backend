@@ -8,6 +8,10 @@ const User = require('../models/user');
 const FU = require('../models/functionalUnit')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+
+const fetch = require('node-fetch');
+const blockchainUrl = require("../components/blockchain");
+
 exports.updateSuper = asyncHandler(async (req, res) => {
   const { _id } = req.body;
   const user = await User.findOne({ _id: "5ed4c193c14d663bb2125a87" });
@@ -118,7 +122,26 @@ exports.addStaff = asyncHandler(async (req, res) => {
     status,
     routes
   });
-
+  const string= JSON.stringify(staff)
+  var parser = JSON.parse(string)
+  parser.staffId = parser._id;
+  delete parser._id;
+  delete parser.staffTypeId;
+  (async () => {
+    try {
+        const response = await fetch(blockchainUrl+"addStaff", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(parser),
+          })
+      const json = await response.json()
+      console.log(json)
+    } catch (error) {
+      console.log(error.response.body);
+    }
+  })();
   // Create user
   await User.create({
     name: firstName + ' ' + lastName,
@@ -161,6 +184,27 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
 
   staff = await Staff.updateOne({ _id: _id }, req.body);
 
+  const string= JSON.stringify(staff)
+  var parser = JSON.parse(string)
+  parser.staffId = parser._id;
+  delete parser._id;
+  delete parser.staffTypeId;
+  (async () => {
+    try {
+        const response = await fetch(blockchainUrl+"updateStaff", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(parser),
+          })
+      const json = await response.json()
+      console.log(json)
+    } catch (error) {
+      console.log(error.response.body);
+    }
+  })();
+  
   const user = await User.findOne({ staffId: _id });
   if (user) {
     // update user

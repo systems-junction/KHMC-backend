@@ -12,6 +12,10 @@ const requestNoFormat = require('dateformat');
 var QRCode = require('qrcode');
 var base64ToImage = require('base64-to-image');
 
+const fetch = require('node-fetch');
+const blockchainUrl = require("../components/blockchain");
+
+
 exports.getPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find()
     .populate('receivedBy')
@@ -267,7 +271,6 @@ exports.addPatient = asyncHandler(async (req, res) => {
       bankName: parsed.bankName,
       depositorName: parsed.depositorName,
       depositSlip: req.file.path,
-      // insuranceId: parsed.insuranceId,
       insuranceNo: parsed.insuranceNo,
       insuranceVendor: parsed.insuranceVendor,
       coverageDetails: parsed.coverageDetails,
@@ -280,8 +283,30 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
-      otherCity: parsed.otherCity
+      otherCity: parsed.otherCity,
+      paymentDate:parsed.paymentDate
     });
+
+    const string= JSON.stringify(patient)
+    var parser = JSON.parse(string)
+    delete parser._id;
+    (async () => {
+      try {
+          const response = await fetch(blockchainUrl+"addPatient", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(parser),
+            })
+        const json = await response.json()
+        console.log(json)
+      } catch (error) {
+        console.log(error.response.body);
+      }
+    })();
+
+
   } else {
     patient = await Patient.create({
       profileNo: 'KHMC' + day + requestNoFormat(new Date(), 'yyHHMMss'),
@@ -323,9 +348,33 @@ exports.addPatient = asyncHandler(async (req, res) => {
       emergencyRelation: parsed.emergencyRelation,
       coveredFamilyMembers: parsed.coveredFamilyMembers,
       otherCoverageDetails: parsed.otherCoverageDetails,
-      otherCity: parsed.otherCity
+      otherCity: parsed.otherCity,
+      paymentDate:parsed.paymentDate
     });
+
+    const string= JSON.stringify(patient)
+    var parser = JSON.parse(string)
+    delete parser._id;
+    delete parser.depositSlip;  
+    (async () => {
+      try {
+          const response = await fetch(blockchainUrl+"addPatient", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(parser),
+            })
+        const json = await response.json()
+        console.log(json)
+      } catch (error) {
+        console.log(error.response.body);
+      }
+    })();
+
   }
+
+  
   notification(
     'Patient Registered',
     'A new Patient with MRN ' + patient.profileNo + ' has been registered ',
@@ -333,6 +382,11 @@ exports.addPatient = asyncHandler(async (req, res) => {
     '/home/rcm/patientAssessment',
     patient._id
   );
+
+  
+
+
+
   let obj = {}
   obj.profileNo = patient.profileNo
   obj.age = patient.age
@@ -405,6 +459,10 @@ exports.deletePatient = asyncHandler(async (req, res, next) => {
   }
   await Patient.deleteOne({ _id: _id });
 });
+
+
+
+
 exports.updatePatient = asyncHandler(async (req, res, next) => {
   var { _id } = JSON.parse(req.body.data);
   var patient = await Patient.findById(_id);
@@ -418,11 +476,32 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       JSON.parse(req.body.data),
       { new: true }
     );
-    await Patient.findOneAndUpdate(
+    //new const patient added
+   patient = await Patient.findOneAndUpdate(
       { _id: _id },
       { $set: { depositSlip: req.file.path } },
       { new: true }
     );
+    const string= JSON.stringify(patient)
+    var parser = JSON.parse(string)
+    delete parser._id;
+    delete parser.QR;  
+    (async () => {
+      try {
+          const response = await fetch(blockchainUrl+"updatePatient", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(parser),
+            })
+        const json = await response.json()
+        console.log(json)
+      } catch (error) {
+        console.log(error.response.body);
+      }
+    })();
+
     if (!patientQR.QR) {
       let obj = {}
       obj.profileNo = patient.profileNo
@@ -455,6 +534,26 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
       JSON.parse(req.body.data),
       { new: true }
     );
+    const string= JSON.stringify(patient)
+    var parser = JSON.parse(string)
+    delete parser._id;
+    delete parser.depositSlip;  
+    delete parser.QR;  
+    (async () => {
+      try {
+          const response = await fetch(blockchainUrl+"addPatient", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(parser),
+            })
+        const json = await response.json()
+        console.log(json)
+      } catch (error) {
+        console.log(error.response.body);
+      }
+    })();
     if (!patientQR.QR) {
       let obj = {}
       obj.profileNo = patient.profileNo
@@ -483,6 +582,11 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
   }
 
 });
+
+
+
+
+
 exports.updatePatientFHIR = asyncHandler(async (req, res, next) => {
   var { _id } = req.body;
   var patientfhir = await PatientFHIR.findById(_id);
