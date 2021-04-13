@@ -419,7 +419,7 @@ let finalTatForNonMed = countOfReqContainNonMed ? timeForAllReqNonMed / countOfR
     }
     const finalTatpo = (timepo/tatpo.length)/60
     const prVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending"}).countDocuments();
-    const jitPrVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending",reason:"JIT"}).countDocuments();
+    const jitPrVerificationPending = await PurchaseRequest.find({generated:"Manual",committeeStatus:"pending",reason:"jit"}).countDocuments();
     const poCompletionPending = await PurchaseOrder.find({status:{$ne:"complete"}}).countDocuments()
     res.status(200).json({success:true, replenishmentRequestPending:replenishmentRequest, poCompletionPending:poCompletionPending, prVerificationPending:prVerificationPending, jitPrVerificationPending:jitPrVerificationPending,
         finalTatForPr: Math.floor(finalTatForPr),
@@ -618,18 +618,18 @@ let finalTatForNonMed = countOfReqContainNonMed ? timeForAllReqNonMed / countOfR
     replenishmentRequestBU.finalTatForNonPharma =  Math.floor(BUfinalTatForNonPharma)
     replenishmentRequestBU.finalTatForNonMed=   Math.floor(BUfinalTatForNonMed)  
 
-    const jitTat = await ReplenishmentRequest.find({fuId:req.params.id,reason:"JIT",createdAt:{$gte:sixHour}})
+    const jitTat = await ReplenishmentRequest.find({fuId:req.params.id,reason:"jit",createdAt:{$gte:sixHour}})
     var timeForJit= 0
     for(let i=0; i<jitTat.length; i++)
     {
-        const milJit = (jitTat[i].inProgressTime - jiTtat[i].createdAt)/1000
+        const milJit = (jitTat[i].inProgressTime - jitTat[i].createdAt)/1000
         if(jitTat[i].status!=="pending"){
         timeForJit= timeForJit + milJit
     }
     }
     const finalTatForJit = (timeForJit/jitTat.length)/60
 
-    const jitRrVerificationPending = await ReplenishmentRequest.find({fuId:req.params.id,generated:"Manual",committeeStatus:"pending",reason:"JIT"}).countDocuments();
+    const jitRrVerificationPending = await ReplenishmentRequest.find({fuId:req.params.id,generated:"Manual",secondStatus:"pending",reason:"jit"}).countDocuments();
    
     res.status(200).json({success:true, fulfillmentPending:replenishmentRequest , orderPending:replenishmentRequestBU, jitRrVerificationPending:jitRrVerificationPending , tatForJit:finalTatForJit})
 });
@@ -1390,33 +1390,57 @@ exports.doctorDashboard = asyncHandler(async (req, res) => {
             }
         })
     }
-    const edrMain = await EDR.find({status:"pending"})
+    const edrMain = await EDR.find({status:"pending"}).populate('pharmacyRequest')
     for( let i = 0; i<edrMain.length; i++)
     {
-        if(edrMain[i].labRequest.length==0)
+        for(let j=0;j< edrMain[i].labRequest.length;j++)
         {
-            countPendingLab++
+            if(edrMain[i].labRequest[j].status==='pending')
+            {
+                countPendingLab++
+            }
         }
-        if(edrMain[i].pharmacyRequest.length==0)
+        
+        // if(edrMain[i].pharmacyRequest.length==0)
+        // {
+        //     countPendingPharmacy++
+        // }
+
+        for(let j=0;j< edrMain[i].pharmacyRequest.length;j++)
         {
-            countPendingPharmacy++
+            if(edrMain[i].pharmacyRequest[j].status==='pending')
+            {
+                countPendingPharmacy++
+            }
         }
         if(edrMain[i].residentNotes.length==0)
         {
             countPendingDiagnosis++
         }
     }
-    const iprMain = await IPR.find({status:"pending"})
+    const iprMain = await IPR.find({status:"pending"}).populate("pharmacyRequest")
     for( let i = 0; i<iprMain.length; i++)
     {
-        if(iprMain[i].labRequest.length==0)
+        for(let j=0;j< iprMain[i].labRequest.length;j++)
         {
-            countPendingLab++
+            if(iprMain[i].labRequest[j].status==='pending')
+            {
+                countPendingLab++
+            }
         }
-        if(iprMain[i].pharmacyRequest.length==0)
+        // if(iprMain[i].pharmacyRequest.length==0)
+        // {
+        //     countPendingPharmacy++
+        // }
+
+        for(let j=0;j< iprMain[i].pharmacyRequest.length;j++)
         {
-            countPendingPharmacy++
+            if(iprMain[i].pharmacyRequest[j].status==='pending')
+            {
+                countPendingPharmacy++
+            }
         }
+
         if(iprMain[i].residentNotes.length==0)
         {
             countPendingDiagnosis++
@@ -1588,13 +1612,39 @@ exports.nurseDashboard = asyncHandler(async (req, res) => {
     const edrTreatment = await EDR.find({status:"pending",pharmacyRequest:[]}).countDocuments()
     const iprTreatment = await IPR.find({status:"pending",pharmacyRequest:[]}).countDocuments()
     const treatmentPending = edrTreatment+iprTreatment
-    const edrLab = await EDR.find({status:"pending",labRequest:{$ne:[]}}).countDocuments()
-    const iprLab = await IPR.find({status:"pending",labRequest:{$ne:[]}}).countDocuments()
+
+    const edLab = await EDR.find({status:"pending",labRequest:{$ne:[]}})
+    const ipLab = await IPR.find({status:"pending",labRequest:{$ne:[]}})
+    let edrLab =0 ; let iprLab=0
+    for(let i=0;i< edLab.length;i++)
+    {
+        for(let j=0;j< edLab[i].labRequest.length;j++)
+        {
+            if(edLab[i].labRequest[j].status==='pending')
+            {
+                edrLab++
+            }
+        }
+    }
+
+    for(let i=0;i< ipLab.length;i++)
+    {
+        for(let j=0;j< ipLab[i].labRequest.length;j++)
+        {
+            if(ipLab[i].labRequest[j].status==='pending')
+            {
+            iprLab++
+            }
+        }
+    }
+    
     const labPending = edrLab+iprLab
+    
+    
     const edrHour = await EDR.find({'createdAt':{$gte:lastHour}}).countDocuments()
     const iprHour = await IPR.find({'createdAt':{$gte:lastHour}}).countDocuments()
     let perHour = edrHour + iprHour
-    const perHourCount = 0;
+    let perHourCount = 0;
     if(perHour)
     {
      perHourCount = 60/perHour
@@ -1616,7 +1666,7 @@ exports.roDashboard = asyncHandler(async (req, res) => {
     const edrHour = await EDR.find({'createdAt':{$gte:lastHour}}).countDocuments()
     const iprHour = await IPR.find({'createdAt':{$gte:lastHour}}).countDocuments()
     let perHour = edrHour + iprHour
-    const perHourCount = 0;
+    let perHourCount = 0;
     if(perHour)
     {
      perHourCount = 60/perHour
