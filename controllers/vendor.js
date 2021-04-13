@@ -3,6 +3,9 @@
     const asyncHandler = require('../middleware/async');
     const Vendor = require('../models/vendor');
 
+    const fetch = require('node-fetch');
+    const blockchainUrl = require("../components/blockchain");
+
     exports.getVendors = asyncHandler(async (req, res) => {
       const vendor = await Vendor.find();
       const statues = [{key:'active', value:'Active'}, {key:'in_active', value:'In Active'}];
@@ -39,7 +42,25 @@
         taxno, contactPersonName, contactPersonTelephone, contactPersonEmail,
         paymentTerms, rating, status, cls, subClass,arabicName,compliance 
       });
-
+      const string= JSON.stringify(vendor)
+      var parser = JSON.parse(string)
+      delete parser._id;
+      parser.shippingTerms = " ";
+      (async () => {
+        try {
+            const response = await fetch(blockchainUrl+"addVendor", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(parser),
+              })
+          const json = await response.json()
+          console.log(json)
+        } catch (error) {
+          console.log(error.response.body);
+        }
+      })();
       res.status(200).json({ success: true, data: vendor });
     });
 
@@ -69,7 +90,25 @@
         );
       }
 
-      vendor = await Vendor.updateOne({_id: _id}, req.body);
-
+      vendor = await Vendor.findOneAndUpdate({_id: _id}, req.body);
+      const string= JSON.stringify(vendor)
+      var parser = JSON.parse(string)
+      delete parser._id;
+      parser.shippingTerms = " ";
+      (async () => {
+        try {
+            const response = await fetch(blockchainUrl+"updateVendor", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(parser),
+              })
+          const json = await response.json()
+          console.log(json)
+        } catch (error) {
+          console.log(error.response.body);
+        }
+      })();
       res.status(200).json({ success: true, data: vendor });
     });

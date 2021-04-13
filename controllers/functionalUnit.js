@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 
-const fetch = require('node-fetch');
+
 
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
@@ -9,6 +9,7 @@ const FunctionalUnitLog = require('../models/functionalUnitLogs');
 const BusinessUnit = require('../models/businessUnit');
 const Staff = require('../models/staff');
 
+const fetch = require('node-fetch');
 const blockchainUrl = require("../components/blockchain");
 
 exports.getFUById = asyncHandler(async (req, res) => {
