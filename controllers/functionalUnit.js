@@ -1,11 +1,18 @@
 const { v4: uuidv4 } = require('uuid');
 const mongoose = require('mongoose');
+const fetch = require('node-fetch');
+
+
+
+
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const FunctionalUnit = require('../models/functionalUnit');
 const FunctionalUnitLog = require('../models/functionalUnitLogs');
 const BusinessUnit = require('../models/businessUnit');
 const Staff = require('../models/staff');
+
+const blockchainUrl = require("../components/blockchain");
 
 exports.getFUById = asyncHandler(async (req, res) => {
   const functionalUnits = await FunctionalUnit.findOne({_id:req.params._id}).populate('fuHead').populate('buId');  
@@ -38,28 +45,42 @@ exports.getFunctionalUnitLogs = asyncHandler(async (req, res) => {
 });
 
 exports.addFunctionalUnit = asyncHandler(async (req, res) => {
-  const { fuName, description, fuHead, buId, status, updatedBy, reason } = req.body;
-  const _id = new mongoose.mongo.ObjectID();
-
-  const fuLogs = await FunctionalUnitLog.create({
-    uuid: uuidv4(),
-    status,
-    reason,
-    fuId: _id,
-    updatedBy
-  });
+  const { fuName, description, fuHead, buId, status } = req.body;
 
   const functionalUnit = await FunctionalUnit.create({
-    _id,
     uuid: uuidv4(),
     fuName,
     description,
     fuHead,
     buId,
-    status,
-    fuLogId: fuLogs._id
+    status
   });
-
+  const BC = {
+    uuid: functionalUnit.uuid,
+    fuName:functionalUnit.fuName,
+    description:functionalUnit.description,
+    fuHead:functionalUnit.fuHead,
+    status:functionalUnit.status,
+    buId:functionalUnit.buId,
+    fuLogId:" ",
+    createdAt:functionalUnit.createdAt,
+    updatedAt:functionalUnit.updatedAt
+  }; 
+  (async () => {
+    try {
+        const response = await fetch(blockchainUrl+"addFunctionalUnit", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(BC),
+          })
+      const json = await response.json()
+      console.log(json)
+    } catch (error) {
+      console.log(error.response.body);
+    }
+  })();
   res.status(200).json({ success: true, data: functionalUnit });
 });
 
@@ -79,32 +100,9 @@ exports.deleteFunctionalUnit = asyncHandler(async (req, res, next) => {
 
 exports.updateFunctionalUnit = asyncHandler(async (req, res, next) => {
 
-  const { _id, fuLogId, updatedBy, reason, status } = req.body;
+  const { _id } = req.body;
 
-  let functionalUnitLog = await FunctionalUnitLog.findById(fuLogId);
   let functionalUnit = await FunctionalUnit.findById(_id);
-
-  if(!functionalUnitLog) {
-    return next(
-      new ErrorResponse(`Functional unit Log not found with id of ${_id}`, 404)
-    );
-  }
-  else if(updatedBy !== functionalUnitLog.updatedBy || (status && functionalUnitLog.status !== status)){ // create new log when staus or updated by changed
-    functionalUnitLog = await FunctionalUnitLog.create({
-      uuid: uuidv4(),
-      status,
-      reason,
-      fuId: functionalUnit._id,
-      updatedBy
-    });
-    req.body.fuLogId = functionalUnitLog._id;
-  }   
-  else if(functionalUnitLog.reason !== reason){ // update the log when only reason changes
-    functionalUnitLog.status = status;
-    functionalUnitLog.updatedBy = updatedBy;
-    functionalUnitLog.reason = reason;
-    functionalUnitLog = await FunctionalUnitLog.updateOne({_id: fuLogId}, functionalUnitLog);
-  }
 
   if(!functionalUnit) {
     return next(
@@ -112,9 +110,37 @@ exports.updateFunctionalUnit = asyncHandler(async (req, res, next) => {
     );
   }
 
-  functionalUnit = await FunctionalUnit.updateOne({_id: _id}, req.body);
+  functionalUnit = await FunctionalUnit.findOneAndUpdate({_id: _id}, req.body);
+  const BC = {
+    uuid: functionalUnit.uuid,
+    fuName:functionalUnit.fuName,
+    description:functionalUnit.description,
+    fuHead:functionalUnit.fuHead,
+    status:functionalUnit.status,
+    buId:functionalUnit.buId,
+    fuLogId:" ",
+    createdAt:functionalUnit.createdAt,
+    updatedAt:functionalUnit.updatedAt
+  }; 
+  (async () => {
+    try {
+        const response = await fetch(blockchainUrl+"updateFunctionalUnit", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(BC)
+          })
+      const json = await response.json()
+      console.log(json)
+    } catch (error) {
+      console.log(error.response.body);
+    }
+  })();
+
   res.status(200).json({ success: true, data: functionalUnit });
 });
+
 exports.getHead = asyncHandler(async (req, res) => {
   const head = await FunctionalUnit.find({fuHead: req.params._id}).populate('buId');
   res.status(200).json({ success: true, data: head });
