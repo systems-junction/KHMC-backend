@@ -1,9 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
-const mongoose = require('mongoose');
+
 const fetch = require('node-fetch');
-
-
-
 
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
@@ -55,17 +52,10 @@ exports.addFunctionalUnit = asyncHandler(async (req, res) => {
     buId,
     status
   });
-  const BC = {
-    uuid: functionalUnit.uuid,
-    fuName:functionalUnit.fuName,
-    description:functionalUnit.description,
-    fuHead:functionalUnit.fuHead,
-    status:functionalUnit.status,
-    buId:functionalUnit.buId,
-    fuLogId:" ",
-    createdAt:functionalUnit.createdAt,
-    updatedAt:functionalUnit.updatedAt
-  }; 
+  const string= JSON.stringify(functionalUnit)
+  var parser = JSON.parse(string)
+  delete parser._id;
+  parser.fuLogId = " ";
   (async () => {
     try {
         const response = await fetch(blockchainUrl+"addFunctionalUnit", {
@@ -73,7 +63,7 @@ exports.addFunctionalUnit = asyncHandler(async (req, res) => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(BC),
+            body: JSON.stringify(parser),
           })
       const json = await response.json()
       console.log(json)
@@ -85,16 +75,6 @@ exports.addFunctionalUnit = asyncHandler(async (req, res) => {
 });
 
 exports.deleteFunctionalUnit = asyncHandler(async (req, res, next) => {
-    // const { _id } = req.params;
-    // const functionalUnit = await FunctionalUnit.findById(_id);
-
-    // if(!functionalUnit) {
-    //   return next(
-    //     new ErrorResponse(`Functional Unit not found with id of ${_id}`, 404)
-    //   );
-    // }
-
-    // await FunctionalUnit.deleteOne({_id: _id});
     res.status(200).json({ success: false, data: {}, msg:'Can not delete the record permanently' });
 });
 
@@ -111,17 +91,10 @@ exports.updateFunctionalUnit = asyncHandler(async (req, res, next) => {
   }
 
   functionalUnit = await FunctionalUnit.findOneAndUpdate({_id: _id}, req.body);
-  const BC = {
-    uuid: functionalUnit.uuid,
-    fuName:functionalUnit.fuName,
-    description:functionalUnit.description,
-    fuHead:functionalUnit.fuHead,
-    status:functionalUnit.status,
-    buId:functionalUnit.buId,
-    fuLogId:" ",
-    createdAt:functionalUnit.createdAt,
-    updatedAt:functionalUnit.updatedAt
-  }; 
+  const string= JSON.stringify(functionalUnit)
+  var parser = JSON.parse(string)
+  delete parser._id;
+  parser.fuLogId = " ";
   (async () => {
     try {
         const response = await fetch(blockchainUrl+"updateFunctionalUnit", {
@@ -129,7 +102,7 @@ exports.updateFunctionalUnit = asyncHandler(async (req, res, next) => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(BC)
+            body: JSON.stringify(parser)
           })
       const json = await response.json()
       console.log(json)
