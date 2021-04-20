@@ -9,6 +9,9 @@ const MaterialRecieving = require('../models/materialReceiving');
 const requestNoFormat = require('dateformat');
 const purchaseRequest = require('../models/purchaseRequest');
 
+const fetch = require('node-fetch');
+const blockchainUrl = require('../components/blockchain');
+
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -17,7 +20,9 @@ var transporter = nodemailer.createTransport({
   },
 });
 exports.getPurchaseOrder = asyncHandler(async (req, res) => {
-  const purchaseOrder = await PurchaseOrder.find().populate('vendorId').populate('approvedBy');
+  const purchaseOrder = await PurchaseOrder.find()
+    .populate('vendorId')
+    .populate('approvedBy');
   // .populate('purchaseRequestId');
   res.status(200).json({ success: true, data: purchaseOrder });
 });
@@ -26,11 +31,9 @@ exports.getPurchaseOrders = asyncHandler(async (req, res) => {
     .populate('vendorId')
     .populate('approvedBy')
     .populate({
-      path:'purchaseRequestId',
-      populate:[
-        {path: 'vendorId'}
-      ]
-    })
+      path: 'purchaseRequestId',
+      populate: [{ path: 'vendorId' }],
+    });
   const vendor = await Vendor.find();
   const status = [
     { key: 'po_created', value: 'PO Created' },
@@ -66,26 +69,27 @@ exports.getPurchaseOrdersKeyword = asyncHandler(async (req, res) => {
     .populate('vendorId')
     .populate('approvedBy')
     .populate({
-      path:'purchaseRequestId',
-      populate:[
-        {path: 'vendorId'}
-      ]
-    })
-    var arr = [];
-    for(let i=0; i<purchaseOrder.length; i++)
-    {
-        if(
-            (purchaseOrder[i].purchaseOrderNo && purchaseOrder[i].purchaseOrderNo.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
-            ||(purchaseOrder[i].vendorId.englishName && purchaseOrder[i].vendorId.englishName.toLowerCase().startsWith(req.params.keyword.toLowerCase()))
-            )
-            {
-              arr.push(purchaseOrder[i])
-            }
+      path: 'purchaseRequestId',
+      populate: [{ path: 'vendorId' }],
+    });
+  var arr = [];
+  for (let i = 0; i < purchaseOrder.length; i++) {
+    if (
+      (purchaseOrder[i].purchaseOrderNo &&
+        purchaseOrder[i].purchaseOrderNo
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase())) ||
+      (purchaseOrder[i].vendorId.englishName &&
+        purchaseOrder[i].vendorId.englishName
+          .toLowerCase()
+          .startsWith(req.params.keyword.toLowerCase()))
+    ) {
+      arr.push(purchaseOrder[i]);
     }
+  }
   const data = {
-    purchaseOrder:arr
+    purchaseOrder: arr,
   };
-    
 
   res.status(200).json({ success: true, data: data });
 });
@@ -102,11 +106,14 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
   } = req.body;
   var now = new Date();
   var start = new Date(now.getFullYear(), 0, 0);
-  var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+  var diff =
+    now -
+    start +
+    (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
   const purchaseOrder = await PurchaseOrder.create({
-    purchaseOrderNo: 'PO' +day+ requestNoFormat(new Date(), 'yyHHMM'),
+    purchaseOrderNo: 'PO' + day + requestNoFormat(new Date(), 'yyHHMM'),
     purchaseRequestId,
     generated,
     generatedBy,
@@ -118,10 +125,34 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     createdAt: moment().toDate(),
     updatedAt: moment().toDate(),
   });
-  for(let i = 0 ; i<purchaseRequestId.length; i++)
-  {
-   await purchaseRequest.findOneAndUpdate({_id:purchaseRequestId[i]},{$set:{availability:false}})
+  const string = JSON.stringify(purchaseOrder);
+  var parser = JSON.parse(string);
+  delete parser._id;
+  parser.approvedBy = ' ';
+  parser.sentAt = ' ';
+  parser.inProgressTime = ' ';
+  for (let i = 0; i < purchaseRequestId.length; i++) {
+    await purchaseRequest.findOneAndUpdate(
+      { _id: purchaseRequestId[i] },
+      { $set: { availability: false } }
+    );
   }
+  (async () => {
+    try {
+      const response = await fetch(blockchainUrl + 'addPurchaseOrder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(parser),
+      });
+      const json = await response.json();
+      console.log(json);
+    } catch (error) {
+      console.log(error.response.body);
+    }
+  })();
+  //  res.status(200).json({ success: true, data: vendor });
   notification(
     'Purchase Order',
     'A new Purchase Order ' +
@@ -186,21 +217,19 @@ exports.updatePurchaseOrder = asyncHandler(async (req, res, next) => {
       .populate('vendorId');
     const vendorEmail = purchaseRequest.vendorId.contactEmail;
     var prArray = purchaseRequest.purchaseRequestId.reduce(function (a, b) {
-        return (
-          b
-        );        
+      return b;
     }, '');
     var content = prArray.item.reduce(function (a, b) {
-        return (
-          a +
-          '<tr><td>' +
-          b.itemId.itemCode +
-          '</a></td><td>' +
-          b.itemId.name +
-          '</td><td>' +
-          b.reqQty +
-          '</td></tr>'
-        );        
+      return (
+        a +
+        '<tr><td>' +
+        b.itemId.itemCode +
+        '</a></td><td>' +
+        b.itemId.name +
+        '</td><td>' +
+        b.reqQty +
+        '</td></tr>'
+      );
     }, '');
 
     var mailOptions = {
