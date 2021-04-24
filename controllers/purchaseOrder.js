@@ -122,6 +122,7 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     vendorId,
     status,
     committeeStatus: 'pending',
+	newStatus:"test",
     createdAt: moment().toDate(),
     updatedAt: moment().toDate(),
   });
